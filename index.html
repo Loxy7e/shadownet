@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SHADOW NET | Secure Communications</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --neon-green: #00ff41;
@@ -531,13 +534,24 @@
     </div>
 
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrY5azkfFacBNQ36ok8O7eMKQGPTH9Xs4",
+            authDomain: "shadow-net-chat.firebaseapp.com",
+            databaseURL: "https://shadow-net-chat-default-rtdb.firebaseio.com",
+            projectId: "shadow-net-chat",
+            storageBucket: "shadow-net-chat.firebasestorage.app",
+            messagingSenderId: "477144065218",
+            appId: "1:477144065218:web:a27ed2f1f92727f8e7475b",
+            measurementId: "G-XWNGQHFCHF"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
         let currentRoom = null;
         let isInitiator = false;
-        let peerConnection = null;
-        let dataChannel = null;
-        let localStream = null;
         let messageQueue = [];
         let otherUsers = new Set();
+        let currentUser = null;
 
         function createGlitchLines() {
             const container = document.getElementById('glitchContainer');
@@ -554,7 +568,21 @@
             return Math.random().toString(36).substring(2, 8).toUpperCase();
         }
 
-        function createRoom() {
+        async function signInAnonymously() {
+            try {
+                const userCredential = await firebase.auth().signInAnonymously();
+                currentUser = userCredential.user;
+                return true;
+            } catch (error) {
+                console.error('Auth error:', error);
+                return false;
+            }
+        }
+
+        async function createRoom() {
+            const authSuccess = await signInAnonymously();
+            if (!authSuccess) return;
+            
             currentRoom = generateRoomId();
             document.getElementById('roomCodeDisplay').textContent = currentRoom;
             document.getElementById('sessionCreated').classList.remove('hidden');
@@ -566,9 +594,12 @@
             document.getElementById('joinForm').classList.remove('hidden');
         }
 
-        function joinRoom() {
+        async function joinRoom() {
             const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
             if (roomCode.length === 6) {
+                const authSuccess = await signInAnonymously();
+                if (!authSuccess) return;
+                
                 currentRoom = roomCode;
                 enterChat();
                 isInitiator = false;
@@ -587,30 +618,46 @@
             
             addSystemMessage('Secure session established');
             addSystemMessage('All communications encrypted');
-            addSystemMessage('NO DATA IS SAVED OR STORED');
             
-            startWebRTCConnection();
+            startFirebaseConnection();
         }
 
-        function startWebRTCConnection() {
-            addSystemMessage('P2P WebRTC connection initialized');
+        function startFirebaseConnection() {
+            addSystemMessage('Firebase connection ready');
             updateStatus(true);
             
-            const myUsername = document.getElementById('usernameInput').value || 'User-' + Math.random().toString(36).substr(2, 5);
-            otherUsers.add(myUsername);
-            updateUsersList();
+            const database = firebase.database();
+            const roomRef = database.ref('rooms/' + currentRoom);
             
-            addSystemMessage('Ready for secure messaging');
+            const myUsername = document.getElementById('usernameInput').value || 'User-' + Math.random().toString(36).substr(2, 5);
+            
+            roomRef.child('users').child(currentUser.uid).set({
+                username: myUsername,
+                joinedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            roomRef.child('users').on('value', (snapshot) => {
+                const users = snapshot.val() || {};
+                updateUsersList(users);
+            });
+            
+            roomRef.child('messages').limitToLast(50).on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                if (!messageQueue.includes(message.id) && message.userId !== currentUser.uid) {
+                    addMessage('partner', message.content, message.username);
+                    messageQueue.push(message.id);
+                }
+            });
         }
 
-        function updateUsersList() {
+        function updateUsersList(users) {
             const usersList = document.getElementById('usersList');
             usersList.innerHTML = '';
             
-            otherUsers.forEach(user => {
+            Object.values(users).forEach(user => {
                 const userTag = document.createElement('div');
                 userTag.className = 'user-tag';
-                userTag.textContent = user;
+                userTag.textContent = user.username;
                 usersList.appendChild(userTag);
             });
         }
@@ -635,20 +682,19 @@
             
             if (!message) return;
             
-            addMessage('me', message, username);
+            const messageId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const database = firebase.database();
             
-            if (dataChannel && dataChannel.readyState === 'open') {
-                const messageData = {
-                    type: 'chat',
-                    content: message,
-                    username: username,
-                    timestamp: Date.now()
-                };
-                dataChannel.send(JSON.stringify(messageData));
-            } else {
-                addSystemMessage('Direct peer connection not available');
-                addSystemMessage('Message visible only locally');
-            }
+            database.ref('rooms/' + currentRoom + '/messages').push({
+                id: messageId,
+                content: message,
+                username: username,
+                userId: currentUser.uid,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            addMessage('me', message, username);
+            messageQueue.push(messageId);
             
             input.value = '';
         }
@@ -688,10 +734,6 @@
             if (e.key === 'Enter') {
                 sendMessage();
             }
-        });
-
-        window.addEventListener('beforeunload', function() {
-            addSystemMessage('Session destroyed - all data erased');
         });
 
         window.addEventListener('load', createGlitchLines);
