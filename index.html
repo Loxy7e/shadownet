@@ -550,7 +550,6 @@
         let currentRoom = null;
         let isInitiator = false;
         let messageQueue = [];
-        let otherUsers = new Set();
         let currentUser = null;
 
         function createGlitchLines() {
@@ -618,6 +617,7 @@
             
             addSystemMessage('Secure session established');
             addSystemMessage('All communications encrypted');
+            addSystemMessage('Messages auto-delete after 30 seconds');
             
             startFirebaseConnection();
         }
@@ -636,6 +636,10 @@
                 joinedAt: firebase.database.ServerValue.TIMESTAMP
             });
             
+            window.addEventListener('beforeunload', function() {
+                roomRef.child('users').child(currentUser.uid).remove();
+            });
+            
             roomRef.child('users').on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 updateUsersList(users);
@@ -646,6 +650,10 @@
                 if (!messageQueue.includes(message.id) && message.userId !== currentUser.uid) {
                     addMessage('partner', message.content, message.username);
                     messageQueue.push(message.id);
+                    
+                    setTimeout(() => {
+                        snapshot.ref.remove();
+                    }, 30000);
                 }
             });
         }
