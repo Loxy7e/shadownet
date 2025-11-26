@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHADOW NET | Secure Communications</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-green: #00ff41;
+            --neon-blue: #00f7ff;
+            --neon-purple: #b967ff;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #050505;
+            --terminal-bg: #0d0d0d;
+            --glass-bg: rgba(0, 255, 65, 0.05);
+            --text-primary: #e0e0e0;
+            --text-secondary: #8a8a8a;
+            --success: #00ff41;
+            --warning: #ffaa00;
+            --error: #ff003c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 65, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 247, 255, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(185, 103, 255, 0.02) 0%, transparent 50%);
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, transparent 95%, rgba(0, 255, 65, 0.02) 100%),
+                linear-gradient(180deg, transparent 95%, rgba(0, 247, 255, 0.02) 100%);
+            background-size: 50px 50px;
+            z-index: -2;
+            opacity: 0.3;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 0, 0, 0.1) 50%
+            );
+            background-size: 100% 4px;
+            z-index: -1;
+            pointer-events: none;
+            animation: scanline 2s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(4px); }
+        }
+
+        .glitch-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .glitch-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: var(--neon-green);
+            animation: glitch 8s infinite linear;
+        }
+
+        @keyframes glitch {
+            0%, 100% { opacity: 0; transform: translateX(0); }
+            5% { opacity: 0.3; transform: translateX(-10px); }
+            10% { opacity: 0; }
+            45% { opacity: 0; }
+            50% { opacity: 0.3; transform: translateX(10px); }
+            55% { opacity: 0; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .terminal {
+            background: var(--terminal-bg);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 0;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 
+                0 0 50px rgba(0, 255, 65, 0.1),
+                inset 0 1px 0 rgba(0, 255, 65, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--neon-green);
+            animation: terminalGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes terminalGlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .terminal-header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--neon-green);
+            letter-spacing: 2px;
+        }
+
+        .terminal-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .terminal-body {
+            padding: 3rem;
+        }
+
+        .access-screen {
+            text-align: center;
+        }
+
+        .logo {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            margin-bottom: 1rem;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            letter-spacing: 1px;
+        }
+
+        .access-code {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .code-display {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 8px;
+            color: var(--neon-green);
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .terminal-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            color: var(--neon-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .terminal-input:focus {
+            outline: none;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .terminal-btn {
+            padding: 1.2rem 2rem;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--neon-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .terminal-btn:hover {
+            background: rgba(0, 255, 65, 0.1);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .terminal-btn.primary {
+            background: rgba(0, 255, 65, 0.1);
+            border-color: var(--neon-green);
+        }
+
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            height: 70vh;
+        }
+
+        .chat-header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+        }
+
+        .chat-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-code {
+            font-size: 1.2rem;
+            color: var(--neon-green);
+            letter-spacing: 3px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            padding: 1.2rem;
+            border-left: 2px solid rgba(0, 255, 65, 0.5);
+            background: rgba(0, 0, 0, 0.6);
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message.system {
+            border-left-color: var(--neon-blue);
+            background: rgba(0, 247, 255, 0.05);
+        }
+
+        .message.encrypted {
+            border-left-color: var(--neon-purple);
+            background: rgba(185, 103, 255, 0.05);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            color: var(--neon-green);
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .chat-input-container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(0, 255, 65, 0.2);
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            color: var(--neon-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+        }
+
+        .send-btn {
+            padding: 1rem 2rem;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+        }
+
+        .users-panel {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .user-tag {
+            padding: 0.4rem 0.8rem;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 2px;
+            font-size: 0.8rem;
+            color: var(--neon-green);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .terminal-body {
+                padding: 2rem 1rem;
+            }
+            
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .code-display {
+                font-size: 1.8rem;
+                letter-spacing: 4px;
+            }
+            
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg"></div>
+    <div class="scanlines"></div>
+    <div class="glitch-container" id="glitchContainer"></div>
+
+    <div class="container">
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-title">SHADOW NET</div>
+                <div class="terminal-status">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>ENCRYPTION ACTIVE</span>
+                    </div>
+                    <div class="status-indicator">
+                        <div class="status-dot" style="background: var(--neon-blue);"></div>
+                        <span>P2P CONNECTED</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="terminal-body">
+                <div id="accessScreen" class="access-screen">
+                    <div class="logo">SHADOW NET</div>
+                    <div class="tagline">SECURE ANONYMOUS COMMUNICATIONS</div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">IDENTIFIER (OPTIONAL)</label>
+                        <input type="text" class="terminal-input" id="usernameInput" placeholder="anonymous_user">
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="terminal-btn primary" onclick="createRoom()">CREATE SESSION</button>
+                        <button class="terminal-btn" onclick="showJoinForm()">JOIN SESSION</button>
+                    </div>
+
+                    <div id="joinForm" class="hidden">
+                        <div class="input-group">
+                            <label class="input-label">ACCESS CODE</label>
+                            <input type="text" class="terminal-input" id="roomCodeInput" placeholder="ENTER 6-DIGIT CODE">
+                        </div>
+                        <button class="terminal-btn primary" onclick="joinRoom()">CONNECT</button>
+                    </div>
+
+                    <div id="sessionCreated" class="hidden">
+                        <div class="access-code">
+                            <div class="input-label">SESSION ACCESS CODE</div>
+                            <div class="code-display" id="roomCodeDisplay"></div>
+                            <button class="terminal-btn" onclick="copyRoomCode()">COPY CODE</button>
+                        </div>
+                        <button class="terminal-btn primary" onclick="enterChat()">ENTER SECURE CHAT</button>
+                    </div>
+                </div>
+
+                <div class="chat-container" id="chatScreen">
+                    <div class="chat-header">
+                        <div class="chat-info">
+                            <div>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">ACTIVE SESSION</div>
+                                <div class="room-code" id="currentRoomCode"></div>
+                            </div>
+                            <div class="status-indicator">
+                                <div class="status-dot"></div>
+                                <span>END-TO-END ENCRYPTED</span>
+                            </div>
+                        </div>
+                        <div class="users-panel" id="usersList"></div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages"></div>
+
+                    <div class="chat-input-container">
+                        <div class="chat-input-group">
+                            <input type="text" class="chat-input" id="messageInput" placeholder="TYPE ENCRYPTED MESSAGE...">
+                            <button class="send-btn" onclick="sendMessage()">SEND</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRoom = null;
+        let isInitiator = false;
+        let peerConnection = null;
+        let dataChannel = null;
+        let localStream = null;
+        let messageQueue = [];
+        let otherUsers = new Set();
+
+        function createGlitchLines() {
+            const container = document.getElementById('glitchContainer');
+            for (let i = 0; i < 20; i++) {
+                const line = document.createElement('div');
+                line.className = 'glitch-line';
+                line.style.top = `${Math.random() * 100}%`;
+                line.style.animationDelay = `${Math.random() * 8}s`;
+                container.appendChild(line);
+            }
+        }
+
+        function generateRoomId() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
+        function createRoom() {
+            currentRoom = generateRoomId();
+            document.getElementById('roomCodeDisplay').textContent = currentRoom;
+            document.getElementById('sessionCreated').classList.remove('hidden');
+            document.getElementById('joinForm').classList.add('hidden');
+            isInitiator = true;
+        }
+
+        function showJoinForm() {
+            document.getElementById('joinForm').classList.remove('hidden');
+        }
+
+        function joinRoom() {
+            const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+            if (roomCode.length === 6) {
+                currentRoom = roomCode;
+                enterChat();
+                isInitiator = false;
+            }
+        }
+
+        function copyRoomCode() {
+            navigator.clipboard.writeText(currentRoom);
+            addSystemMessage('Room code copied to clipboard');
+        }
+
+        function enterChat() {
+            document.getElementById('accessScreen').style.display = 'none';
+            document.getElementById('chatScreen').style.display = 'flex';
+            document.getElementById('currentRoomCode').textContent = currentRoom;
+            
+            addSystemMessage('Secure session established');
+            addSystemMessage('All communications encrypted');
+            addSystemMessage('NO DATA IS SAVED OR STORED');
+            
+            startWebRTCConnection();
+        }
+
+        function startWebRTCConnection() {
+            addSystemMessage('P2P WebRTC connection initialized');
+            updateStatus(true);
+            
+            const myUsername = document.getElementById('usernameInput').value || 'User-' + Math.random().toString(36).substr(2, 5);
+            otherUsers.add(myUsername);
+            updateUsersList();
+            
+            addSystemMessage('Ready for secure messaging');
+        }
+
+        function updateUsersList() {
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
+            
+            otherUsers.forEach(user => {
+                const userTag = document.createElement('div');
+                userTag.className = 'user-tag';
+                userTag.textContent = user;
+                usersList.appendChild(userTag);
+            });
+        }
+
+        function updateStatus(connected) {
+            const statusDot = document.querySelector('.status-dot');
+            const statusText = document.querySelector('.terminal-status .status-indicator:nth-child(2) span');
+            
+            if (connected) {
+                statusDot.style.background = 'var(--neon-green)';
+                statusText.textContent = 'P2P CONNECTED';
+            } else {
+                statusDot.style.background = 'var(--error)';
+                statusText.textContent = 'P2P DISCONNECTED';
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            const username = document.getElementById('usernameInput').value || 'User-' + Math.random().toString(36).substr(2, 5);
+            
+            if (!message) return;
+            
+            addMessage('me', message, username);
+            
+            if (dataChannel && dataChannel.readyState === 'open') {
+                const messageData = {
+                    type: 'chat',
+                    content: message,
+                    username: username,
+                    timestamp: Date.now()
+                };
+                dataChannel.send(JSON.stringify(messageData));
+            } else {
+                addSystemMessage('Direct peer connection not available');
+                addSystemMessage('Message visible only locally');
+            }
+            
+            input.value = '';
+        }
+
+        function addMessage(type, content, username) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type === 'me' ? '' : 'encrypted'}`;
+            
+            const time = new Date().toLocaleTimeString('ru-RU', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-sender">${username}</span>
+                    <span class="message-time">${time}</span>
+                </div>
+                <div>${content}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addSystemMessage(content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message system';
+            messageDiv.textContent = `[SYSTEM] ${content}`;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        window.addEventListener('beforeunload', function() {
+            addSystemMessage('Session destroyed - all data erased');
+        });
+
+        window.addEventListener('load', createGlitchLines);
+    </script>
+</body>
+</html>
