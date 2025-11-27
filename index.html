@@ -1011,6 +1011,7 @@
         let myUsername = 'anonymous';
         let disconnectAnimationShown = false;
         let userUID = null;
+        let roomKey = null;
 
         const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
         const matrixCanvas = document.getElementById('matrixRain');
@@ -1057,6 +1058,84 @@
             requestAnimationFrame(animateMatrixRain);
         }
 
+        async function generateRoomKey() {
+            try {
+                const key = await crypto.subtle.generateKey(
+                    { name: "AES-GCM", length: 256 },
+                    true,
+                    ["encrypt", "decrypt"]
+                );
+                return key;
+            } catch (error) {
+                console.error('Room key generation failed:', error);
+                return null;
+            }
+        }
+
+        async function exportKey(key) {
+            const exported = await crypto.subtle.exportKey("jwk", key);
+            return exported;
+        }
+
+        async function importKey(jwk) {
+            return await crypto.subtle.importKey(
+                "jwk",
+                jwk,
+                { name: "AES-GCM", length: 256 },
+                true,
+                ["encrypt", "decrypt"]
+            );
+        }
+
+        async function encryptMessage(message) {
+            try {
+                if (!roomKey) return null;
+
+                const encoder = new TextEncoder();
+                const encoded = encoder.encode(message);
+                
+                const iv = crypto.getRandomValues(new Uint8Array(12));
+                
+                const encrypted = await crypto.subtle.encrypt(
+                    { name: "AES-GCM", iv: iv },
+                    roomKey,
+                    encoded
+                );
+
+                const combined = new Uint8Array(iv.length + encrypted.byteLength);
+                combined.set(iv, 0);
+                combined.set(new Uint8Array(encrypted), iv.length);
+
+                return btoa(String.fromCharCode(...combined));
+            } catch (error) {
+                console.error('Encryption failed:', error);
+                return null;
+            }
+        }
+
+        async function decryptMessage(encryptedData) {
+            try {
+                if (!roomKey) return null;
+
+                const combined = Uint8Array.from(atob(encryptedData), c => c.charCodeAt(0));
+                
+                const iv = combined.slice(0, 12);
+                const encrypted = combined.slice(12);
+                
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: "AES-GCM", iv: iv },
+                    roomKey,
+                    encrypted
+                );
+
+                const decoder = new TextDecoder();
+                return decoder.decode(decrypted);
+            } catch (error) {
+                console.error('Decryption failed:', error);
+                return null;
+            }
+        }
+
         function generateUserUID() {
             return 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
         }
@@ -1086,10 +1165,22 @@
             const authSuccess = await signInAnonymously();
             if (!authSuccess) return;
             
+            roomKey = await generateRoomKey();
+            if (!roomKey) {
+                alert('Failed to generate encryption key');
+                return;
+            }
+            
+            const exportedKey = await exportKey(roomKey);
+            
             currentRoom = generateRoomId();
             document.getElementById('roomCodeDisplay').textContent = currentRoom;
             document.getElementById('sessionCreated').classList.remove('hidden');
             document.getElementById('joinForm').classList.add('hidden');
+            
+            const database = firebase.database();
+            const roomSetupRef = database.ref('rooms/' + currentRoom);
+            await roomSetupRef.child('roomKey').set(exportedKey);
         }
 
         function showJoinForm() {
@@ -1112,6 +1203,11 @@
                 if (!snapshot.exists()) {
                     alert('Secure channel does not exist');
                     return;
+                }
+                
+                const roomData = snapshot.val();
+                if (roomData.roomKey) {
+                    roomKey = await importKey(roomData.roomKey);
                 }
                 
                 currentRoom = roomCode;
@@ -1164,10 +1260,13 @@
                 }
             });
             
-            messagesRef.limitToLast(50).on('child_added', (snapshot) => {
+            messagesRef.limitToLast(50).on('child_added', async (snapshot) => {
                 const message = snapshot.val();
                 if (message.userId !== userUID) {
-                    addMessageWithDecryptAnimation(message.content, message.username, false, message.timestamp);
+                    const decryptedContent = await decryptMessage(message.encryptedContent);
+                    if (decryptedContent) {
+                        addMessageWithDecryptAnimation(decryptedContent, message.username, false, message.timestamp);
+                    }
                 }
             });
 
@@ -1196,14 +1295,20 @@
             });
         }
 
-        function sendMessage() {
+        async function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
             
             if (!message) return;
             
+            const encryptedContent = await encryptMessage(message);
+            if (!encryptedContent) {
+                alert('Encryption failed');
+                return;
+            }
+            
             const messageData = {
-                content: message,
+                encryptedContent: encryptedContent,
                 username: myUsername,
                 userId: userUID,
                 timestamp: Date.now()
@@ -1328,6 +1433,7 @@
             messagesRef = null;
             disconnectAnimationShown = false;
             userUID = null;
+            roomKey = null;
         }
 
         document.getElementById('messageInput').addEventListener('keydown', function(e) {
