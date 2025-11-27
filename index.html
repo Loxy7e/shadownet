@@ -496,6 +496,22 @@
             color: var(--text-primary);
         }
 
+        .decrypting-text {
+            position: relative;
+        }
+
+        .decrypting-char {
+            display: inline-block;
+            color: var(--neon-cyan);
+            animation: charDecrypt 0.1s ease-out forwards;
+        }
+
+        @keyframes charDecrypt {
+            to {
+                color: var(--text-primary);
+            }
+        }
+
         .chat-input-container {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(13, 13, 13, 0.95) 100%);
             padding: 1rem;
@@ -1145,7 +1161,7 @@
             messagesRef.limitToLast(50).on('child_added', (snapshot) => {
                 const message = snapshot.val();
                 if (message.userId !== currentUser.uid) {
-                    addMessage(message.content, message.username, false);
+                    addMessageWithDecryptAnimation(message.content, message.username, false, message.timestamp);
                 }
             });
 
@@ -1188,35 +1204,69 @@
             
             if (!message) return;
             
-            messagesRef.push({
+            const messageData = {
                 content: message,
                 username: myUsername,
                 userId: currentUser.uid,
                 timestamp: Date.now()
-            });
+            };
             
-            addMessage(message, myUsername, true);
+            messagesRef.push(messageData);
+            
+            addMessageWithDecryptAnimation(message, myUsername, true, messageData.timestamp);
             input.value = '';
             input.focus();
         }
 
-        function addMessage(content, username, isMe) {
+        function generateRandomChars(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function addMessageWithDecryptAnimation(content, username, isMe, timestamp) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isMe ? 'outgoing' : 'incoming'}`;
             
-            const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            const time = new Date(timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            const messageId = 'msg-' + timestamp + '-' + Math.random().toString(36).substr(2, 9);
             
             messageDiv.innerHTML = `
                 <div class="message-header">
                     <span class="message-sender">${username}</span>
                     <span class="message-time">${time}</span>
                 </div>
-                <div class="message-content">${content}</div>
+                <div class="message-content">
+                    <span class="decrypting-text" id="${messageId}">${generateRandomChars(content.length)}</span>
+                </div>
             `;
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            const decryptElement = document.getElementById(messageId);
+            decryptText(decryptElement, content, 0, 50);
+        }
+
+        function decryptText(element, targetText, currentIndex, speed) {
+            if (currentIndex >= targetText.length) {
+                element.innerHTML = targetText;
+                return;
+            }
+
+            const currentText = targetText.substring(0, currentIndex + 1);
+            const remainingLength = targetText.length - currentIndex - 1;
+            const randomChars = generateRandomChars(remainingLength);
+            
+            element.innerHTML = currentText + `<span class="decrypting-char">${randomChars}</span>`;
+            
+            setTimeout(() => {
+                decryptText(element, targetText, currentIndex + 1, speed);
+            }, speed);
         }
 
         function addSystemMessage(content) {
