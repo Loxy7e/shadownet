@@ -37,6 +37,7 @@
             min-height: 100vh;
             overflow-x: hidden;
             cursor: none;
+            perspective: 1000px;
         }
 
         .cursor-trail {
@@ -50,13 +51,67 @@
             mix-blend-mode: screen;
         }
 
+        .parallax-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -4;
+        }
+
+        .circuit-path {
+            position: absolute;
+            stroke: var(--neon-green);
+            stroke-width: 0.5;
+            fill: none;
+            opacity: 0.1;
+            animation: circuitFlow 20s linear infinite;
+        }
+
+        @keyframes circuitFlow {
+            0% { stroke-dashoffset: 1000; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .hologram {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 65, 0.1) 50%, transparent 70%);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            transform-style: preserve-3d;
+            animation: hologramFloat 8s ease-in-out infinite;
+            opacity: 0.1;
+            z-index: -3;
+        }
+
+        @keyframes hologramFloat {
+            0%, 100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+            25% { transform: translateY(-20px) rotateX(10deg) rotateY(5deg); }
+            50% { transform: translateY(0px) rotateX(0deg) rotateY(10deg); }
+            75% { transform: translateY(20px) rotateX(-5deg) rotateY(5deg); }
+        }
+
+        .quantum-particle {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -2;
+            opacity: 0;
+        }
+
         .matrix-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -3;
+            z-index: -5;
             opacity: 0.1;
         }
 
@@ -82,11 +137,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                to bottom,
-                transparent 50%,
-                rgba(0, 0, 0, 0.1) 50%
-            );
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 50%);
             background-size: 100% 4px;
             z-index: -1;
             pointer-events: none;
@@ -201,6 +252,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transform-style: preserve-3d;
         }
 
         .terminal {
@@ -209,12 +261,12 @@
             border-radius: 0;
             width: 100%;
             max-width: 900px;
-            box-shadow: 
-                0 0 50px rgba(0, 255, 65, 0.1),
-                inset 0 1px 0 rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 50px rgba(0, 255, 65, 0.1), inset 0 1px 0 rgba(0, 255, 65, 0.1);
             position: relative;
             overflow: hidden;
             animation: terminalPulse 3s ease-in-out infinite;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
         }
 
         @keyframes terminalPulse {
@@ -286,6 +338,18 @@
             background: var(--success);
             animation: pulse 2s infinite;
             box-shadow: 0 0 10px var(--success);
+        }
+
+        .status-gear {
+            width: 12px;
+            height: 12px;
+            animation: gearSpin 3s linear infinite;
+            filter: brightness(0) saturate(100%) invert(58%) sepia(90%) saturate(2583%) hue-rotate(89deg) brightness(101%) contrast(105%);
+        }
+
+        @keyframes gearSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @keyframes pulse {
@@ -378,6 +442,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 1rem;
             transition: all 0.3s ease;
+            cursor: none;
         }
 
         .terminal-input:focus {
@@ -428,6 +493,47 @@
             background: rgba(0, 255, 65, 0.1);
             border-color: var(--neon-green);
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .hack-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 65, 0.1) 50%, transparent 70%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .electric-spark {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 10%, rgba(0, 255, 65, 0.3) 20%, transparent 30%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .pixel-dissolve {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #00ff41, #00f7ff, #b967ff);
+            opacity: 0;
+            pointer-events: none;
+            mask: linear-gradient(45deg, #000 25%, transparent 25%, transparent 50%, #000 50%, #000 75%, transparent 75%);
+            mask-size: 10px 10px;
+        }
+
+        .wave-ripple {
+            position: absolute;
+            border: 2px solid var(--neon-green);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .terminal-btn.primary {
@@ -543,6 +649,8 @@
             font-size: 1rem;
             cursor: none;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .send-btn:hover {
@@ -564,6 +672,17 @@
             border-radius: 2px;
             font-size: 0.8rem;
             color: var(--neon-green);
+            transition: all 0.3s ease;
+        }
+
+        .user-tag.new-user {
+            animation: userAppear 2s ease-out;
+        }
+
+        @keyframes userAppear {
+            0% { opacity: 0; transform: scale(0.8); background: rgba(0, 255, 65, 0); }
+            50% { opacity: 1; transform: scale(1.1); background: rgba(0, 255, 65, 0.3); }
+            100% { opacity: 1; transform: scale(1); background: rgba(0, 255, 65, 0.1); }
         }
 
         .hidden {
@@ -579,6 +698,55 @@
         .danger-btn:hover {
             background: rgba(255, 0, 60, 0.2);
             box-shadow: 0 0 15px rgba(255, 0, 60, 0.3);
+        }
+
+        .connection-pulse {
+            animation: connectionPulse 2s ease-out;
+        }
+
+        @keyframes connectionPulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(0, 255, 65, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); }
+        }
+
+        .code-impulse {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .network-resonance {
+            animation: networkResonance 0.5s ease-out;
+        }
+
+        @keyframes networkResonance {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        .status-pulse {
+            animation: statusPulse 1s ease-in-out;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        .pattern-shift {
+            animation: patternShift 3s ease-in-out;
+        }
+
+        @keyframes patternShift {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.3; }
         }
 
         @media (max-width: 768px) {
@@ -606,6 +774,9 @@
     </style>
 </head>
 <body>
+    <div class="parallax-layer" id="parallaxLayer"></div>
+    <div class="hologram" style="top: 10%; left: 5%;"></div>
+    <div class="hologram" style="top: 60%; right: 8%;"></div>
     <div class="matrix-bg" id="matrixBg"></div>
     <div class="scanlines"></div>
     <div class="glitch-container" id="glitchContainer"></div>
@@ -614,7 +785,7 @@
     <div class="terminal-commands" id="terminalCommands"></div>
 
     <div class="container">
-        <div class="terminal">
+        <div class="terminal" id="mainTerminal">
             <div class="terminal-header">
                 <div class="terminal-title">SHADOW NET</div>
                 <div class="terminal-status">
@@ -622,374 +793,469 @@
                         <div class="status-dot"></div>
                         <span>ENCRYPTION ACTIVE</span>
                     </div>
-                    <div class="status-indicator">
-                        <div class="status-dot" style="background: var(--neon-blue);"></div>
-                        <span>P2P CONNECTED</span>
-                    </div>
-                </div>
+    <div class="status-indicator">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJMMTAgN0wxMiAxMkwyMiA0TDEyIDJaIi8+PHBhdGggZD0iTTEyIDJMMTQgN0wxMiAxMkwyIDRMMTIgMloiLz48cGF0aCBkPSJNMTIgMTRMMTAgMTlMMTIgMjJMMjIgMTRMMTIgMTRaIi8+PHBhdGggZD0iTTEyIDE0TDE0IDE5TDEyIDIyTDIgMTRMMTIgMTRaIi8+PC9zdmc+" class="status-gear">
+        <span>P2P CONNECTED</span>
+    </div>
+</div>
+</div>
+
+<div class="terminal-body">
+    <div id="accessScreen" class="access-screen">
+        <div class="logo">SHADOW NET</div>
+        <div class="tagline">SECURE ANONYMOUS COMMUNICATIONS</div>
+        
+        <div class="input-group">
+            <label class="input-label">IDENTIFIER (OPTIONAL)</label>
+            <input type="text" class="terminal-input" id="usernameInput" placeholder="anonymous_user">
+        </div>
+
+        <div class="btn-group">
+            <button class="terminal-btn primary" onclick="createRoom()" id="createBtn">
+                CREATE SESSION
+                <div class="hack-effect"></div>
+                <div class="electric-spark"></div>
+                <div class="pixel-dissolve"></div>
+            </button>
+            <button class="terminal-btn" onclick="showJoinForm()" id="joinBtn">
+                JOIN SESSION
+                <div class="hack-effect"></div>
+                <div class="electric-spark"></div>
+                <div class="pixel-dissolve"></div>
+            </button>
+        </div>
+
+        <div id="joinForm" class="hidden">
+            <div class="input-group">
+                <label class="input-label">ACCESS CODE</label>
+                <input type="text" class="terminal-input" id="roomCodeInput" placeholder="ENTER 6-DIGIT CODE">
             </div>
+            <button class="terminal-btn primary" onclick="joinRoom()" id="connectBtn">
+                CONNECT
+                <div class="hack-effect"></div>
+                <div class="electric-spark"></div>
+                <div class="pixel-dissolve"></div>
+            </button>
+        </div>
 
-            <div class="terminal-body">
-                <div id="accessScreen" class="access-screen">
-                    <div class="logo">SHADOW NET</div>
-                    <div class="tagline">SECURE ANONYMOUS COMMUNICATIONS</div>
-                    
-                    <div class="input-group">
-                        <label class="input-label">IDENTIFIER (OPTIONAL)</label>
-                        <input type="text" class="terminal-input" id="usernameInput" placeholder="anonymous_user">
-                    </div>
-
-                    <div class="btn-group">
-                        <button class="terminal-btn primary" onclick="createRoom()">CREATE SESSION</button>
-                        <button class="terminal-btn" onclick="showJoinForm()">JOIN SESSION</button>
-                    </div>
-
-                    <div id="joinForm" class="hidden">
-                        <div class="input-group">
-                            <label class="input-label">ACCESS CODE</label>
-                            <input type="text" class="terminal-input" id="roomCodeInput" placeholder="ENTER 6-DIGIT CODE">
-                        </div>
-                        <button class="terminal-btn primary" onclick="joinRoom()">CONNECT</button>
-                    </div>
-
-                    <div id="sessionCreated" class="hidden">
-                        <div class="access-code">
-                            <div class="input-label">SESSION ACCESS CODE</div>
-                            <div class="code-display" id="roomCodeDisplay"></div>
-                            <button class="terminal-btn" onclick="copyRoomCode()">COPY CODE</button>
-                        </div>
-                        <button class="terminal-btn primary" onclick="enterChat()">ENTER SECURE CHAT</button>
-                    </div>
-                </div>
-
-                <div class="chat-container" id="chatScreen">
-                    <div class="chat-header">
-                        <div class="chat-info">
-                            <div>
-                                <div style="font-size: 0.9rem; color: var(--text-secondary);">ACTIVE SESSION</div>
-                                <div class="room-code" id="currentRoomCode"></div>
-                            </div>
-                            <div class="status-indicator">
-                                <div class="status-dot"></div>
-                                <span>END-TO-END ENCRYPTED</span>
-                            </div>
-                        </div>
-                        <div class="users-panel" id="usersList"></div>
-                    </div>
-
-                    <div class="chat-messages" id="chatMessages"></div>
-
-                    <div class="chat-input-container">
-                        <div class="chat-input-group">
-                            <input type="text" class="chat-input" id="messageInput" placeholder="TYPE ENCRYPTED MESSAGE...">
-                            <button class="send-btn" onclick="sendMessage()">SEND</button>
-                            <button class="send-btn danger-btn" onclick="destroyChat()">DESTROY CHAT</button>
-                        </div>
-                    </div>
-                </div>
+        <div id="sessionCreated" class="hidden">
+            <div class="access-code">
+                <div class="input-label">SESSION ACCESS CODE</div>
+                <div class="code-display" id="roomCodeDisplay"></div>
+                <button class="terminal-btn" onclick="copyRoomCode()" id="copyBtn">
+                    COPY CODE
+                    <div class="hack-effect"></div>
+                    <div class="electric-spark"></div>
+                    <div class="pixel-dissolve"></div>
+                </button>
             </div>
+            <button class="terminal-btn primary" onclick="enterChat()" id="enterChatBtn">
+                ENTER SECURE CHAT
+                <div class="hack-effect"></div>
+                <div class="electric-spark"></div>
+                <div class="pixel-dissolve"></div>
+            </button>
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDrY5azkfFacBNQ36ok8O7eMKQGPTH9Xs4",
-            authDomain: "shadow-net-chat.firebaseapp.com",
-            databaseURL: "https://shadow-net-chat-default-rtdb.firebaseio.com",
-            projectId: "shadow-net-chat",
-            storageBucket: "shadow-net-chat.firebasestorage.app",
-            messagingSenderId: "477144065218",
-            appId: "1:477144065218:web:a27ed2f1f92727f8e7475b",
-            measurementId: "G-XWNGQHFCHF"
-        };
+    <div class="chat-container" id="chatScreen">
+        <div class="chat-header">
+            <div class="chat-info">
+                <div>
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);">ACTIVE SESSION</div>
+                    <div class="room-code" id="currentRoomCode"></div>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>END-TO-END ENCRYPTED</span>
+                </div>
+            </div>
+            <div class="users-panel" id="usersList"></div>
+        </div>
 
-        firebase.initializeApp(firebaseConfig);
+        <div class="chat-messages" id="chatMessages"></div>
 
-        let currentRoom = null;
-        let isInitiator = false;
-        let messageQueue = [];
-        let currentUser = null;
-        let roomRef = null;
-        let destroyListener = null;
+        <div class="chat-input-container">
+            <div class="chat-input-group">
+                <input type="text" class="chat-input" id="messageInput" placeholder="TYPE ENCRYPTED MESSAGE...">
+                <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                    SEND
+                    <div class="hack-effect"></div>
+                </button>
+                <button class="send-btn danger-btn" onclick="destroyChat()" id="destroyBtn">
+                    DESTROY CHAT
+                    <div class="hack-effect"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
 
-        function createMatrixBackground() {
-            const matrixBg = document.getElementById('matrixBg');
-            const chars = '01010101010101010101ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%"\'#&_(),.;:?!\\|{}<>[]^~';
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDrY5azkfFacBNQ36ok8O7eMKQGPTH9Xs4",
+        authDomain: "shadow-net-chat.firebaseapp.com",
+        databaseURL: "https://shadow-net-chat-default-rtdb.firebaseio.com",
+        projectId: "shadow-net-chat",
+        storageBucket: "shadow-net-chat.firebasestorage.app",
+        messagingSenderId: "477144065218",
+        appId: "1:477144065218:web:a27ed2f1f92727f8e7475b",
+        measurementId: "G-XWNGQHFCHF"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    let currentRoom = null;
+    let isInitiator = false;
+    let messageQueue = [];
+    let currentUser = null;
+    let roomRef = null;
+    let destroyListener = null;
+    let lastUsersCount = 0;
+
+    function createMatrixBackground() {
+        const matrixBg = document.getElementById('matrixBg');
+        const chars = '01010101010101010101ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%"\'#&_(),.;:?!\\|{}<>[]^~';
+        
+        for (let i = 0; i < 50; i++) {
+            const column = document.createElement('div');
+            column.className = 'matrix-column';
+            column.style.left = `${Math.random() * 100}%`;
+            column.style.animationDuration = `${Math.random() * 3 + 2}s`;
+            column.style.animationDelay = `${Math.random() * 5}s`;
             
-            for (let i = 0; i < 50; i++) {
-                const column = document.createElement('div');
-                column.className = 'matrix-column';
-                column.style.left = `${Math.random() * 100}%`;
-                column.style.animationDuration = `${Math.random() * 3 + 2}s`;
-                column.style.animationDelay = `${Math.random() * 5}s`;
-                
-                let content = '';
-                for (let j = 0; j < 30; j++) {
-                    content += chars[Math.floor(Math.random() * chars.length)];
-                }
-                column.textContent = content;
-                
-                matrixBg.appendChild(column);
+            let content = '';
+            for (let j = 0; j < 30; j++) {
+                content += chars[Math.floor(Math.random() * chars.length)];
             }
-        }
-
-        function createGlitchLines() {
-            const container = document.getElementById('glitchContainer');
-            for (let i = 0; i < 20; i++) {
-                const line = document.createElement('div');
-                line.className = 'glitch-line';
-                line.style.top = `${Math.random() * 100}%`;
-                line.style.animationDelay = `${Math.random() * 8}s`;
-                container.appendChild(line);
-            }
-        }
-
-        function createHexOverlay() {
-            const hexOverlay = document.getElementById('hexOverlay');
-            const hexChars = '0123456789ABCDEF';
+            column.textContent = content;
             
-            for (let i = 0; i < 100; i++) {
-                const hex = document.createElement('div');
-                hex.className = 'hex-code';
-                hex.style.left = `${Math.random() * 100}%`;
-                hex.style.top = `${Math.random() * 100}%`;
-                hex.style.animationDelay = `${Math.random() * 8}s`;
-                
-                let hexCode = '';
-                for (let j = 0; j < 8; j++) {
-                    hexCode += hexChars[Math.floor(Math.random() * 16)];
-                }
-                hex.textContent = '0x' + hexCode;
-                
-                hexOverlay.appendChild(hex);
-            }
+            matrixBg.appendChild(column);
         }
+    }
 
-        function createRadarScan() {
-            const radarScan = document.getElementById('radarScan');
-            for (let i = 0; i < 3; i++) {
-                const line = document.createElement('div');
-                line.className = 'radar-line';
-                line.style.animationDelay = `${i * 1.3}s`;
-                radarScan.appendChild(line);
-            }
-        }
-
-        function createTerminalCommands() {
-            const commands = document.getElementById('terminalCommands');
-            const commandList = [
-                '> ENCRYPTION: AES-256_ACTIVE',
-                '> CONNECTION: P2P_SECURE',
-                '> ANONYMITY: TOR_NETWORK',
-                '> STATUS: ALL_SYSTEMS_NOMINAL',
-                '> SESSION: ENCRYPTED_E2E',
-                '> USERS: MULTIPLE_CONNECTED'
-            ];
+    function createCircuits() {
+        const parallaxLayer = document.getElementById('parallaxLayer');
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        
+        for (let i = 0; i < 8; i++) {
+            const path = document.createElementNS(svgNS, "path");
+            const complexity = Math.floor(Math.random() * 3) + 3;
+            let d = `M ${Math.random() * 100} ${Math.random() * 100}`;
             
-            commandList.forEach((cmd, index) => {
-                const line = document.createElement('div');
-                line.className = 'command-line';
-                line.style.animationDelay = `${index * 0.5}s`;
-                line.textContent = cmd;
-                commands.appendChild(line);
-            });
+            for (let j = 0; j < complexity; j++) {
+                d += ` L ${Math.random() * 100} ${Math.random() * 100}`;
+            }
+            
+            path.setAttribute("d", d);
+            path.classList.add("circuit-path");
+            path.style.animationDelay = `${Math.random() * 20}s`;
+            svg.appendChild(path);
         }
+        
+        parallaxLayer.appendChild(svg);
+    }
 
-        function createCursorTrail() {
-            document.addEventListener('mousemove', function(e) {
-                const trail = document.createElement('div');
-                trail.className = 'cursor-trail';
-                trail.style.left = e.pageX + 'px';
-                trail.style.top = e.pageY + 'px';
-                
-                document.body.appendChild(trail);
-                
+    function createQuantumParticles() {
+        for (let i = 0; i < 30; i++) {
+            createQuantumParticle();
+        }
+    }
+
+    function createQuantumParticle() {
+        const particle = document.createElement('div');
+        particle.className = 'quantum-particle';
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        particle.style.animation = `quantumFloat ${Math.random() * 10 + 5}s linear infinite`;
+        document.body.appendChild(particle);
+
+        setTimeout(() => {
+            particle.style.opacity = '0.3';
+            setTimeout(() => {
+                particle.style.opacity = '0';
                 setTimeout(() => {
-                    trail.remove();
+                    particle.remove();
+                    createQuantumParticle();
                 }, 1000);
-            });
-        }
+            }, 2000);
+        }, Math.random() * 2000);
+    }
 
-        function generateRoomId() {
-            return Math.random().toString(36).substring(2, 8).toUpperCase();
+    function createGlitchLines() {
+        const container = document.getElementById('glitchContainer');
+        for (let i = 0; i < 20; i++) {
+            const line = document.createElement('div');
+            line.className = 'glitch-line';
+            line.style.top = `${Math.random() * 100}%`;
+            line.style.animationDelay = `${Math.random() * 8}s`;
+            container.appendChild(line);
         }
+    }
 
-        async function signInAnonymously() {
-            try {
-                const userCredential = await firebase.auth().signInAnonymously();
-                currentUser = userCredential.user;
-                return true;
-            } catch (error) {
-                console.error('Auth error:', error);
-                return false;
+    function createHexOverlay() {
+        const hexOverlay = document.getElementById('hexOverlay');
+        const hexChars = '0123456789ABCDEF';
+        
+        for (let i = 0; i < 100; i++) {
+            const hex = document.createElement('div');
+            hex.className = 'hex-code';
+            hex.style.left = `${Math.random() * 100}%`;
+            hex.style.top = `${Math.random() * 100}%`;
+            hex.style.animationDelay = `${Math.random() * 8}s`;
+            
+            let hexCode = '';
+            for (let j = 0; j < 8; j++) {
+                hexCode += hexChars[Math.floor(Math.random() * 16)];
             }
+            hex.textContent = '0x' + hexCode;
+            
+            hexOverlay.appendChild(hex);
         }
+    }
 
-        async function createRoom() {
+    function createRadarScan() {
+        const radarScan = document.getElementById('radarScan');
+        for (let i = 0; i < 3; i++) {
+            const line = document.createElement('div');
+            line.className = 'radar-line';
+            line.style.animationDelay = `${i * 1.3}s`;
+            radarScan.appendChild(line);
+        }
+    }
+
+    function createTerminalCommands() {
+        const commands = document.getElementById('terminalCommands');
+        const commandList = [
+            '> ENCRYPTION: AES-256_ACTIVE',
+            '> CONNECTION: P2P_SECURE',
+            '> ANONYMITY: TOR_NETWORK',
+            '> STATUS: ALL_SYSTEMS_NOMINAL',
+            '> SESSION: ENCRYPTED_E2E',
+            '> USERS: MULTIPLE_CONNECTED'
+        ];
+        
+        commandList.forEach((cmd, index) => {
+            const line = document.createElement('div');
+            line.className = 'command-line';
+            line.style.animationDelay = `${index * 0.5}s`;
+            line.textContent = cmd;
+            commands.appendChild(line);
+        });
+    }
+
+    function createCursorTrail() {
+        document.addEventListener('mousemove', function(e) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            trail.style.left = e.pageX + 'px';
+            trail.style.top = e.pageY + 'px';
+            
+            document.body.appendChild(trail);
+            
+            setTimeout(() => {
+                trail.remove();
+            }, 1000);
+        });
+    }
+
+    function setupButtonAnimations() {
+        const buttons = document.querySelectorAll('.terminal-btn, .send-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                createHackEffect(this);
+                createElectricSpark(this, x, y);
+                createWaveRipple(this, x, y);
+                
+                if (this.classList.contains('terminal-btn')) {
+                    setTimeout(() => {
+                        createPixelDissolve(this);
+                    }, 300);
+                }
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            });
+        });
+    }
+
+    function createHackEffect(button) {
+        const hackEffect = button.querySelector('.hack-effect');
+        hackEffect.style.opacity = '1';
+        hackEffect.style.animation = 'none';
+        
+        setTimeout(() => {
+            hackEffect.style.opacity = '0';
+            hackEffect.style.animation = 'hackGlitch 0.5s ease-out';
+        }, 10);
+    }
+
+    function createElectricSpark(button, x, y) {
+        const spark = button.querySelector('.electric-spark');
+        spark.style.opacity = '1';
+        spark.style.background = `radial-gradient(circle at ${x}px ${y}px, transparent 10%, rgba(0, 255, 65, 0.5) 20%, transparent 30%)`;
+        
+        setTimeout(() => {
+            spark.style.opacity = '0';
+        }, 300);
+    }
+
+    function createWaveRipple(button, x, y) {
+        const ripple = document.createElement('div');
+        ripple.className = 'wave-ripple';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        button.appendChild(ripple);
+        
+        setTimeout(() => {
+            ripple.style.width = '100px';
+            ripple.style.height = '100px';
+            ripple.style.opacity = '0.5';
+            ripple.style.marginLeft = '-50px';
+            ripple.style.marginTop = '-50px';
+        }, 10);
+        
+        setTimeout(() => {
+            ripple.remove();
+        }, 1000);
+    }
+
+    function createPixelDissolve(button) {
+        const dissolve = button.querySelector('.pixel-dissolve');
+        dissolve.style.opacity = '0.3';
+        
+        setTimeout(() => {
+            dissolve.style.opacity = '0';
+            dissolve.style.transition = 'opacity 0.5s ease-out';
+        }, 100);
+        
+        setTimeout(() => {
+            dissolve.style.transition = '';
+        }, 600);
+    }
+
+    function setupParallax() {
+        const terminal = document.getElementById('mainTerminal');
+        
+        document.addEventListener('mousemove', function(e) {
+            const x = (e.clientX / window.innerWidth - 0.5) * 20;
+            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+            
+            terminal.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+            
+            const holograms = document.querySelectorAll('.hologram');
+            holograms.forEach((hologram, index) => {
+                const speed = index * 0.5 + 1;
+                hologram.style.transform = `translate(${x * speed}px, ${y * speed}px) rotateY(${x * 2}deg) rotateX(${-y * 2}deg)`;
+            });
+        });
+    }
+
+    function generateRoomId() {
+        return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    async function signInAnonymously() {
+        try {
+            const userCredential = await firebase.auth().signInAnonymously();
+            currentUser = userCredential.user;
+            return true;
+        } catch (error) {
+            console.error('Auth error:', error);
+            return false;
+        }
+    }
+
+    async function createRoom() {
+        const authSuccess = await signInAnonymously();
+        if (!authSuccess) return;
+        
+        currentRoom = generateRoomId();
+        document.getElementById('roomCodeDisplay').textContent = currentRoom;
+        document.getElementById('sessionCreated').classList.remove('hidden');
+        document.getElementById('joinForm').classList.add('hidden');
+        isInitiator = true;
+        
+        addSystemMessage('Secure channel established');
+        addSystemMessage('End-to-end encryption active');
+    }
+
+    function showJoinForm() {
+        document.getElementById('joinForm').classList.remove('hidden');
+    }
+
+    async function joinRoom() {
+        const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+        if (roomCode.length === 6) {
             const authSuccess = await signInAnonymously();
             if (!authSuccess) return;
             
-            currentRoom = generateRoomId();
-            document.getElementById('roomCodeDisplay').textContent = currentRoom;
-            document.getElementById('sessionCreated').classList.remove('hidden');
-            document.getElementById('joinForm').classList.add('hidden');
-            isInitiator = true;
-        }
-
-        function showJoinForm() {
-            document.getElementById('joinForm').classList.remove('hidden');
-        }
-
-        async function joinRoom() {
-            const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
-            if (roomCode.length === 6) {
-                const authSuccess = await signInAnonymously();
-                if (!authSuccess) return;
-                
-                const database = firebase.database();
-                const checkRoom = database.ref('rooms/' + roomCode);
-                
-                const snapshot = await checkRoom.once('value');
-                if (!snapshot.exists()) {
-                    addSystemMessage('Room does not exist');
-                    return;
-                }
-                
-                currentRoom = roomCode;
-                enterChat();
-                isInitiator = false;
-            }
-        }
-
-        function copyRoomCode() {
-            navigator.clipboard.writeText(currentRoom);
-            addSystemMessage('Room code copied to clipboard');
-        }
-
-        function enterChat() {
-            document.getElementById('accessScreen').style.display = 'none';
-            document.getElementById('chatScreen').style.display = 'flex';
-            document.getElementById('currentRoomCode').textContent = currentRoom;
-            
-            addSystemMessage('Secure session established');
-            addSystemMessage('All communications encrypted');
-            addSystemMessage('Chat will be destroyed when all users leave');
-            
-            startFirebaseConnection();
-        }
-
-        function startFirebaseConnection() {
-            addSystemMessage('Firebase connection ready');
-            updateStatus(true);
-            
             const database = firebase.database();
-            roomRef = database.ref('rooms/' + currentRoom);
+            const checkRoom = database.ref('rooms/' + roomCode);
             
-            const myUsername = document.getElementById('usernameInput').value || 'User-' + Math.random().toString(36).substr(2, 5);
-            
-            if (isInitiator) {
-                roomRef.set({
-                    createdBy: currentUser.uid,
-                    createdAt: firebase.database.ServerValue.TIMESTAMP
-                });
+            const snapshot = await checkRoom.once('value');
+            if (!snapshot.exists()) {
+                addSystemMessage('Room does not exist');
+                return;
             }
             
-            roomRef.child('users').child(currentUser.uid).set({
-                username: myUsername,
-                joinedAt: firebase.database.ServerValue.TIMESTAMP
-            });
-            
-            destroyListener = roomRef.on('value', (snapshot) => {
-                if (!snapshot.exists()) {
-                    addSystemMessage('Chat has been destroyed');
-                    setTimeout(() => {
-                        document.getElementById('chatScreen').style.display = 'none';
-                        document.getElementById('accessScreen').style.display = 'block';
-                        document.getElementById('sessionCreated').classList.add('hidden');
-                        document.getElementById('joinForm').classList.add('hidden');
-                    }, 2000);
-                }
-            });
-            
-            window.addEventListener('beforeunload', function() {
-                if (roomRef) {
-                    roomRef.child('users').child(currentUser.uid).remove();
-                    if (destroyListener) {
-                        roomRef.off('value', destroyListener);
-                    }
-                }
-            });
-            
-            roomRef.child('users').on('value', (snapshot) => {
-                const users = snapshot.val() || {};
-                updateUsersList(users);
-                
-                if (Object.keys(users).length === 0 && roomRef) {
-                    roomRef.remove();
-                }
-            });
-            
-            roomRef.child('messages').limitToLast(50).on('child_added', (snapshot) => {
-                const message = snapshot.val();
-                if (!messageQueue.includes(message.id) && message.userId !== currentUser.uid) {
-                    addMessage('partner', message.content, message.username);
-                    messageQueue.push(message.id);
-                }
+            currentRoom = roomCode;
+            enterChat();
+            isInitiator = false;
+        }
+    }
+
+    function copyRoomCode() {
+        navigator.clipboard.writeText(currentRoom);
+        addSystemMessage('Room code copied to clipboard');
+    }
+
+    function enterChat() {
+        document.getElementById('accessScreen').style.display = 'none';
+        document.getElementById('chatScreen').style.display = 'flex';
+        document.getElementById('currentRoomCode').textContent = currentRoom;
+        
+        addSystemMessage('Secure session established');
+        addSystemMessage('All communications encrypted');
+        addSystemMessage('Chat will be destroyed when all users leave');
+        
+        startFirebaseConnection();
+    }
+
+    function startFirebaseConnection() {
+        addSystemMessage('Network connection established');
+        updateStatus(true);
+        
+        const database = firebase.database();
+        roomRef = database.ref('rooms/' + currentRoom);
+        
+        const myUsername = document.getElementById('usernameInput').value || 'User-' + Math.random().toString(36).substr(2, 5);
+        
+        if (isInitiator) {
+            roomRef.set({
+                createdBy: currentUser.uid,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
             });
         }
-
-        function updateUsersList(users) {
-            const usersList = document.getElementById('usersList');
-            usersList.innerHTML = '';
-            
-            Object.values(users).forEach(user => {
-                const userTag = document.createElement('div');
-                userTag.className = 'user-tag';
-                userTag.textContent = user.username;
-                usersList.appendChild(userTag);
-            });
-        }
-
-        function updateStatus(connected) {
-            const statusDot = document.querySelector('.status-dot');
-            const statusText = document.querySelector('.terminal-status .status-indicator:nth-child(2) span');
-            
-            if (connected) {
-                statusDot.style.background = 'var(--neon-green)';
-                statusText.textContent = 'P2P CONNECTED';
-            } else {
-                statusDot.style.background = 'var(--error)';
-                statusText.textContent = 'P2P DISCONNECTED';
-            }
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            const username = document.getElementById('usernameInput').value || 'User-' + Math.random().toString(36).substr(2, 5);
-            
-            if (!message) return;
-            
-            const messageId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-            
-            roomRef.child('messages').push({
-                id: messageId,
-                content: message,
-                username: username,
-                userId: currentUser.uid,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            
-            addMessage('me', message, username);
-            messageQueue.push(messageId);
-            
-            input.value = '';
-        }
-
-        function destroyChat() {
-            if (roomRef && confirm('Destroy chat for ALL users?')) {
-                roomRef.remove();
-                addSystemMessage('Chat destroyed - all data erased');
+        
+        roomRef.child('users').child(currentUser.uid).set({
+            username: myUsername,
+            joinedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        
+        destroyListener = roomRef.on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                addSystemMessage('Session terminated');
                 setTimeout(() => {
                     document.getElementById('chatScreen').style.display = 'none';
                     document.getElementById('accessScreen').style.display = 'block';
@@ -997,53 +1263,262 @@
                     document.getElementById('joinForm').classList.add('hidden');
                 }, 2000);
             }
-        }
-
-        function addMessage(type, content, username) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type === 'me' ? '' : 'encrypted'}`;
-            
-            const time = new Date().toLocaleTimeString('ru-RU', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-            
-            messageDiv.innerHTML = `
-                <div class="message-header">
-                    <span class="message-sender">${username}</span>
-                    <span class="message-time">${time}</span>
-                </div>
-                <div>${content}</div>
-            `;
-            
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        function addSystemMessage(content) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message system';
-            messageDiv.textContent = `[SYSTEM] ${content}`;
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
+        });
+        
+        window.addEventListener('beforeunload', function() {
+            if (roomRef) {
+                roomRef.child('users').child(currentUser.uid).remove();
+                if (destroyListener) {
+                    roomRef.off('value', destroyListener);
+                }
             }
         });
-
-        window.addEventListener('load', function() {
-            createMatrixBackground();
-            createGlitchLines();
-            createHexOverlay();
-            createRadarScan();
-            createTerminalCommands();
-            createCursorTrail();
+        
+        roomRef.child('users').on('value', (snapshot) => {
+            const users = snapshot.val() || {};
+            const currentUsersCount = Object.keys(users).length;
+            
+            if (currentUsersCount > lastUsersCount) {
+                triggerUserJoinEffects();
+            }
+            
+            updateUsersList(users);
+            lastUsersCount = currentUsersCount;
+            
+            if (Object.keys(users).length === 0 && roomRef) {
+                roomRef.remove();
+            }
         });
-    </script>
+        
+        roomRef.child('messages').limitToLast(50).on('child_added', (snapshot) => {
+            const message = snapshot.val();
+            if (!messageQueue.includes(message.id) && message.userId !== currentUser.uid) {
+                addMessage('partner', message.content, message.username);
+                messageQueue.push(message.id);
+            }
+        });
+    }
+
+    function triggerUserJoinEffects() {
+        const terminal = document.getElementById('mainTerminal');
+        terminal.classList.add('connection-pulse');
+        
+        setTimeout(() => {
+            terminal.classList.remove('connection-pulse');
+        }, 2000);
+        
+        createCodeImpulse();
+        triggerNetworkResonance();
+        triggerStatusPulse();
+        createPatternShift();
+        
+        addSystemMessage('[СИСТЕМА] Новый узел подключен к сети');
+    }
+
+    function createCodeImpulse() {
+        const impulse = document.createElement('div');
+        impulse.className = 'code-impulse';
+        document.body.appendChild(impulse);
+        
+        setTimeout(() => {
+            impulse.style.opacity = '1';
+            impulse.style.transition = 'opacity 0.3s ease-out';
+        }, 10);
+        
+        setTimeout(() => {
+            impulse.style.opacity = '0';
+        }, 1000);
+        
+        setTimeout(() => {
+            impulse.remove();
+        }, 1300);
+    }
+
+    function triggerNetworkResonance() {
+        const terminal = document.getElementById('mainTerminal');
+        terminal.classList.add('network-resonance');
+        
+        setTimeout(() => {
+            terminal.classList.remove('network-resonance');
+        }, 500);
+    }
+
+    function triggerStatusPulse() {
+        const statusDots = document.querySelectorAll('.status-dot, .status-gear');
+        statusDots.forEach(dot => {
+            dot.classList.add('status-pulse');
+            
+            setTimeout(() => {
+                dot.classList.remove('status-pulse');
+            }, 1000);
+        });
+    }
+
+    function createPatternShift() {
+        const patterns = document.querySelectorAll('.circuit-path');
+        patterns.forEach(pattern => {
+            pattern.classList.add('pattern-shift');
+            
+            setTimeout(() => {
+                pattern.classList.remove('pattern-shift');
+            }, 3000);
+        });
+    }
+
+    function updateUsersList(users) {
+        const usersList = document.getElementById('usersList');
+        usersList.innerHTML = '';
+        
+        Object.values(users).forEach((user, index) => {
+            const userTag = document.createElement('div');
+            userTag.className = 'user-tag';
+            userTag.textContent = user.username;
+            
+            if (index === Object.keys(users).length - 1 && Object.keys(users).length > lastUsersCount) {
+                userTag.classList.add('new-user');
+            }
+            
+            usersList.appendChild(userTag);
+        });
+    }
+
+    function updateStatus(connected) {
+        const statusDot = document.querySelector('.status-dot');
+        const statusText = document.querySelector('.terminal-status .status-indicator:nth-child(2) span');
+        
+        if (connected) {
+            statusDot.style.background = 'var(--neon-green)';
+            statusText.textContent = 'P2P CONNECTED';
+        } else {
+            statusDot.style.background = 'var(--error)';
+            statusText.textContent = 'P2P DISCONNECTED';
+        }
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        const username = document.getElementById('usernameInput').value || 'User-' + Math.random().toString(36).substr(2, 5);
+        
+        if (!message) return;
+        
+        const messageId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        
+        roomRef.child('messages').push({
+            id: messageId,
+            content: message,
+            username: username,
+            userId: currentUser.uid,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        
+        addMessage('me', message, username);
+        messageQueue.push(messageId);
+        
+        input.value = '';
+        
+        const sendBtn = document.getElementById('sendBtn');
+        createHackEffect(sendBtn);
+    }
+
+    function destroyChat() {
+        if (roomRef && confirm('Destroy chat for ALL users?')) {
+            roomRef.remove();
+            addSystemMessage('Session terminated - all data erased');
+            
+            const destroyBtn = document.getElementById('destroyBtn');
+            createHackEffect(destroyBtn);
+            
+            setTimeout(() => {
+                document.getElementById('chatScreen').style.display = 'none';
+                document.getElementById('accessScreen').style.display = 'block';
+                document.getElementById('sessionCreated').classList.add('hidden');
+                document.getElementById('joinForm').classList.add('hidden');
+            }, 2000);
+        }
+    }
+
+    function addMessage(type, content, username) {
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type === 'me' ? '' : 'encrypted'}`;
+        
+        const time = new Date().toLocaleTimeString('ru-RU', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        messageDiv.innerHTML = `
+            <div class="message-header">
+                <span class="message-sender">${username}</span>
+                <span class="message-time">${time}</span>
+            </div>
+            <div>${content}</div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function addSystemMessage(content) {
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message system';
+        messageDiv.textContent = content;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    document.getElementById('messageInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    document.getElementById('messageInput').addEventListener('input', function(e) {
+        if (this.value.length > 0) {
+            this.style.animation = 'typingEffect 0.1s ease-out';
+            setTimeout(() => {
+                this.style.animation = '';
+            }, 100);
+        }
+    });
+
+    window.addEventListener('load', function() {
+        createMatrixBackground();
+        createCircuits();
+        createQuantumParticles();
+        createGlitchLines();
+        createHexOverlay();
+        createRadarScan();
+        createTerminalCommands();
+        createCursorTrail();
+        setupButtonAnimations();
+        setupParallax();
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes typingEffect {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.02); }
+                100% { transform: scale(1); }
+            }
+            @keyframes hackGlitch {
+                0% { opacity: 1; filter: hue-rotate(0deg); }
+                25% { filter: hue-rotate(90deg); }
+                50% { filter: hue-rotate(180deg); }
+                75% { filter: hue-rotate(270deg); }
+                100% { opacity: 0; filter: hue-rotate(360deg); }
+            }
+            @keyframes quantumFloat {
+                0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+                10% { opacity: 0.3; }
+                90% { opacity: 0.3; }
+                100% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(360deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
 </body>
 </html>
