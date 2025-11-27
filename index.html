@@ -36,6 +36,15 @@
             overflow-x: hidden;
         }
 
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
         .scanlines {
             position: fixed;
             top: 0;
@@ -52,6 +61,51 @@
         @keyframes scanline {
             0% { transform: translateY(0px); }
             100% { transform: translateY(6px); }
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            filter: blur(1px);
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
+        }
+
+        .security-scanner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            box-shadow: 0 0 20px var(--neon-green);
+            animation: scan 4s linear infinite;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
         }
 
         .container {
@@ -83,6 +137,24 @@
             height: 2px;
             background: var(--neon-green);
             animation: terminalGlow 3s ease-in-out infinite;
+        }
+
+        .terminal-glow {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-blue), var(--neon-green));
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0.3;
+            animation: pulseGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.3; }
         }
 
         @keyframes terminalGlow {
@@ -152,6 +224,12 @@
             margin-bottom: 1rem;
             letter-spacing: 2px;
             text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            animation: textFlicker 3s infinite alternate;
+        }
+
+        @keyframes textFlicker {
+            0%, 100% { opacity: 1; text-shadow: 0 0 20px rgba(0, 255, 65, 0.5); }
+            50% { opacity: 0.9; text-shadow: 0 0 25px rgba(0, 255, 65, 0.8); }
         }
 
         .tagline {
@@ -174,6 +252,12 @@
             color: var(--neon-green);
             margin: 1rem 0;
             font-family: 'JetBrains Mono', monospace;
+            animation: codePulse 2s infinite;
+        }
+
+        @keyframes codePulse {
+            0%, 100% { text-shadow: 0 0 10px rgba(0, 255, 65, 0.5); }
+            50% { text-shadow: 0 0 20px rgba(0, 255, 65, 0.8); }
         }
 
         .input-group {
@@ -197,11 +281,13 @@
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
             font-size: 1rem;
+            transition: all 0.3s ease;
         }
 
         .terminal-input:focus {
             outline: none;
             border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
         }
 
         .btn-group {
@@ -221,11 +307,29 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .terminal-btn:hover::before {
+            left: 100%;
         }
 
         .terminal-btn:hover {
             background: rgba(0, 255, 65, 0.1);
             border-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
         }
 
         .terminal-btn.primary {
@@ -306,6 +410,11 @@
             color: var(--text-secondary);
         }
 
+        .message.decrypting .message-content {
+            font-family: 'Courier New', monospace;
+            color: var(--neon-blue);
+        }
+
         .chat-input-container {
             background: rgba(0, 0, 0, 0.8);
             padding: 1rem;
@@ -336,6 +445,12 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.9rem;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
         }
 
         .users-panel {
@@ -352,6 +467,12 @@
             border: 1px solid rgba(0, 255, 65, 0.3);
             font-size: 0.7rem;
             color: var(--neon-green);
+            animation: userPulse 3s infinite;
+        }
+
+        @keyframes userPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         .hidden {
@@ -362,6 +483,65 @@
             background: rgba(255, 0, 60, 0.1);
             border-color: var(--error);
             color: var(--error);
+        }
+
+        .danger-btn:hover {
+            background: rgba(255, 0, 60, 0.2);
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.3);
+        }
+
+        .loading-terminal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--terminal-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .loading-text {
+            color: var(--neon-green);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            animation: typing 2s steps(20, end), blink 0.7s infinite;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid var(--neon-green);
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink {
+            0%, 50% { border-color: var(--neon-green); }
+            51%, 100% { border-color: transparent; }
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 3px;
+            background: rgba(0, 255, 65, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--neon-green);
+            width: 0%;
+            animation: progressLoad 3s ease-in-out;
+        }
+
+        @keyframes progressLoad {
+            0% { width: 0%; }
+            100% { width: 100%; }
         }
 
         @media (min-width: 768px) {
@@ -384,10 +564,21 @@
     </style>
 </head>
 <body>
+    <canvas id="matrixCanvas"></canvas>
     <div class="scanlines"></div>
+    <div class="floating-particles" id="particlesContainer"></div>
+    <div class="security-scanner"></div>
 
     <div class="container">
         <div class="terminal">
+            <div class="terminal-glow"></div>
+            <div class="loading-terminal" id="loadingScreen">
+                <div class="loading-text">INITIALIZING SECURE CONNECTION</div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+
             <div class="terminal-header">
                 <div class="terminal-title">SHADOW NET</div>
                 <div class="terminal-status">
@@ -481,6 +672,85 @@
         let currentUser = null;
         let roomRef = null;
         let myUsername = 'anonymous_user';
+
+        const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
+        const matrixCanvas = document.getElementById('matrixCanvas');
+        const ctx = matrixCanvas.getContext('2d');
+        let drops = [];
+        let particles = [];
+
+        function initMatrix() {
+            matrixCanvas.width = window.innerWidth;
+            matrixCanvas.height = window.innerHeight;
+            
+            const columns = matrixCanvas.width / 20;
+            drops = Array(Math.floor(columns)).fill(1);
+            
+            animateMatrix();
+        }
+
+        function animateMatrix() {
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.04)';
+            ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+            
+            ctx.fillStyle = '#00ff41';
+            ctx.font = '15px JetBrains Mono';
+            
+            drops.forEach((y, i) => {
+                const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+                const x = i * 20;
+                ctx.fillText(text, x, y * 20);
+                
+                if (y * 20 > matrixCanvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            });
+            
+            requestAnimationFrame(animateMatrix);
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particlesContainer');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.background = `radial-gradient(circle, 
+                    ${Math.random() > 0.5 ? '#00ff41' : '#00f7ff'}, 
+                    transparent)`;
+                container.appendChild(particle);
+            }
+        }
+
+        function decryptText(element, finalText, speed = 50) {
+            const chars = "!@#$%^&*()_+-=[]{}|;:,.<>?ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let iterations = 0;
+            const maxIterations = 3;
+            let currentText = finalText.split('').map(() => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+            
+            element.textContent = currentText;
+            element.classList.add('decrypting');
+            
+            const interval = setInterval(() => {
+                currentText = currentText.split('').map((char, index) => {
+                    if (index < iterations / maxIterations * finalText.length) {
+                        return finalText[index];
+                    }
+                    return chars.charAt(Math.floor(Math.random() * chars.length));
+                }).join('');
+                
+                element.textContent = currentText;
+                iterations++;
+                
+                if (iterations >= maxIterations * finalText.length) {
+                    clearInterval(interval);
+                    element.textContent = finalText;
+                    element.classList.remove('decrypting');
+                }
+            }, speed);
+        }
 
         function handleMessageKeydown(event) {
             if (event.key === 'Enter') sendMessage();
@@ -637,10 +907,18 @@
                     <span class="message-sender">${username}</span>
                     <span class="message-time">${time}</span>
                 </div>
-                <div class="message-content">${content}</div>
+                <div class="message-content"></div>
             `;
             
             messagesContainer.appendChild(messageDiv);
+            
+            const contentElement = messageDiv.querySelector('.message-content');
+            if (isMe) {
+                contentElement.textContent = content;
+            } else {
+                decryptText(contentElement, content, 30);
+            }
+            
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
@@ -648,8 +926,13 @@
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message system';
-            messageDiv.textContent = `[SYSTEM] ${content}`;
+            
+            const contentElement = document.createElement('div');
+            messageDiv.appendChild(contentElement);
+            
             messagesContainer.appendChild(messageDiv);
+            decryptText(contentElement, `[SYSTEM] ${content}`, 40);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         function destroyChat() {
@@ -657,6 +940,17 @@
             roomRef.remove();
             location.reload();
         }
+
+        window.addEventListener('load', () => {
+            initMatrix();
+            createParticles();
+            
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+            }, 3000);
+        });
+
+        window.addEventListener('resize', initMatrix);
 
         document.getElementById('roomCodeInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') joinRoom();
