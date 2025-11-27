@@ -894,7 +894,7 @@
                         <div class="chat-input-group">
                             <input type="text" class="chat-input" id="messageInput" placeholder="TRANSMIT ENCRYPTED MESSAGE...">
                             <button class="send-btn" onclick="sendMessage()">SEND</button>
-                            <button class="send-btn danger-btn" onclick="leaveRoom()">DISCONNECT</button>
+                            <button class="send-btn danger-btn" onclick="destroyChat()">DESTROY CHAT</button>
                         </div>
                     </div>
                 </div>
@@ -1178,14 +1178,16 @@
             usersRef = null;
         }
 
-        function leaveRoom() {
+        function destroyChat() {
             if (!roomRef) return;
             
-            showDisconnectAnimation();
-            
-            setTimeout(() => {
-                resetToMainScreen();
-            }, 2000);
+            roomRef.remove().then(() => {
+                showDisconnectAnimation();
+                
+                setTimeout(() => {
+                    resetToMainScreen();
+                }, 2000);
+            });
         }
 
         document.getElementById('messageInput').addEventListener('keydown', function(e) {
