@@ -1128,18 +1128,18 @@
             const userRef = usersRef.child(currentUser.uid);
             userRef.set({
                 username: myUsername,
-                connected: true,
                 lastSeen: Date.now()
             });
             
-            userRef.onDisconnect().update({
-                connected: false,
-                lastSeen: Date.now()
-            });
+            userRef.onDisconnect().remove();
             
             usersRef.on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 updateUsersList(users);
+                
+                if (Object.keys(users).length === 0 && roomRef) {
+                    roomRef.remove();
+                }
             });
             
             messagesRef.limitToLast(50).on('child_added', (snapshot) => {
@@ -1157,33 +1157,6 @@
                         resetToMainScreen();
                     }, 3000);
                 }
-            });
-            
-            cleanupOldRooms();
-        }
-
-        function cleanupOldRooms() {
-            const database = firebase.database();
-            const roomsRef = database.ref('rooms');
-            
-            roomsRef.once('value').then((snapshot) => {
-                const rooms = snapshot.val() || {};
-                const now = Date.now();
-                const oneHour = 60 * 60 * 1000;
-                
-                Object.keys(rooms).forEach(roomId => {
-                    const room = rooms[roomId];
-                    if (room.createdAt && (now - room.createdAt > oneHour)) {
-                        roomsRef.child(roomId).remove();
-                    } else if (!room.users) {
-                        roomsRef.child(roomId).remove();
-                    } else {
-                        const connectedUsers = Object.values(room.users).filter(user => user.connected);
-                        if (connectedUsers.length === 0) {
-                            roomsRef.child(roomId).remove();
-                        }
-                    }
-                });
             });
         }
 
@@ -1284,10 +1257,6 @@
         }
 
         function resetToMainScreen() {
-            if (usersRef && currentUser) {
-                usersRef.child(currentUser.uid).remove();
-            }
-            
             document.getElementById('chatScreen').style.display = 'none';
             document.getElementById('accessScreen').style.display = 'block';
             document.getElementById('sessionCreated').classList.add('hidden');
@@ -1325,16 +1294,12 @@
 
         window.addEventListener('beforeunload', () => {
             if (usersRef && currentUser) {
-                usersRef.child(currentUser.uid).update({
-                    connected: false,
-                    lastSeen: Date.now()
-                });
+                usersRef.child(currentUser.uid).remove();
             }
         });
 
         window.addEventListener('load', () => {
             initMatrixRain();
-            cleanupOldRooms();
             
             setTimeout(() => {
                 document.getElementById('loadingScreen').style.display = 'none';
