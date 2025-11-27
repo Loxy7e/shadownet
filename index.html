@@ -864,7 +864,7 @@
                             <div class="code-display" id="roomCodeDisplay"></div>
                             <button class="terminal-btn" onmouseover="addDigitalRainEffect(event)" onclick="copyRoomCode()">COPY CODE</button>
                         </div>
-                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" onclick="showBootSequence()">ENTER SECURE CHAT</button>
+                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" onclick="showBootSequence().then(() => enterChat())">ENTER SECURE CHAT</button>
                     </div>
                 </div>
 
@@ -1100,33 +1100,40 @@
             contentDiv.textContent = content;
         }
 
-        async function showBootSequence() {
-            const terminalBody = document.querySelector('.terminal-body');
-            const originalContent = terminalBody.innerHTML;
-            
-            terminalBody.innerHTML = `
-                <div class="boot-sequence">
-                    <div>SHADOW NET BOOT SEQUENCE INITIATED...</div>
-                    <div class="progress-bar">
-                        <div class="progress"></div>
+        function showBootSequence() {
+            return new Promise((resolve) => {
+                const terminalBody = document.querySelector('.terminal-body');
+                const originalContent = terminalBody.innerHTML;
+                
+                terminalBody.innerHTML = `
+                    <div class="boot-sequence">
+                        <div>SHADOW NET BOOT SEQUENCE INITIATED...</div>
+                        <div class="progress-bar">
+                            <div class="progress"></div>
+                        </div>
+                        <div class="boot-status">0%</div>
                     </div>
-                    <div class="boot-status">0%</div>
-                </div>
-            `;
-            
-            const progress = terminalBody.querySelector('.progress');
-            const status = terminalBody.querySelector('.boot-status');
-            
-            for (let i = 0; i <= 100; i += 10) {
-                progress.style.width = `${i}%`;
-                status.textContent = `${i}% - ${getBootMessage(i)}`;
-                await new Promise(resolve => setTimeout(resolve, 150));
-            }
-            
-            setTimeout(() => {
-                terminalBody.innerHTML = originalContent;
-                enterChat();
-            }, 800);
+                `;
+                
+                const progress = terminalBody.querySelector('.progress');
+                const status = terminalBody.querySelector('.boot-status');
+                
+                let progressValue = 0;
+                
+                const interval = setInterval(() => {
+                    progressValue += 10;
+                    progress.style.width = `${progressValue}%`;
+                    status.textContent = `${progressValue}% - ${getBootMessage(progressValue)}`;
+                    
+                    if (progressValue >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            terminalBody.innerHTML = originalContent;
+                            resolve();
+                        }, 800);
+                    }
+                }, 150);
+            });
         }
 
         function getBootMessage(percent) {
@@ -1205,7 +1212,7 @@
                 }
                 
                 currentRoom = roomCode;
-                showBootSequence();
+                showBootSequence().then(() => enterChat());
                 isInitiator = false;
             } else {
                 alert('Please enter a valid 6-digit code');
