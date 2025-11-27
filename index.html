@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         :root {
             --neon-green: #00ff41;
@@ -90,11 +91,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                to bottom,
-                transparent 50%,
-                rgba(0, 0, 0, 0.1) 50%
-            );
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 50%);
             background-size: 100% 6px;
             z-index: -1;
             pointer-events: none;
@@ -217,9 +214,7 @@
             border-radius: 0;
             width: 100%;
             max-width: 900px;
-            box-shadow: 
-                0 0 50px rgba(0, 255, 65, 0.1),
-                inset 0 1px 0 rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 50px rgba(0, 255, 65, 0.1), inset 0 1px 0 rgba(0, 255, 65, 0.1);
             position: relative;
             overflow: hidden;
             animation: terminalPulse 3s ease-in-out infinite;
@@ -325,22 +320,10 @@
         }
 
         @keyframes logoGlitch {
-            0%, 100% { 
-                transform: translateX(0) skewX(0);
-                text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
-            }
-            97% { 
-                transform: translateX(0) skewX(0);
-                text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
-            }
-            98% { 
-                transform: translateX(-5px) skewX(-2deg);
-                text-shadow: 3px 0 20px rgba(255, 0, 60, 0.8);
-            }
-            99% { 
-                transform: translateX(5px) skewX(2deg);
-                text-shadow: -3px 0 20px rgba(0, 247, 255, 0.8);
-            }
+            0%, 100% { transform: translateX(0) skewX(0); text-shadow: 0 0 20px rgba(0, 255, 65, 0.5); }
+            97% { transform: translateX(0) skewX(0); text-shadow: 0 0 20px rgba(0, 255, 65, 0.5); }
+            98% { transform: translateX(-5px) skewX(-2deg); text-shadow: 3px 0 20px rgba(255, 0, 60, 0.8); }
+            99% { transform: translateX(5px) skewX(2deg); text-shadow: -3px 0 20px rgba(0, 247, 255, 0.8); }
         }
 
         .tagline {
@@ -502,14 +485,8 @@
         }
 
         @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .message.system {
@@ -745,134 +722,43 @@
         }
 
         @media (min-width: 768px) {
-            .container {
-                padding: 2rem;
-            }
-            
-            .terminal-body {
-                padding: 3rem;
-            }
-            
-            .logo {
-                font-size: 3.5rem;
-            }
-            
-            .code-display {
-                font-size: 2.5rem;
-            }
-            
-            .btn-group {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .terminal-header {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 1rem 2rem;
-            }
-            
-            .terminal-title {
-                text-align: left;
-                font-size: 1.4rem;
-            }
-            
-            .chat-input-group {
-                flex-direction: row;
-            }
-            
-            .chat-info {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-            
-            .chat-messages {
-                gap: 1rem;
-            }
-            
-            .message {
-                max-width: 80%;
-            }
+            .container { padding: 2rem; }
+            .terminal-body { padding: 3rem; }
+            .logo { font-size: 3.5rem; }
+            .code-display { font-size: 2.5rem; }
+            .btn-group { grid-template-columns: 1fr 1fr; }
+            .terminal-header { flex-direction: row; justify-content: space-between; align-items: center; padding: 1rem 2rem; }
+            .terminal-title { text-align: left; font-size: 1.4rem; }
+            .chat-input-group { flex-direction: row; }
+            .chat-info { flex-direction: row; justify-content: space-between; align-items: center; }
+            .chat-messages { gap: 1rem; }
+            .message { max-width: 80%; }
         }
 
         @media (max-width: 480px) {
-            .terminal-body {
-                padding: 0.5rem;
-            }
-            
-            .logo {
-                font-size: 1.5rem;
-            }
-            
-            .code-display {
-                font-size: 1.1rem;
-                letter-spacing: 1px;
-            }
-            
-            .terminal-btn {
-                padding: 0.6rem 0.8rem;
-                font-size: 0.7rem;
-            }
-            
-            .chat-messages {
-                padding: 0.3rem;
-                gap: 0.3rem;
-            }
-            
-            .message {
-                padding: 0.5rem;
-                font-size: 0.8rem;
-            }
-            
-            .chat-container {
-                height: 75vh;
-            }
-            
-            .chat-header {
-                padding: 0.5rem;
-            }
-            
-            .chat-input-container {
-                padding: 0.5rem;
-            }
+            .terminal-body { padding: 0.5rem; }
+            .logo { font-size: 1.5rem; }
+            .code-display { font-size: 1.1rem; letter-spacing: 1px; }
+            .terminal-btn { padding: 0.6rem 0.8rem; font-size: 0.7rem; }
+            .chat-messages { padding: 0.3rem; gap: 0.3rem; }
+            .message { padding: 0.5rem; font-size: 0.8rem; }
+            .chat-container { height: 75vh; }
+            .chat-header { padding: 0.5rem; }
+            .chat-input-container { padding: 0.5rem; }
         }
 
         @media (max-width: 360px) {
-            .container {
-                padding: 0.5rem;
-            }
-            
-            .logo {
-                font-size: 1.5rem;
-            }
-            
-            .terminal-header {
-                padding: 0.8rem;
-            }
-            
-            .status-indicator {
-                font-size: 0.6rem;
-            }
-            
-            .chat-input-group {
-                gap: 0.5rem;
-            }
-            
-            .send-btn {
-                padding: 0.8rem 1rem;
-                font-size: 0.8rem;
-            }
+            .container { padding: 0.5rem; }
+            .logo { font-size: 1.5rem; }
+            .terminal-header { padding: 0.8rem; }
+            .status-indicator { font-size: 0.6rem; }
+            .chat-input-group { gap: 0.5rem; }
+            .send-btn { padding: 0.8rem 1rem; font-size: 0.8rem; }
         }
 
         @media (max-height: 700px) {
-            .chat-container {
-                height: 55vh;
-            }
-            
-            .terminal-body {
-                padding: 1rem;
-            }
+            .chat-container { height: 55vh; }
+            .terminal-body { padding: 1rem; }
         }
     </style>
 </head>
@@ -986,6 +872,32 @@
         let savedUsername = '';
         let activityInterval = null;
         let isIntentionallyLeaving = false;
+        let encryptionKey = null;
+        let roomCleanupInterval = null;
+
+        function generateEncryptionKey(roomCode) {
+            return CryptoJS.PBKDF2(roomCode, roomCode, { keySize: 256/32, iterations: 1000 });
+        }
+
+        function encryptMessage(message, key) {
+            try {
+                const encrypted = CryptoJS.AES.encrypt(message, key, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+                return encrypted.toString();
+            } catch (error) {
+                console.error('Encryption error:', error);
+                return message;
+            }
+        }
+
+        function decryptMessage(encryptedMessage, key) {
+            try {
+                const decrypted = CryptoJS.AES.decrypt(encryptedMessage, key, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+                return decrypted.toString(CryptoJS.enc.Utf8);
+            } catch (error) {
+                console.error('Decryption error:', error);
+                return encryptedMessage;
+            }
+        }
 
         function handleMessageKeydown(event) {
             if (event.key === 'Enter') {
@@ -1075,7 +987,7 @@
         function createTerminalCommands() {
             const commands = document.getElementById('terminalCommands');
             const commandList = [
-                '> ENCRYPTION: AES-256_ACTIVE',
+                '> ENCRYPTION: AES-256_E2EE_ACTIVE',
                 '> CONNECTION: P2P_SECURE',
                 '> ANONYMITY: TOR_NETWORK',
                 '> STATUS: ALL_SYSTEMS_NOMINAL',
@@ -1194,41 +1106,34 @@
             }, 1000);
         }
 
-        function encryptText(text) {
-            let encrypted = '';
-            for (let i = 0; i < text.length; i++) {
-                encrypted += Math.random().toString(36).substring(2, 3);
-            }
-            return encrypted;
-        }
-
-        async function addEncryptedMessage(type, content, username) {
+        async function addEncryptedMessage(type, encryptedContent, username) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type === 'me' ? '' : 'encrypted'}`;
             
-            const time = new Date().toLocaleTimeString('ru-RU', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
+            const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             
             messageDiv.innerHTML = `
                 <div class="message-header">
                     <span class="message-sender">${username}</span>
                     <span class="message-time">${time}</span>
                 </div>
-                <div class="message-content">${encryptText(content)}</div>
+                <div class="message-content">${encryptedContent}</div>
             `;
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             
-            const contentDiv = messageDiv.querySelector('.message-content');
-            for (let i = 0; i <= content.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 80));
-                contentDiv.textContent = content.substring(0, i) + encryptText(content.substring(i));
+            if (type !== 'me') {
+                const contentDiv = messageDiv.querySelector('.message-content');
+                const decrypted = decryptMessage(encryptedContent, encryptionKey);
+                
+                for (let i = 0; i <= decrypted.length; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    contentDiv.textContent = decrypted.substring(0, i) + '█'.repeat(decrypted.length - i);
+                }
+                contentDiv.textContent = decrypted;
             }
-            contentDiv.textContent = content;
         }
 
         function showBootSequence() {
@@ -1316,10 +1221,37 @@
         function updateUserActivity() {
             if (roomRef && currentUser) {
                 roomRef.child('users').child(currentUser.uid).update({
-                    lastActive: firebase.database.ServerValue.TIMESTAMP,
+                    lastActive: Date.now(),
                     username: myUsername
                 });
             }
+        }
+
+        function checkRoomCleanup() {
+            if (!roomRef) return;
+            
+            roomRef.child('users').once('value').then((snapshot) => {
+                const users = snapshot.val() || {};
+                const now = Date.now();
+                let allInactive = true;
+                let hasUsers = false;
+
+                Object.values(users).forEach(user => {
+                    hasUsers = true;
+                    if (user.lastActive && (now - user.lastActive < 180000)) {
+                        allInactive = false;
+                    }
+                });
+
+                if (hasUsers && allInactive) {
+                    roomRef.remove();
+                    addSystemMessage('Room auto-destroyed due to inactivity');
+                    setTimeout(() => {
+                        document.getElementById('chatScreen').style.display = 'none';
+                        document.getElementById('accessScreen').style.display = 'block';
+                    }, 2000);
+                }
+            });
         }
 
         async function createRoom() {
@@ -1327,6 +1259,7 @@
             if (!authSuccess) return;
             
             currentRoom = generateRoomId();
+            encryptionKey = generateEncryptionKey(currentRoom);
             document.getElementById('roomCodeDisplay').textContent = currentRoom;
             document.getElementById('sessionCreated').classList.remove('hidden');
             document.getElementById('joinForm').classList.add('hidden');
@@ -1355,6 +1288,7 @@
                 }
                 
                 currentRoom = roomCode;
+                encryptionKey = generateEncryptionKey(currentRoom);
                 showBootSequence().then(() => enterChat());
                 isInitiator = false;
             } else {
@@ -1373,8 +1307,8 @@
             document.getElementById('currentRoomCode').textContent = currentRoom;
             
             addSystemMessage('Secure session established');
-            addSystemMessage('All communications encrypted');
-            addSystemMessage('Chat will auto-destroy after 3 minutes of inactivity');
+            addSystemMessage('All communications encrypted with E2EE');
+            addSystemMessage('Room will auto-destroy after 3 minutes of inactivity');
             
             startFirebaseConnection();
         }
@@ -1389,13 +1323,14 @@
             if (isInitiator) {
                 roomRef.set({
                     createdBy: currentUser.uid,
-                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                    createdAt: Date.now()
                 });
             }
             
             updateUserActivity();
             
             activityInterval = setInterval(updateUserActivity, 30000);
+            roomCleanupInterval = setInterval(checkRoomCleanup, 30000);
             
             document.addEventListener('mousemove', updateUserActivity);
             document.addEventListener('keypress', updateUserActivity);
@@ -1403,6 +1338,7 @@
             
             destroyListener = roomRef.on('value', (snapshot) => {
                 if (!snapshot.exists()) {
+                    cleanupRoom();
                     const terminal = document.querySelector('.terminal');
                     terminal.classList.add('glitch-destroy');
                     createMatrixDissolveEffect(terminal);
@@ -1420,39 +1356,12 @@
             
             window.addEventListener('beforeunload', function() {
                 isIntentionallyLeaving = true;
-                if (roomRef) {
-                    roomRef.child('users').child(currentUser.uid).remove();
-                    if (destroyListener) {
-                        roomRef.off('value', destroyListener);
-                    }
-                }
-                if (activityInterval) {
-                    clearInterval(activityInterval);
-                }
+                cleanupRoom();
             });
 
             roomRef.child('users').on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 updateUsersList(users);
-                
-                const now = Date.now();
-                let allInactive = true;
-                
-                Object.values(users).forEach(user => {
-                    if (user.lastActive) {
-                        const lastActive = user.lastActive;
-                        const inactiveTime = now - lastActive;
-                        if (inactiveTime < 180000) {
-                            allInactive = false;
-                        }
-                    }
-                });
-                
-                if (allInactive && Object.keys(users).length > 0 && roomRef) {
-                    setTimeout(() => {
-                        roomRef.remove();
-                    }, 1000);
-                }
             });
             
             roomRef.child('messages').limitToLast(50).on('child_added', (snapshot) => {
@@ -1462,6 +1371,21 @@
                     messageQueue.push(message.id);
                 }
             });
+        }
+
+        function cleanupRoom() {
+            if (roomRef) {
+                roomRef.child('users').child(currentUser.uid).remove();
+                if (destroyListener) {
+                    roomRef.off('value', destroyListener);
+                }
+            }
+            if (activityInterval) {
+                clearInterval(activityInterval);
+            }
+            if (roomCleanupInterval) {
+                clearInterval(roomCleanupInterval);
+            }
         }
 
         function updateUsersList(users) {
@@ -1509,13 +1433,14 @@
             if (!message) return;
             
             const messageId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const encryptedMessage = encryptMessage(message, encryptionKey);
             
             roomRef.child('messages').push({
                 id: messageId,
-                content: message,
+                content: encryptedMessage,
                 username: myUsername,
                 userId: currentUser.uid,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
+                timestamp: Date.now()
             });
             
             addEncryptedMessage('me', message, myUsername);
