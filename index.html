@@ -1158,6 +1158,16 @@
                     }, 3000);
                 }
             });
+
+            roomRef.child('destroyed').on('value', (snapshot) => {
+                if (snapshot.exists() && !disconnectAnimationShown) {
+                    disconnectAnimationShown = true;
+                    showDisconnectAnimation();
+                    setTimeout(() => {
+                        resetToMainScreen();
+                    }, 3000);
+                }
+            });
         }
 
         function updateUsersList(users) {
@@ -1251,8 +1261,7 @@
         function destroyChat() {
             if (!roomRef) return;
             
-            showDisconnectAnimation();
-            
+            roomRef.child('destroyed').set(true);
             roomRef.remove();
         }
 
