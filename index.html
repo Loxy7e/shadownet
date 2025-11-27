@@ -815,7 +815,7 @@
                             <label class="input-label">ACCESS CODE</label>
                             <input type="text" class="terminal-input" id="roomCodeInput" placeholder="ENTER 6-DIGIT CODE">
                         </div>
-                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" onclick="playHackSequence('join')">CONNECT</button>
+                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" onclick="joinRoom()">CONNECT</button>
                     </div>
 
                     <div id="sessionCreated" class="hidden">
@@ -877,6 +877,7 @@
         let currentUser = null;
         let roomRef = null;
         let destroyListener = null;
+        let systemMessagesInterval = null;
 
         function createMatrixBackground() {
             const matrixBg = document.getElementById('matrixBg');
@@ -962,12 +963,18 @@
         }
 
         function createMatrixParticles() {
+            let lastX = 0;
+            let lastY = 0;
+            
             document.addEventListener('mousemove', function(e) {
+                lastX = e.clientX;
+                lastY = e.clientY;
+                
                 if (Math.random() > 0.8) {
                     const particle = document.createElement('div');
                     particle.className = 'matrix-particle';
-                    particle.style.left = e.pageX + 'px';
-                    particle.style.top = e.pageY + 'px';
+                    particle.style.left = e.clientX + 'px';
+                    particle.style.top = e.clientY + 'px';
                     
                     const chars = '0101010101ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
                     particle.textContent = chars[Math.floor(Math.random() * chars.length)];
@@ -978,6 +985,13 @@
                         particle.remove();
                     }, 1000);
                 }
+            });
+
+            // Обработка изменения размера окна
+            window.addEventListener('resize', function() {
+                // Пересоздаем частицы при изменении размера окна
+                const particles = document.querySelectorAll('.matrix-particle');
+                particles.forEach(particle => particle.remove());
             });
         }
 
@@ -1020,7 +1034,6 @@
             setTimeout(() => {
                 terminalBody.innerHTML = originalContent;
                 if (action === 'create') createRoom();
-                if (action === 'join') joinRoom();
             }, 1000);
         }
 
@@ -1116,24 +1129,14 @@
                     document.getElementById('accessScreen').style.display = 'block';
                     document.getElementById('sessionCreated').classList.add('hidden');
                     document.getElementById('joinForm').classList.add('hidden');
+                    
+                    // Очищаем интервал системных сообщений
+                    if (systemMessagesInterval) {
+                        clearInterval(systemMessagesInterval);
+                        systemMessagesInterval = null;
+                    }
                 }, 2000);
             }, 2000);
-        }
-
-        function startSystemMessages() {
-            const messages = [
-                "Network scan detected...",
-                "Encryption: AES-256 active",
-                "All systems nominal",
-                "P2P connection stable",
-                "No intrusions detected"
-            ];
-            
-            setInterval(() => {
-                if (Math.random() > 0.7) {
-                    addSystemMessage(messages[Math.floor(Math.random() * messages.length)]);
-                }
-            }, 15000);
         }
 
         function generateRoomId() {
@@ -1184,6 +1187,8 @@
                 currentRoom = roomCode;
                 showBootSequence();
                 isInitiator = false;
+            } else {
+                addSystemMessage('Please enter a valid 6-digit code');
             }
         }
 
@@ -1202,7 +1207,6 @@
             addSystemMessage('Chat will be destroyed when all users leave');
             
             startFirebaseConnection();
-            startSystemMessages();
         }
 
         function startFirebaseConnection() {
@@ -1234,6 +1238,11 @@
                         document.getElementById('accessScreen').style.display = 'block';
                         document.getElementById('sessionCreated').classList.add('hidden');
                         document.getElementById('joinForm').classList.add('hidden');
+                        
+                        if (systemMessagesInterval) {
+                            clearInterval(systemMessagesInterval);
+                            systemMessagesInterval = null;
+                        }
                     }, 2000);
                 }
             });
@@ -1244,6 +1253,9 @@
                     if (destroyListener) {
                         roomRef.off('value', destroyListener);
                     }
+                }
+                if (systemMessagesInterval) {
+                    clearInterval(systemMessagesInterval);
                 }
             });
             
@@ -1322,9 +1334,19 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+        // Исправленный обработчик Enter для отправки сообщений
+        document.getElementById('messageInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
+                e.preventDefault(); // Предотвращаем перенос строки
                 sendMessage();
+            }
+        });
+
+        // Обработчик Enter для поля ввода кода комнаты
+        document.getElementById('roomCodeInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                joinRoom();
             }
         });
 
