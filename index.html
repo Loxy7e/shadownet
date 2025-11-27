@@ -1371,6 +1371,12 @@
                 });
             }
             
+            roomRef.child('users').child(currentUser.uid).set({
+                username: myUsername,
+                lastActive: Date.now(),
+                joinedAt: Date.now()
+            });
+            
             startHeartbeat();
             
             roomCleanupInterval = setInterval(checkRoomCleanup, 10000);
@@ -1423,7 +1429,7 @@
         }
 
         function cleanupRoom() {
-            if (roomRef) {
+            if (roomRef && currentUser) {
                 roomRef.child('users').child(currentUser.uid).remove();
                 if (destroyListener) {
                     roomRef.off('value', destroyListener);
