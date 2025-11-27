@@ -482,6 +482,8 @@
             animation: messageSlide 0.3s ease-out;
             word-break: break-word;
             max-width: 100%;
+            position: relative;
+            overflow: hidden;
         }
 
         @keyframes messageSlide {
@@ -742,6 +744,32 @@
             100% { left: 100%; }
         }
 
+        .message-encrypt-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .matrix-char {
+            position: absolute;
+            color: var(--neon-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            opacity: 0;
+            animation: matrixCharFall 1.5s ease-out forwards;
+        }
+
+        @keyframes matrixCharFall {
+            0% { opacity: 1; transform: translateY(-20px) rotate(0deg); }
+            70% { opacity: 0.8; }
+            100% { opacity: 0; transform: translateY(100px) rotate(180deg); }
+        }
+
         @media (min-width: 768px) {
             .container { padding: 2rem; }
             .terminal-body { padding: 3rem; }
@@ -818,8 +846,8 @@
                     </div>
 
                     <div class="btn-group">
-                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="setUsername(); playHackSequence('create')">CREATE SESSION</button>
-                        <button class="terminal-btn" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="setUsername(); showJoinForm()">JOIN SESSION</button>
+                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="playHackSequence('create')">CREATE SESSION</button>
+                        <button class="terminal-btn" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="showJoinForm()">JOIN SESSION</button>
                     </div>
 
                     <div id="joinForm" class="hidden">
@@ -827,7 +855,7 @@
                             <label class="input-label">ACCESS CODE</label>
                             <input type="text" class="terminal-input" id="roomCodeInput" placeholder="ENTER 6-DIGIT CODE">
                         </div>
-                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="setUsername(); joinRoom()">CONNECT</button>
+                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="joinRoom()">CONNECT</button>
                     </div>
 
                     <div id="sessionCreated" class="hidden">
@@ -836,7 +864,7 @@
                             <div class="code-display" id="roomCodeDisplay"></div>
                             <button class="terminal-btn" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="copyRoomCode()">COPY CODE</button>
                         </div>
-                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="setUsername(); showBootSequence().then(() => enterChat())">ENTER SECURE CHAT</button>
+                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="showBootSequence().then(() => enterChat())">ENTER SECURE CHAT</button>
                     </div>
                 </div>
 
@@ -936,7 +964,6 @@
             const usernameInput = document.getElementById('usernameInput');
             const value = usernameInput.value.trim();
             myUsername = value || 'anonymous_user';
-            usernameInput.disabled = true;
         }
 
         function createMatrixBackground() {
@@ -1096,7 +1123,33 @@
             }, 2000);
         }
 
+        function addMessageEncryptEffect(element) {
+            const effectLayer = document.createElement('div');
+            effectLayer.className = 'message-encrypt-effect';
+            
+            const chars = '01010101010101010101ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const rect = element.getBoundingClientRect();
+            
+            for (let i = 0; i < 20; i++) {
+                const char = document.createElement('div');
+                char.className = 'matrix-char';
+                char.textContent = chars[Math.floor(Math.random() * chars.length)];
+                char.style.left = `${Math.random() * 100}%`;
+                char.style.top = `${Math.random() * 100}%`;
+                char.style.animationDelay = `${Math.random() * 0.5}s`;
+                effectLayer.appendChild(char);
+            }
+            
+            element.appendChild(effectLayer);
+            
+            setTimeout(() => {
+                effectLayer.remove();
+            }, 1500);
+        }
+
         async function playHackSequence(action) {
+            setUsername();
+            
             const messages = [
                 "[>] INITIATING ENCRYPTION PROTOCOL...",
                 "[>] GENERATING AES-256 KEY...",
@@ -1138,6 +1191,10 @@
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            if (type === 'me') {
+                addMessageEncryptEffect(messageDiv);
+            }
             
             if (type !== 'me') {
                 const contentDiv = messageDiv.querySelector('.message-content');
@@ -1265,7 +1322,7 @@
                 }
 
                 Object.values(users).forEach(user => {
-                    if (user.lastActive && (now - user.lastActive < 60000)) {
+                    if (user.lastActive && (now - user.lastActive < 30000)) {
                         hasActiveUsers = true;
                     }
                 });
@@ -1295,10 +1352,13 @@
         }
 
         function showJoinForm() {
+            setUsername();
             document.getElementById('joinForm').classList.remove('hidden');
         }
 
         async function joinRoom() {
+            setUsername();
+            
             const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
             
             if (roomCode.length === 6) {
@@ -1335,7 +1395,7 @@
             
             addSystemMessage('Secure session established');
             addSystemMessage('All communications encrypted with E2EE');
-            addSystemMessage('Room will auto-destroy after 1 minute of inactivity');
+            addSystemMessage('Room will auto-destroy when all users leave');
             
             startFirebaseConnection();
         }
@@ -1400,6 +1460,10 @@
             roomRef.child('users').on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 updateUsersList(users);
+                
+                if (Object.keys(users).length === 0) {
+                    roomRef.remove();
+                }
             });
             
             roomRef.child('messages').limitToLast(50).on('child_added', (snapshot) => {
@@ -1499,7 +1563,6 @@
         document.getElementById('roomCodeInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                setUsername();
                 joinRoom();
             }
         });
