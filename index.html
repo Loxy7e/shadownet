@@ -564,6 +564,7 @@
         let messageQueue = [];
         let currentUser = null;
         let roomRef = null;
+        let destroyListener = null;
 
         function createGlitchLines() {
             const container = document.getElementById('glitchContainer');
@@ -639,7 +640,7 @@
             
             addSystemMessage('Secure session established');
             addSystemMessage('All communications encrypted');
-            addSystemMessage('Messages auto-delete when all users leave');
+            addSystemMessage('Chat will be destroyed when all users leave');
             
             startFirebaseConnection();
         }
@@ -665,9 +666,24 @@
                 joinedAt: firebase.database.ServerValue.TIMESTAMP
             });
             
+            destroyListener = roomRef.on('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    addSystemMessage('Chat has been destroyed');
+                    setTimeout(() => {
+                        document.getElementById('chatScreen').style.display = 'none';
+                        document.getElementById('accessScreen').style.display = 'block';
+                        document.getElementById('sessionCreated').classList.add('hidden');
+                        document.getElementById('joinForm').classList.add('hidden');
+                    }, 2000);
+                }
+            });
+            
             window.addEventListener('beforeunload', function() {
                 if (roomRef) {
                     roomRef.child('users').child(currentUser.uid).remove();
+                    if (destroyListener) {
+                        roomRef.off('value', destroyListener);
+                    }
                 }
             });
             
@@ -675,7 +691,7 @@
                 const users = snapshot.val() || {};
                 updateUsersList(users);
                 
-                if (Object.keys(users).length === 0) {
+                if (Object.keys(users).length === 0 && roomRef) {
                     roomRef.remove();
                 }
             });
