@@ -693,7 +693,7 @@
             z-index: 1000;
         }
 
-        .tv-disconnect {
+        .room-destroy-animation {
             position: fixed;
             top: 0;
             left: 0;
@@ -703,10 +703,10 @@
             z-index: 10000;
             pointer-events: none;
             opacity: 0;
-            animation: tvDisconnect 3s ease-in-out forwards;
+            animation: roomDestroy 3s ease-in-out forwards;
         }
 
-        @keyframes tvDisconnect {
+        @keyframes roomDestroy {
             0% { 
                 opacity: 0; 
                 background: #000000;
@@ -935,7 +935,7 @@
                     
                     <div class="input-group">
                         <label class="input-label">DIGITAL IDENTITY (OPTIONAL)</label>
-                        <input type="text" class="terminal-input" id="usernameInput" placeholder="quantum_ghost">
+                        <input type="text" class="terminal-input" id="usernameInput" placeholder="anonymous">
                     </div>
 
                     <div class="btn-group">
@@ -1008,8 +1008,9 @@
         let roomRef = null;
         let usersRef = null;
         let messagesRef = null;
-        let myUsername = 'quantum_ghost';
+        let myUsername = 'anonymous';
         let disconnectAnimationShown = false;
+        let userUID = null;
 
         const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
         const matrixCanvas = document.getElementById('matrixRain');
@@ -1056,9 +1057,14 @@
             requestAnimationFrame(animateMatrixRain);
         }
 
+        function generateUserUID() {
+            return 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+        }
+
         function setUsername() {
             const usernameInput = document.getElementById('usernameInput');
-            myUsername = usernameInput.value.trim() || 'quantum_ghost';
+            myUsername = usernameInput.value.trim() || 'anonymous';
+            userUID = generateUserUID();
         }
 
         function generateRoomId() {
@@ -1141,7 +1147,7 @@
             
             roomRef.child('createdAt').set(Date.now());
             
-            const userRef = usersRef.child(currentUser.uid);
+            const userRef = usersRef.child(userUID);
             userRef.set({
                 username: myUsername,
                 lastSeen: Date.now()
@@ -1160,28 +1166,20 @@
             
             messagesRef.limitToLast(50).on('child_added', (snapshot) => {
                 const message = snapshot.val();
-                if (message.userId !== currentUser.uid) {
+                if (message.userId !== userUID) {
                     addMessageWithDecryptAnimation(message.content, message.username, false, message.timestamp);
-                }
-            });
-
-            roomRef.on('value', (snapshot) => {
-                if (!snapshot.exists() && !disconnectAnimationShown) {
-                    disconnectAnimationShown = true;
-                    showDisconnectAnimation();
-                    setTimeout(() => {
-                        resetToMainScreen();
-                    }, 3000);
                 }
             });
 
             roomRef.child('destroyed').on('value', (snapshot) => {
                 if (snapshot.exists() && !disconnectAnimationShown) {
-                    disconnectAnimationShown = true;
-                    showDisconnectAnimation();
-                    setTimeout(() => {
-                        resetToMainScreen();
-                    }, 3000);
+                    showRoomDestroyAnimation();
+                }
+            });
+
+            roomRef.on('value', (snapshot) => {
+                if (!snapshot.exists() && !disconnectAnimationShown) {
+                    showRoomDestroyAnimation();
                 }
             });
         }
@@ -1207,7 +1205,7 @@
             const messageData = {
                 content: message,
                 username: myUsername,
-                userId: currentUser.uid,
+                userId: userUID,
                 timestamp: Date.now()
             };
             
@@ -1279,13 +1277,13 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function showDisconnectAnimation() {
+        function showRoomDestroyAnimation() {
             if (disconnectAnimationShown) return;
             disconnectAnimationShown = true;
             
-            const tvDisconnect = document.createElement('div');
-            tvDisconnect.className = 'tv-disconnect';
-            document.body.appendChild(tvDisconnect);
+            const roomDestroy = document.createElement('div');
+            roomDestroy.className = 'room-destroy-animation';
+            document.body.appendChild(roomDestroy);
             
             const signalGlitch = document.createElement('div');
             signalGlitch.className = 'signal-glitch';
@@ -1297,14 +1295,15 @@
             
             const connectionLost = document.createElement('div');
             connectionLost.className = 'connection-lost';
-            connectionLost.textContent = 'SIGNAL LOST';
+            connectionLost.textContent = 'ROOM DESTROYED';
             document.body.appendChild(connectionLost);
             
             setTimeout(() => {
-                tvDisconnect.remove();
+                roomDestroy.remove();
                 signalGlitch.remove();
                 tvStatic.remove();
                 connectionLost.remove();
+                resetToMainScreen();
             }, 3000);
         }
 
@@ -1328,6 +1327,7 @@
             usersRef = null;
             messagesRef = null;
             disconnectAnimationShown = false;
+            userUID = null;
         }
 
         document.getElementById('messageInput').addEventListener('keydown', function(e) {
@@ -1352,8 +1352,8 @@
         });
 
         window.addEventListener('beforeunload', () => {
-            if (usersRef && currentUser) {
-                usersRef.child(currentUser.uid).remove();
+            if (usersRef && userUID) {
+                usersRef.child(userUID).remove();
             }
         });
 
