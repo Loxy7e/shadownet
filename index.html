@@ -834,50 +834,6 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8) rotate(0deg); }
         }
 
-        .destroy-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10004;
-            pointer-events: none;
-            opacity: 0;
-            animation: destroyEffect 2.5s ease-in-out forwards;
-        }
-
-        @keyframes destroyEffect {
-            0% { opacity: 0; background: radial-gradient(circle at 50% 50%, transparent 0%, #000000 100%); }
-            20% { opacity: 0.8; background: radial-gradient(circle at 50% 50%, #ff003c 0%, #000000 100%); transform: scale(0.5); }
-            40% { opacity: 1; background: radial-gradient(circle at 50% 50%, #ff003c 0%, #000000 100%); transform: scale(1.2); }
-            60% { opacity: 0.9; background: radial-gradient(circle at 50% 50%, #bd00ff 0%, #000000 100%); transform: scale(1.5); }
-            80% { opacity: 0.7; background: radial-gradient(circle at 50% 50%, #000000 0%, #000000 100%); transform: scale(2); }
-            100% { opacity: 1; background: #000000; transform: scale(3); }
-        }
-
-        .destroy-text {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: var(--error);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 2rem;
-            font-weight: 800;
-            text-align: center;
-            z-index: 10005;
-            opacity: 0;
-            animation: destroyText 2.5s ease-in-out;
-            text-shadow: 0 0 20px rgba(255, 0, 60, 0.8);
-        }
-
-        @keyframes destroyText {
-            0%, 30% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-            40%, 70% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); filter: hue-rotate(0deg); }
-            80% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.5); filter: hue-rotate(180deg); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); filter: hue-rotate(360deg); }
-        }
-
         @media (min-width: 768px) {
             .container { padding: 2rem; }
             .terminal-body { padding: 2rem; }
@@ -1184,11 +1140,6 @@
             usersRef.on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 updateUsersList(users);
-                
-                const connectedUsers = Object.values(users).filter(user => user.connected);
-                if (connectedUsers.length === 0 && roomRef) {
-                    roomRef.remove();
-                }
             });
             
             messagesRef.limitToLast(50).on('child_added', (snapshot) => {
@@ -1243,7 +1194,7 @@
             Object.values(users).forEach(user => {
                 const userTag = document.createElement('div');
                 userTag.className = 'user-tag';
-                userTag.textContent = user.username + (user.connected ? '' : ' (offline)');
+                userTag.textContent = user.username;
                 usersList.appendChild(userTag);
             });
         }
@@ -1324,21 +1275,12 @@
             }, 3000);
         }
 
-        function showDestroyAnimation() {
-            const destroyOverlay = document.createElement('div');
-            destroyOverlay.className = 'destroy-animation';
-            document.body.appendChild(destroyOverlay);
+        function destroyChat() {
+            if (!roomRef) return;
             
-            const destroyText = document.createElement('div');
-            destroyText.className = 'destroy-text';
-            destroyText.textContent = 'CHAT DESTROYED';
-            document.body.appendChild(destroyText);
+            showDisconnectAnimation();
             
-            setTimeout(() => {
-                destroyOverlay.remove();
-                destroyText.remove();
-                resetToMainScreen();
-            }, 2500);
+            roomRef.remove();
         }
 
         function resetToMainScreen() {
@@ -1358,14 +1300,6 @@
             usersRef = null;
             messagesRef = null;
             disconnectAnimationShown = false;
-        }
-
-        function destroyChat() {
-            if (!roomRef) return;
-            
-            showDestroyAnimation();
-            
-            roomRef.remove();
         }
 
         document.getElementById('messageInput').addEventListener('keydown', function(e) {
