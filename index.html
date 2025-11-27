@@ -609,6 +609,19 @@
             border-radius: 2px;
             font-size: 0.7rem;
             color: var(--neon-green);
+            transition: all 0.3s ease;
+        }
+
+        .user-tag.active {
+            background: rgba(0, 255, 65, 0.2);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .user-tag.inactive {
+            background: rgba(255, 0, 60, 0.1);
+            border-color: var(--error);
+            color: var(--error);
         }
 
         .hidden {
@@ -971,6 +984,8 @@
         let destroyListener = null;
         let myUsername = 'anonymous_user';
         let savedUsername = '';
+        let activityInterval = null;
+        let isIntentionallyLeaving = false;
 
         function handleMessageKeydown(event) {
             if (event.key === 'Enter') {
@@ -1298,6 +1313,15 @@
             }
         }
 
+        function updateUserActivity() {
+            if (roomRef && currentUser) {
+                roomRef.child('users').child(currentUser.uid).update({
+                    lastActive: firebase.database.ServerValue.TIMESTAMP,
+                    username: myUsername
+                });
+            }
+        }
+
         async function createRoom() {
             const authSuccess = await signInAnonymously();
             if (!authSuccess) return;
@@ -1350,7 +1374,7 @@
             
             addSystemMessage('Secure session established');
             addSystemMessage('All communications encrypted');
-            addSystemMessage('Chat will be destroyed when all users leave');
+            addSystemMessage('Chat will auto-destroy after 3 minutes of inactivity');
             
             startFirebaseConnection();
         }
@@ -1369,10 +1393,13 @@
                 });
             }
             
-            roomRef.child('users').child(currentUser.uid).set({
-                username: myUsername,
-                joinedAt: firebase.database.ServerValue.TIMESTAMP
-            });
+            updateUserActivity();
+            
+            activityInterval = setInterval(updateUserActivity, 30000);
+            
+            document.addEventListener('mousemove', updateUserActivity);
+            document.addEventListener('keypress', updateUserActivity);
+            document.addEventListener('click', updateUserActivity);
             
             destroyListener = roomRef.on('value', (snapshot) => {
                 if (!snapshot.exists()) {
@@ -1392,32 +1419,39 @@
             });
             
             window.addEventListener('beforeunload', function() {
+                isIntentionallyLeaving = true;
                 if (roomRef) {
                     roomRef.child('users').child(currentUser.uid).remove();
                     if (destroyListener) {
                         roomRef.off('value', destroyListener);
                     }
                 }
-            });
-
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden && roomRef) {
-                    roomRef.child('users').child(currentUser.uid).remove();
+                if (activityInterval) {
+                    clearInterval(activityInterval);
                 }
             });
 
-            window.addEventListener('pagehide', function() {
-                if (roomRef) {
-                    roomRef.child('users').child(currentUser.uid).remove();
-                }
-            });
-            
             roomRef.child('users').on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 updateUsersList(users);
                 
-                if (Object.keys(users).length === 0 && roomRef) {
-                    roomRef.remove();
+                const now = Date.now();
+                let allInactive = true;
+                
+                Object.values(users).forEach(user => {
+                    if (user.lastActive) {
+                        const lastActive = user.lastActive;
+                        const inactiveTime = now - lastActive;
+                        if (inactiveTime < 180000) {
+                            allInactive = false;
+                        }
+                    }
+                });
+                
+                if (allInactive && Object.keys(users).length > 0 && roomRef) {
+                    setTimeout(() => {
+                        roomRef.remove();
+                    }, 1000);
                 }
             });
             
@@ -1434,9 +1468,22 @@
             const usersList = document.getElementById('usersList');
             usersList.innerHTML = '';
             
-            Object.values(users).forEach(user => {
+            const now = Date.now();
+            
+            Object.entries(users).forEach(([userId, user]) => {
                 const userTag = document.createElement('div');
                 userTag.className = 'user-tag';
+                
+                const lastActive = user.lastActive || 0;
+                const inactiveTime = now - lastActive;
+                const isActive = inactiveTime < 30000;
+                
+                if (isActive) {
+                    userTag.classList.add('active');
+                } else {
+                    userTag.classList.add('inactive');
+                }
+                
                 userTag.textContent = user.username;
                 usersList.appendChild(userTag);
             });
