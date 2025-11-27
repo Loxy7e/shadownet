@@ -36,10 +36,18 @@
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 255, 65, 0.03) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 247, 255, 0.03) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(185, 103, 255, 0.02) 0%, transparent 50%);
+            cursor: none;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: screen;
         }
 
         .matrix-bg {
@@ -48,12 +56,24 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: 
-                linear-gradient(90deg, transparent 95%, rgba(0, 255, 65, 0.02) 100%),
-                linear-gradient(180deg, transparent 95%, rgba(0, 247, 255, 0.02) 100%);
-            background-size: 50px 50px;
-            z-index: -2;
-            opacity: 0.3;
+            z-index: -3;
+            opacity: 0.1;
+        }
+
+        .matrix-column {
+            position: absolute;
+            top: -50px;
+            color: var(--neon-green);
+            font-size: 18px;
+            font-family: 'JetBrains Mono', monospace;
+            animation: matrixFall linear infinite;
+        }
+
+        @keyframes matrixFall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
         }
 
         .scanlines {
@@ -105,6 +125,74 @@
             55% { opacity: 0; }
         }
 
+        .hex-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -2;
+            opacity: 0.05;
+        }
+
+        .hex-code {
+            position: absolute;
+            color: var(--neon-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            opacity: 0;
+            animation: hexFade 8s infinite;
+        }
+
+        @keyframes hexFade {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.3; }
+        }
+
+        .radar-scan {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .radar-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            animation: radarScan 4s linear infinite;
+        }
+
+        @keyframes radarScan {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 0.3; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .terminal-commands {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            color: var(--neon-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            opacity: 0.3;
+        }
+
+        .command-line {
+            animation: commandBlink 2s infinite;
+        }
+
+        @keyframes commandBlink {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.5; }
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -126,6 +214,12 @@
                 inset 0 1px 0 rgba(0, 255, 65, 0.1);
             position: relative;
             overflow: hidden;
+            animation: terminalPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes terminalPulse {
+            0%, 100% { box-shadow: 0 0 50px rgba(0, 255, 65, 0.1), inset 0 1px 0 rgba(0, 255, 65, 0.1); }
+            50% { box-shadow: 0 0 70px rgba(0, 255, 65, 0.2), inset 0 1px 0 rgba(0, 255, 65, 0.2); }
         }
 
         .terminal::before {
@@ -151,6 +245,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
         }
 
         .terminal-title {
@@ -159,6 +254,16 @@
             font-weight: 600;
             color: var(--neon-green);
             letter-spacing: 2px;
+            animation: textGlitch 10s infinite;
+        }
+
+        @keyframes textGlitch {
+            0%, 100% { transform: translateX(0); }
+            95% { transform: translateX(0); }
+            96% { transform: translateX(-2px); }
+            97% { transform: translateX(2px); }
+            98% { transform: translateX(-1px); }
+            99% { transform: translateX(1px); }
         }
 
         .terminal-status {
@@ -204,6 +309,26 @@
             margin-bottom: 1rem;
             letter-spacing: 4px;
             text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            animation: logoGlitch 15s infinite;
+        }
+
+        @keyframes logoGlitch {
+            0%, 100% { 
+                transform: translateX(0) skewX(0);
+                text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            }
+            97% { 
+                transform: translateX(0) skewX(0);
+                text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            }
+            98% { 
+                transform: translateX(-10px) skewX(-5deg);
+                text-shadow: 5px 0 20px rgba(255, 0, 60, 0.8);
+            }
+            99% { 
+                transform: translateX(10px) skewX(5deg);
+                text-shadow: -5px 0 20px rgba(0, 247, 255, 0.8);
+            }
         }
 
         .tagline {
@@ -276,10 +401,27 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 1rem;
             font-weight: 500;
-            cursor: pointer;
+            cursor: none;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .terminal-btn:hover::before {
+            left: 100%;
         }
 
         .terminal-btn:hover {
@@ -389,6 +531,7 @@
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
             font-size: 1rem;
+            cursor: none;
         }
 
         .send-btn {
@@ -398,7 +541,7 @@
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
             font-size: 1rem;
-            cursor: pointer;
+            cursor: none;
             transition: all 0.3s ease;
         }
 
@@ -463,9 +606,12 @@
     </style>
 </head>
 <body>
-    <div class="matrix-bg"></div>
+    <div class="matrix-bg" id="matrixBg"></div>
     <div class="scanlines"></div>
     <div class="glitch-container" id="glitchContainer"></div>
+    <div class="hex-overlay" id="hexOverlay"></div>
+    <div class="radar-scan" id="radarScan"></div>
+    <div class="terminal-commands" id="terminalCommands"></div>
 
     <div class="container">
         <div class="terminal">
@@ -566,6 +712,27 @@
         let roomRef = null;
         let destroyListener = null;
 
+        function createMatrixBackground() {
+            const matrixBg = document.getElementById('matrixBg');
+            const chars = '01010101010101010101ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%"\'#&_(),.;:?!\\|{}<>[]^~';
+            
+            for (let i = 0; i < 50; i++) {
+                const column = document.createElement('div');
+                column.className = 'matrix-column';
+                column.style.left = `${Math.random() * 100}%`;
+                column.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                column.style.animationDelay = `${Math.random() * 5}s`;
+                
+                let content = '';
+                for (let j = 0; j < 30; j++) {
+                    content += chars[Math.floor(Math.random() * chars.length)];
+                }
+                column.textContent = content;
+                
+                matrixBg.appendChild(column);
+            }
+        }
+
         function createGlitchLines() {
             const container = document.getElementById('glitchContainer');
             for (let i = 0; i < 20; i++) {
@@ -575,6 +742,72 @@
                 line.style.animationDelay = `${Math.random() * 8}s`;
                 container.appendChild(line);
             }
+        }
+
+        function createHexOverlay() {
+            const hexOverlay = document.getElementById('hexOverlay');
+            const hexChars = '0123456789ABCDEF';
+            
+            for (let i = 0; i < 100; i++) {
+                const hex = document.createElement('div');
+                hex.className = 'hex-code';
+                hex.style.left = `${Math.random() * 100}%`;
+                hex.style.top = `${Math.random() * 100}%`;
+                hex.style.animationDelay = `${Math.random() * 8}s`;
+                
+                let hexCode = '';
+                for (let j = 0; j < 8; j++) {
+                    hexCode += hexChars[Math.floor(Math.random() * 16)];
+                }
+                hex.textContent = '0x' + hexCode;
+                
+                hexOverlay.appendChild(hex);
+            }
+        }
+
+        function createRadarScan() {
+            const radarScan = document.getElementById('radarScan');
+            for (let i = 0; i < 3; i++) {
+                const line = document.createElement('div');
+                line.className = 'radar-line';
+                line.style.animationDelay = `${i * 1.3}s`;
+                radarScan.appendChild(line);
+            }
+        }
+
+        function createTerminalCommands() {
+            const commands = document.getElementById('terminalCommands');
+            const commandList = [
+                '> ENCRYPTION: AES-256_ACTIVE',
+                '> CONNECTION: P2P_SECURE',
+                '> ANONYMITY: TOR_NETWORK',
+                '> STATUS: ALL_SYSTEMS_NOMINAL',
+                '> SESSION: ENCRYPTED_E2E',
+                '> USERS: MULTIPLE_CONNECTED'
+            ];
+            
+            commandList.forEach((cmd, index) => {
+                const line = document.createElement('div');
+                line.className = 'command-line';
+                line.style.animationDelay = `${index * 0.5}s`;
+                line.textContent = cmd;
+                commands.appendChild(line);
+            });
+        }
+
+        function createCursorTrail() {
+            document.addEventListener('mousemove', function(e) {
+                const trail = document.createElement('div');
+                trail.className = 'cursor-trail';
+                trail.style.left = e.pageX + 'px';
+                trail.style.top = e.pageY + 'px';
+                
+                document.body.appendChild(trail);
+                
+                setTimeout(() => {
+                    trail.remove();
+                }, 1000);
+            });
         }
 
         function generateRoomId() {
@@ -803,7 +1036,14 @@
             }
         });
 
-        window.addEventListener('load', createGlitchLines);
+        window.addEventListener('load', function() {
+            createMatrixBackground();
+            createGlitchLines();
+            createHexOverlay();
+            createRadarScan();
+            createTerminalCommands();
+            createCursorTrail();
+        });
     </script>
 </body>
 </html>
