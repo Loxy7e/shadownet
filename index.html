@@ -853,7 +853,7 @@
                     
                     <div class="input-group">
                         <label class="input-label">IDENTIFIER (OPTIONAL)</label>
-                        <input type="text" class="terminal-input" id="usernameInput" placeholder="anonymous_user">
+                        <input type="text" class="terminal-input" id="usernameInput" placeholder="anonymous_user" value="anonymous_user">
                     </div>
 
                     <div class="btn-group">
@@ -928,7 +928,7 @@
         let currentUser = null;
         let roomRef = null;
         let destroyListener = null;
-        let myUsername = '';
+        let myUsername = 'anonymous_user';
 
         function createMatrixBackground() {
             const matrixBg = document.getElementById('matrixBg');
@@ -1193,9 +1193,16 @@
             }
         }
 
-        async function createRoom() {
+        function updateUsername() {
             const usernameInput = document.getElementById('usernameInput');
-            myUsername = usernameInput.value.trim() || 'anonymous_user';
+            const value = usernameInput.value.trim();
+            if (value) {
+                myUsername = value;
+            }
+        }
+
+        async function createRoom() {
+            updateUsername();
             
             const authSuccess = await signInAnonymously();
             if (!authSuccess) return;
@@ -1212,8 +1219,7 @@
         }
 
         async function joinRoom() {
-            const usernameInput = document.getElementById('usernameInput');
-            myUsername = usernameInput.value.trim() || 'anonymous_user';
+            updateUsername();
             const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
             
             if (roomCode.length === 6) {
@@ -1387,6 +1393,10 @@
                 e.preventDefault();
                 document.getElementById('roomCodeInput').focus();
             }
+        });
+
+        document.getElementById('usernameInput').addEventListener('input', function() {
+            updateUsername();
         });
 
         window.addEventListener('load', function() {
