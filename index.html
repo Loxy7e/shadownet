@@ -853,7 +853,7 @@
                     
                     <div class="input-group">
                         <label class="input-label">IDENTIFIER (OPTIONAL)</label>
-                        <input type="text" class="terminal-input" id="usernameInput" placeholder="anonymous_user" value="anonymous_user">
+                        <input type="text" class="terminal-input" id="usernameInput" placeholder="anonymous_user">
                     </div>
 
                     <div class="btn-group">
@@ -898,7 +898,7 @@
 
                     <div class="chat-input-container">
                         <div class="chat-input-group">
-                            <input type="text" class="chat-input" id="messageInput" placeholder="TYPE ENCRYPTED MESSAGE...">
+                            <input type="text" class="chat-input" id="messageInput" placeholder="TYPE ENCRYPTED MESSAGE..." onkeydown="handleMessageKeydown(event)">
                             <button class="send-btn" onclick="sendMessage()">SEND</button>
                             <button class="send-btn danger-btn" onclick="destroyChatWithEffect()">DESTROY CHAT</button>
                         </div>
@@ -929,6 +929,19 @@
         let roomRef = null;
         let destroyListener = null;
         let myUsername = 'anonymous_user';
+
+        function handleMessageKeydown(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function updateUsername() {
+            const usernameInput = document.getElementById('usernameInput');
+            const value = usernameInput.value.trim();
+            myUsername = value || 'anonymous_user';
+        }
 
         function createMatrixBackground() {
             const matrixBg = document.getElementById('matrixBg');
@@ -1193,14 +1206,6 @@
             }
         }
 
-        function updateUsername() {
-            const usernameInput = document.getElementById('usernameInput');
-            const value = usernameInput.value.trim();
-            if (value) {
-                myUsername = value;
-            }
-        }
-
         async function createRoom() {
             updateUsername();
             
@@ -1374,11 +1379,8 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        document.getElementById('messageInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                sendMessage();
-            }
+        document.getElementById('usernameInput').addEventListener('input', function() {
+            updateUsername();
         });
 
         document.getElementById('roomCodeInput').addEventListener('keydown', function(e) {
@@ -1393,10 +1395,6 @@
                 e.preventDefault();
                 document.getElementById('roomCodeInput').focus();
             }
-        });
-
-        document.getElementById('usernameInput').addEventListener('input', function() {
-            updateUsername();
         });
 
         window.addEventListener('load', function() {
