@@ -928,6 +928,7 @@
         let currentUser = null;
         let roomRef = null;
         let destroyListener = null;
+        let myUsername = '';
 
         function createMatrixBackground() {
             const matrixBg = document.getElementById('matrixBg');
@@ -1193,6 +1194,9 @@
         }
 
         async function createRoom() {
+            const usernameInput = document.getElementById('usernameInput');
+            myUsername = usernameInput.value.trim() || 'anonymous_user';
+            
             const authSuccess = await signInAnonymously();
             if (!authSuccess) return;
             
@@ -1208,7 +1212,10 @@
         }
 
         async function joinRoom() {
+            const usernameInput = document.getElementById('usernameInput');
+            myUsername = usernameInput.value.trim() || 'anonymous_user';
             const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+            
             if (roomCode.length === 6) {
                 const authSuccess = await signInAnonymously();
                 if (!authSuccess) return;
@@ -1253,8 +1260,6 @@
             
             const database = firebase.database();
             roomRef = database.ref('rooms/' + currentRoom);
-            
-            const myUsername = document.getElementById('usernameInput').value || 'User-' + Math.random().toString(36).substr(2, 5);
             
             if (isInitiator) {
                 roomRef.set({
@@ -1335,7 +1340,6 @@
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
-            const username = document.getElementById('usernameInput').value || 'User-' + Math.random().toString(36).substr(2, 5);
             
             if (!message) return;
             
@@ -1344,12 +1348,12 @@
             roomRef.child('messages').push({
                 id: messageId,
                 content: message,
-                username: username,
+                username: myUsername,
                 userId: currentUser.uid,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
             
-            addEncryptedMessage('me', message, username);
+            addEncryptedMessage('me', message, myUsername);
             messageQueue.push(messageId);
             
             input.value = '';
