@@ -458,7 +458,7 @@
         .chat-container {
             display: none;
             flex-direction: column;
-            height: 60vh;
+            height: 70vh;
         }
 
         .chat-header {
@@ -485,15 +485,18 @@
             padding: 1rem;
             overflow-y: auto;
             background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
         }
 
         .message {
-            margin-bottom: 1rem;
             padding: 1rem;
             border-left: 2px solid rgba(0, 255, 65, 0.5);
             background: rgba(0, 0, 0, 0.6);
             animation: messageSlide 0.3s ease-out;
             word-break: break-word;
+            max-width: 100%;
         }
 
         @keyframes messageSlide {
@@ -535,6 +538,11 @@
         .message-time {
             font-size: 0.7rem;
             color: var(--text-secondary);
+        }
+
+        .message-content {
+            line-height: 1.4;
+            font-size: 0.95rem;
         }
 
         .chat-input-container {
@@ -722,6 +730,14 @@
                 justify-content: space-between;
                 align-items: center;
             }
+            
+            .chat-messages {
+                gap: 1rem;
+            }
+            
+            .message {
+                max-width: 80%;
+            }
         }
 
         @media (max-width: 480px) {
@@ -745,10 +761,15 @@
             
             .chat-messages {
                 padding: 0.8rem;
+                gap: 0.6rem;
             }
             
             .message {
                 padding: 0.8rem;
+            }
+            
+            .chat-container {
+                height: 65vh;
             }
         }
 
@@ -767,6 +788,25 @@
             
             .status-indicator {
                 font-size: 0.6rem;
+            }
+            
+            .chat-input-group {
+                gap: 0.5rem;
+            }
+            
+            .send-btn {
+                padding: 0.8rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .chat-container {
+                height: 55vh;
+            }
+            
+            .terminal-body {
+                padding: 1rem;
             }
         }
     </style>
@@ -877,7 +917,6 @@
         let currentUser = null;
         let roomRef = null;
         let destroyListener = null;
-        let systemMessagesInterval = null;
 
         function createMatrixBackground() {
             const matrixBg = document.getElementById('matrixBg');
@@ -963,13 +1002,7 @@
         }
 
         function createMatrixParticles() {
-            let lastX = 0;
-            let lastY = 0;
-            
             document.addEventListener('mousemove', function(e) {
-                lastX = e.clientX;
-                lastY = e.clientY;
-                
                 if (Math.random() > 0.8) {
                     const particle = document.createElement('div');
                     particle.className = 'matrix-particle';
@@ -985,13 +1018,6 @@
                         particle.remove();
                     }, 1000);
                 }
-            });
-
-            // Обработка изменения размера окна
-            window.addEventListener('resize', function() {
-                // Пересоздаем частицы при изменении размера окна
-                const particles = document.querySelectorAll('.matrix-particle');
-                particles.forEach(particle => particle.remove());
             });
         }
 
@@ -1037,7 +1063,7 @@
             }, 1000);
         }
 
-        function encryptText(text, steps = 5) {
+        function encryptText(text) {
             let encrypted = '';
             for (let i = 0; i < text.length; i++) {
                 encrypted += Math.random().toString(36).substring(2, 3);
@@ -1068,7 +1094,7 @@
             
             const contentDiv = messageDiv.querySelector('.message-content');
             for (let i = 0; i <= content.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 30));
+                await new Promise(resolve => setTimeout(resolve, 80));
                 contentDiv.textContent = content.substring(0, i) + encryptText(content.substring(i));
             }
             contentDiv.textContent = content;
@@ -1129,12 +1155,6 @@
                     document.getElementById('accessScreen').style.display = 'block';
                     document.getElementById('sessionCreated').classList.add('hidden');
                     document.getElementById('joinForm').classList.add('hidden');
-                    
-                    // Очищаем интервал системных сообщений
-                    if (systemMessagesInterval) {
-                        clearInterval(systemMessagesInterval);
-                        systemMessagesInterval = null;
-                    }
                 }, 2000);
             }, 2000);
         }
@@ -1180,7 +1200,7 @@
                 
                 const snapshot = await checkRoom.once('value');
                 if (!snapshot.exists()) {
-                    addSystemMessage('Room does not exist');
+                    alert('Room does not exist');
                     return;
                 }
                 
@@ -1188,13 +1208,13 @@
                 showBootSequence();
                 isInitiator = false;
             } else {
-                addSystemMessage('Please enter a valid 6-digit code');
+                alert('Please enter a valid 6-digit code');
             }
         }
 
         function copyRoomCode() {
             navigator.clipboard.writeText(currentRoom);
-            addSystemMessage('Room code copied to clipboard');
+            alert('Room code copied to clipboard');
         }
 
         function enterChat() {
@@ -1238,11 +1258,6 @@
                         document.getElementById('accessScreen').style.display = 'block';
                         document.getElementById('sessionCreated').classList.add('hidden');
                         document.getElementById('joinForm').classList.add('hidden');
-                        
-                        if (systemMessagesInterval) {
-                            clearInterval(systemMessagesInterval);
-                            systemMessagesInterval = null;
-                        }
                     }, 2000);
                 }
             });
@@ -1253,9 +1268,6 @@
                     if (destroyListener) {
                         roomRef.off('value', destroyListener);
                     }
-                }
-                if (systemMessagesInterval) {
-                    clearInterval(systemMessagesInterval);
                 }
             });
             
@@ -1334,19 +1346,24 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // Исправленный обработчик Enter для отправки сообщений
         document.getElementById('messageInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                e.preventDefault(); // Предотвращаем перенос строки
+                e.preventDefault();
                 sendMessage();
             }
         });
 
-        // Обработчик Enter для поля ввода кода комнаты
         document.getElementById('roomCodeInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 joinRoom();
+            }
+        });
+
+        document.getElementById('usernameInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('roomCodeInput').focus();
             }
         });
 
