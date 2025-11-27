@@ -929,6 +929,7 @@
         let roomRef = null;
         let destroyListener = null;
         let myUsername = 'anonymous_user';
+        let savedUsername = '';
 
         function handleMessageKeydown(event) {
             if (event.key === 'Enter') {
@@ -941,6 +942,15 @@
             const usernameInput = document.getElementById('usernameInput');
             const value = usernameInput.value.trim();
             myUsername = value || 'anonymous_user';
+            savedUsername = value;
+        }
+
+        function restoreUsername() {
+            const usernameInput = document.getElementById('usernameInput');
+            if (savedUsername) {
+                usernameInput.value = savedUsername;
+                myUsername = savedUsername;
+            }
         }
 
         function createMatrixBackground() {
@@ -1064,6 +1074,8 @@
         }
 
         async function playHackSequence(action) {
+            updateUsername();
+            
             const messages = [
                 "[>] INITIATING ENCRYPTION PROTOCOL...",
                 "[>] GENERATING AES-256 KEY...",
@@ -1084,6 +1096,7 @@
             
             setTimeout(() => {
                 terminalBody.innerHTML = originalContent;
+                restoreUsername();
                 if (action === 'create') createRoom();
             }, 1000);
         }
@@ -1207,8 +1220,6 @@
         }
 
         async function createRoom() {
-            updateUsername();
-            
             const authSuccess = await signInAnonymously();
             if (!authSuccess) return;
             
