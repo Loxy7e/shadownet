@@ -818,8 +818,8 @@
                     </div>
 
                     <div class="btn-group">
-                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="updateUsername(); playHackSequence('create')">CREATE SESSION</button>
-                        <button class="terminal-btn" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="updateUsername(); showJoinForm()">JOIN SESSION</button>
+                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="setUsername(); playHackSequence('create')">CREATE SESSION</button>
+                        <button class="terminal-btn" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="setUsername(); showJoinForm()">JOIN SESSION</button>
                     </div>
 
                     <div id="joinForm" class="hidden">
@@ -827,7 +827,7 @@
                             <label class="input-label">ACCESS CODE</label>
                             <input type="text" class="terminal-input" id="roomCodeInput" placeholder="ENTER 6-DIGIT CODE">
                         </div>
-                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="updateUsername(); joinRoom()">CONNECT</button>
+                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="setUsername(); joinRoom()">CONNECT</button>
                     </div>
 
                     <div id="sessionCreated" class="hidden">
@@ -836,7 +836,7 @@
                             <div class="code-display" id="roomCodeDisplay"></div>
                             <button class="terminal-btn" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="copyRoomCode()">COPY CODE</button>
                         </div>
-                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="updateUsername(); showBootSequence().then(() => enterChat())">ENTER SECURE CHAT</button>
+                        <button class="terminal-btn primary" onmouseover="addDigitalRainEffect(event)" ontouchstart="addDigitalRainEffect(event)" onclick="setUsername(); showBootSequence().then(() => enterChat())">ENTER SECURE CHAT</button>
                     </div>
                 </div>
 
@@ -860,7 +860,7 @@
                     <div class="chat-input-container">
                         <div class="chat-input-group">
                             <input type="text" class="chat-input" id="messageInput" placeholder="TYPE ENCRYPTED MESSAGE..." onkeydown="handleMessageKeydown(event)">
-                            <button class="send-btn" onclick="updateUsername(); sendMessage()">SEND</button>
+                            <button class="send-btn" onclick="sendMessage()">SEND</button>
                             <button class="send-btn danger-btn" onclick="destroyChatWithEffect()">DESTROY CHAT</button>
                         </div>
                     </div>
@@ -890,10 +890,7 @@
         let roomRef = null;
         let destroyListener = null;
         let myUsername = 'anonymous_user';
-        let savedUsername = '';
-        let activityInterval = null;
         let heartbeatInterval = null;
-        let isIntentionallyLeaving = false;
         let encryptionKey = null;
         let roomCleanupInterval = null;
 
@@ -906,7 +903,6 @@
                 const encrypted = CryptoJS.AES.encrypt(message, key, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
                 return encrypted.toString();
             } catch (error) {
-                console.error('Encryption error:', error);
                 return message;
             }
         }
@@ -916,7 +912,6 @@
                 const decrypted = CryptoJS.AES.decrypt(encryptedMessage, key, { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
                 return decrypted.toString(CryptoJS.enc.Utf8);
             } catch (error) {
-                console.error('Decryption error:', error);
                 return encryptedMessage;
             }
         }
@@ -933,31 +928,15 @@
         function handleMessageKeydown(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
-                updateUsername();
                 sendMessage();
             }
         }
 
-        function updateUsername() {
+        function setUsername() {
             const usernameInput = document.getElementById('usernameInput');
             const value = usernameInput.value.trim();
             myUsername = value || 'anonymous_user';
-            savedUsername = value;
-            
-            if (roomRef && currentUser) {
-                roomRef.child('users').child(currentUser.uid).update({
-                    username: myUsername,
-                    lastActive: Date.now()
-                });
-            }
-        }
-
-        function restoreUsername() {
-            const usernameInput = document.getElementById('usernameInput');
-            if (savedUsername) {
-                usernameInput.value = savedUsername;
-                myUsername = savedUsername;
-            }
+            usernameInput.disabled = true;
         }
 
         function createMatrixBackground() {
@@ -1138,7 +1117,6 @@
             
             setTimeout(() => {
                 terminalBody.innerHTML = originalContent;
-                restoreUsername();
                 if (action === 'create') createRoom();
             }, 1000);
         }
@@ -1168,7 +1146,7 @@
                 messageDiv.classList.add('decrypting');
                 
                 for (let i = 0; i <= decrypted.length; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                    await new Promise(resolve => setTimeout(resolve, 150));
                     const currentText = decrypted.substring(0, i);
                     const remainingCipher = generateRandomCipherText(decrypted.length - i);
                     contentDiv.textContent = currentText + remainingCipher;
@@ -1241,6 +1219,7 @@
                     document.getElementById('accessScreen').style.display = 'block';
                     document.getElementById('sessionCreated').classList.add('hidden');
                     document.getElementById('joinForm').classList.add('hidden');
+                    document.getElementById('usernameInput').disabled = false;
                 }, 2000);
             }, 2000);
         }
@@ -1255,7 +1234,6 @@
                 currentUser = userCredential.user;
                 return true;
             } catch (error) {
-                console.error('Auth error:', error);
                 return false;
             }
         }
@@ -1263,8 +1241,7 @@
         function updateUserActivity() {
             if (roomRef && currentUser) {
                 roomRef.child('users').child(currentUser.uid).update({
-                    lastActive: Date.now(),
-                    username: myUsername
+                    lastActive: Date.now()
                 });
             }
         }
@@ -1282,18 +1259,24 @@
                 const now = Date.now();
                 let hasActiveUsers = false;
 
+                if (Object.keys(users).length === 0) {
+                    roomRef.remove();
+                    return;
+                }
+
                 Object.values(users).forEach(user => {
-                    if (user.lastActive && (now - user.lastActive < 30000)) {
+                    if (user.lastActive && (now - user.lastActive < 60000)) {
                         hasActiveUsers = true;
                     }
                 });
 
-                if (!hasActiveUsers && Object.keys(users).length > 0) {
+                if (!hasActiveUsers) {
                     roomRef.remove();
                     addSystemMessage('Room auto-destroyed due to inactivity');
                     setTimeout(() => {
                         document.getElementById('chatScreen').style.display = 'none';
                         document.getElementById('accessScreen').style.display = 'block';
+                        document.getElementById('usernameInput').disabled = false;
                     }, 2000);
                 }
             });
@@ -1352,7 +1335,7 @@
             
             addSystemMessage('Secure session established');
             addSystemMessage('All communications encrypted with E2EE');
-            addSystemMessage('Room will auto-destroy after 30 seconds of inactivity');
+            addSystemMessage('Room will auto-destroy after 1 minute of inactivity');
             
             startFirebaseConnection();
         }
@@ -1404,13 +1387,13 @@
                         document.getElementById('accessScreen').style.display = 'block';
                         document.getElementById('sessionCreated').classList.add('hidden');
                         document.getElementById('joinForm').classList.add('hidden');
+                        document.getElementById('usernameInput').disabled = false;
                         terminal.classList.remove('glitch-destroy');
                     }, 2000);
                 }
             });
             
             window.addEventListener('beforeunload', function() {
-                isIntentionallyLeaving = true;
                 cleanupRoom();
             });
 
@@ -1513,14 +1496,10 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        document.getElementById('usernameInput').addEventListener('input', function() {
-            updateUsername();
-        });
-
         document.getElementById('roomCodeInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                updateUsername();
+                setUsername();
                 joinRoom();
             }
         });
