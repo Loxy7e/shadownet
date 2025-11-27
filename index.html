@@ -1399,6 +1399,18 @@
                     }
                 }
             });
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && roomRef) {
+                    roomRef.child('users').child(currentUser.uid).remove();
+                }
+            });
+
+            window.addEventListener('pagehide', function() {
+                if (roomRef) {
+                    roomRef.child('users').child(currentUser.uid).remove();
+                }
+            });
             
             roomRef.child('users').on('value', (snapshot) => {
                 const users = snapshot.val() || {};
