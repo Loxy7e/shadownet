@@ -28,6 +28,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -37,17 +38,7 @@
             min-height: 100vh;
             overflow-x: hidden;
             cursor: auto;
-        }
-
-        .cursor-trail {
-            position: fixed;
-            width: 6px;
-            height: 6px;
-            background: var(--neon-green);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 10000;
-            mix-blend-mode: screen;
+            touch-action: manipulation;
         }
 
         .matrix-particle {
@@ -80,7 +71,7 @@
             position: absolute;
             top: -50px;
             color: var(--neon-green);
-            font-size: 18px;
+            font-size: 14px;
             font-family: 'JetBrains Mono', monospace;
             animation: matrixFall linear infinite;
         }
@@ -103,7 +94,7 @@
                 transparent 50%,
                 rgba(0, 0, 0, 0.1) 50%
             );
-            background-size: 100% 4px;
+            background-size: 100% 6px;
             z-index: -1;
             pointer-events: none;
             animation: scanline 2s linear infinite;
@@ -111,7 +102,7 @@
 
         @keyframes scanline {
             0% { transform: translateY(0px); }
-            100% { transform: translateY(4px); }
+            100% { transform: translateY(6px); }
         }
 
         .glitch-container {
@@ -156,7 +147,7 @@
             position: absolute;
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
+            font-size: 8px;
             opacity: 0;
             animation: hexFade 8s infinite;
         }
@@ -196,7 +187,7 @@
             right: 10px;
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
+            font-size: 8px;
             opacity: 0.3;
         }
 
@@ -212,7 +203,7 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 1rem;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -256,21 +247,22 @@
 
         .terminal-header {
             background: rgba(0, 0, 0, 0.8);
-            padding: 1rem 2rem;
+            padding: 1rem;
             border-bottom: 1px solid rgba(0, 255, 65, 0.2);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 0.5rem;
             position: relative;
         }
 
         .terminal-title {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: var(--neon-green);
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             animation: textGlitch 10s infinite;
+            text-align: center;
         }
 
         @keyframes textGlitch {
@@ -284,20 +276,22 @@
 
         .terminal-status {
             display: flex;
+            justify-content: center;
             align-items: center;
             gap: 1rem;
+            flex-wrap: wrap;
         }
 
         .status-indicator {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: var(--success);
             animation: pulse 2s infinite;
@@ -310,7 +304,7 @@
         }
 
         .terminal-body {
-            padding: 3rem;
+            padding: 1.5rem;
         }
 
         .access-screen {
@@ -319,13 +313,14 @@
 
         .logo {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 3.5rem;
+            font-size: 2rem;
             font-weight: 700;
             color: var(--neon-green);
             margin-bottom: 1rem;
-            letter-spacing: 4px;
+            letter-spacing: 2px;
             text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
             animation: logoGlitch 15s infinite;
+            word-break: break-word;
         }
 
         @keyframes logoGlitch {
@@ -338,41 +333,44 @@
                 text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
             }
             98% { 
-                transform: translateX(-10px) skewX(-5deg);
-                text-shadow: 5px 0 20px rgba(255, 0, 60, 0.8);
+                transform: translateX(-5px) skewX(-2deg);
+                text-shadow: 3px 0 20px rgba(255, 0, 60, 0.8);
             }
             99% { 
-                transform: translateX(10px) skewX(5deg);
-                text-shadow: -5px 0 20px rgba(0, 247, 255, 0.8);
+                transform: translateX(5px) skewX(2deg);
+                text-shadow: -3px 0 20px rgba(0, 247, 255, 0.8);
             }
         }
 
         .tagline {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
-            margin-bottom: 3rem;
-            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
         }
 
         .access-code {
             background: rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(0, 255, 65, 0.3);
-            padding: 2rem;
-            margin: 2rem 0;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
             position: relative;
         }
 
         .code-display {
-            font-size: 2.5rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: 8px;
+            letter-spacing: 4px;
             color: var(--neon-green);
             margin: 1rem 0;
             font-family: 'JetBrains Mono', monospace;
+            word-break: break-all;
+            text-align: center;
         }
 
         .input-group {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             text-align: left;
         }
 
@@ -380,20 +378,22 @@
             display: block;
             margin-bottom: 0.5rem;
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .terminal-input {
             width: 100%;
-            padding: 1rem;
+            padding: 0.8rem;
             background: rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(0, 255, 65, 0.3);
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
             font-size: 1rem;
             transition: all 0.3s ease;
+            border-radius: 0;
+            -webkit-appearance: none;
         }
 
         .terminal-input:focus {
@@ -404,25 +404,29 @@
 
         .btn-group {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 2rem;
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
         }
 
         .terminal-btn {
-            padding: 1.2rem 2rem;
+            padding: 1rem 1.5rem;
             border: 1px solid rgba(0, 255, 65, 0.3);
             background: rgba(0, 0, 0, 0.8);
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             position: relative;
             overflow: hidden;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .terminal-btn::before {
@@ -454,40 +458,42 @@
         .chat-container {
             display: none;
             flex-direction: column;
-            height: 70vh;
+            height: 60vh;
         }
 
         .chat-header {
             background: rgba(0, 0, 0, 0.8);
-            padding: 1.5rem 2rem;
+            padding: 1rem;
             border-bottom: 1px solid rgba(0, 255, 65, 0.2);
         }
 
         .chat-info {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
         .room-code {
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: var(--neon-green);
-            letter-spacing: 3px;
+            letter-spacing: 2px;
+            text-align: center;
         }
 
         .chat-messages {
             flex: 1;
-            padding: 2rem;
+            padding: 1rem;
             overflow-y: auto;
             background: rgba(0, 0, 0, 0.3);
         }
 
         .message {
-            margin-bottom: 1.5rem;
-            padding: 1.2rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
             border-left: 2px solid rgba(0, 255, 65, 0.5);
             background: rgba(0, 0, 0, 0.6);
             animation: messageSlide 0.3s ease-out;
+            word-break: break-word;
         }
 
         @keyframes messageSlide {
@@ -516,49 +522,60 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .message-sender {
             font-weight: 600;
             color: var(--neon-green);
+            font-size: 0.9rem;
         }
 
         .message-time {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: var(--text-secondary);
         }
 
         .chat-input-container {
             background: rgba(0, 0, 0, 0.8);
-            padding: 1.5rem 2rem;
+            padding: 1rem;
             border-top: 1px solid rgba(0, 255, 65, 0.2);
         }
 
         .chat-input-group {
             display: flex;
-            gap: 1rem;
+            flex-direction: column;
+            gap: 0.8rem;
         }
 
         .chat-input {
             flex: 1;
-            padding: 1rem;
+            padding: 0.8rem;
             background: rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(0, 255, 65, 0.3);
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
             font-size: 1rem;
             cursor: text;
+            border-radius: 0;
+            -webkit-appearance: none;
+            min-height: 44px;
         }
 
         .send-btn {
-            padding: 1rem 2rem;
+            padding: 0.8rem 1.5rem;
             background: rgba(0, 255, 65, 0.1);
             border: 1px solid var(--neon-green);
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .send-btn:hover {
@@ -569,16 +586,17 @@
         .users-panel {
             display: flex;
             gap: 0.5rem;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         .user-tag {
-            padding: 0.4rem 0.8rem;
+            padding: 0.3rem 0.6rem;
             background: rgba(0, 255, 65, 0.1);
             border: 1px solid rgba(0, 255, 65, 0.3);
             border-radius: 2px;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: var(--neon-green);
         }
 
@@ -601,7 +619,7 @@
             position: absolute;
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
+            font-size: 10px;
             pointer-events: none;
             opacity: 0;
             animation: digitalRain 1s linear forwards;
@@ -617,12 +635,13 @@
             font-family: 'JetBrains Mono', monospace;
             color: var(--neon-green);
             text-align: center;
-            padding: 2rem;
+            padding: 1rem;
+            font-size: 0.9rem;
         }
 
         .progress-bar {
             width: 100%;
-            height: 4px;
+            height: 3px;
             background: rgba(0, 255, 65, 0.2);
             margin: 1rem 0;
             border-radius: 2px;
@@ -639,12 +658,12 @@
 
         .boot-sequence {
             text-align: center;
-            padding: 2rem;
+            padding: 1rem;
         }
 
         .boot-status {
             margin-top: 1rem;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--neon-green);
         }
 
@@ -661,26 +680,93 @@
             100% { filter: brightness(0) blur(10px); transform: skew(10deg); }
         }
 
-        @media (max-width: 768px) {
+        @media (min-width: 768px) {
             .container {
-                padding: 1rem;
+                padding: 2rem;
             }
             
             .terminal-body {
-                padding: 2rem 1rem;
+                padding: 3rem;
             }
             
             .logo {
-                font-size: 2.5rem;
+                font-size: 3.5rem;
             }
             
             .code-display {
-                font-size: 1.8rem;
-                letter-spacing: 4px;
+                font-size: 2.5rem;
             }
             
             .btn-group {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .terminal-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 2rem;
+            }
+            
+            .terminal-title {
+                text-align: left;
+                font-size: 1.4rem;
+            }
+            
+            .chat-input-group {
+                flex-direction: row;
+            }
+            
+            .chat-info {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .terminal-body {
+                padding: 1rem;
+            }
+            
+            .logo {
+                font-size: 1.8rem;
+            }
+            
+            .code-display {
+                font-size: 1.3rem;
+                letter-spacing: 2px;
+            }
+            
+            .terminal-btn {
+                padding: 0.8rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .chat-messages {
+                padding: 0.8rem;
+            }
+            
+            .message {
+                padding: 0.8rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .container {
+                padding: 0.5rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .terminal-header {
+                padding: 0.8rem;
+            }
+            
+            .status-indicator {
+                font-size: 0.6rem;
             }
         }
     </style>
@@ -746,7 +832,7 @@
                     <div class="chat-header">
                         <div class="chat-info">
                             <div>
-                                <div style="font-size: 0.9rem; color: var(--text-secondary);">ACTIVE SESSION</div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary);">ACTIVE SESSION</div>
                                 <div class="room-code" id="currentRoomCode"></div>
                             </div>
                             <div class="status-indicator">
@@ -796,7 +882,7 @@
             const matrixBg = document.getElementById('matrixBg');
             const chars = '01010101010101010101ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%"\'#&_(),.;:?!\\|{}<>[]^~';
             
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 30; i++) {
                 const column = document.createElement('div');
                 column.className = 'matrix-column';
                 column.style.left = `${Math.random() * 100}%`;
@@ -804,7 +890,7 @@
                 column.style.animationDelay = `${Math.random() * 5}s`;
                 
                 let content = '';
-                for (let j = 0; j < 30; j++) {
+                for (let j = 0; j < 20; j++) {
                     content += chars[Math.floor(Math.random() * chars.length)];
                 }
                 column.textContent = content;
@@ -815,7 +901,7 @@
 
         function createGlitchLines() {
             const container = document.getElementById('glitchContainer');
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 15; i++) {
                 const line = document.createElement('div');
                 line.className = 'glitch-line';
                 line.style.top = `${Math.random() * 100}%`;
@@ -828,7 +914,7 @@
             const hexOverlay = document.getElementById('hexOverlay');
             const hexChars = '0123456789ABCDEF';
             
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 50; i++) {
                 const hex = document.createElement('div');
                 hex.className = 'hex-code';
                 hex.style.left = `${Math.random() * 100}%`;
@@ -836,7 +922,7 @@
                 hex.style.animationDelay = `${Math.random() * 8}s`;
                 
                 let hexCode = '';
-                for (let j = 0; j < 8; j++) {
+                for (let j = 0; j < 6; j++) {
                     hexCode += hexChars[Math.floor(Math.random() * 16)];
                 }
                 hex.textContent = '0x' + hexCode;
@@ -847,7 +933,7 @@
 
         function createRadarScan() {
             const radarScan = document.getElementById('radarScan');
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 2; i++) {
                 const line = document.createElement('div');
                 line.className = 'radar-line';
                 line.style.animationDelay = `${i * 1.3}s`;
@@ -877,7 +963,7 @@
 
         function createMatrixParticles() {
             document.addEventListener('mousemove', function(e) {
-                if (Math.random() > 0.7) {
+                if (Math.random() > 0.8) {
                     const particle = document.createElement('div');
                     particle.className = 'matrix-particle';
                     particle.style.left = e.pageX + 'px';
@@ -899,7 +985,7 @@
             const button = event.currentTarget;
             const rect = button.getBoundingClientRect();
             
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 5; i++) {
                 const digit = document.createElement('div');
                 digit.className = 'digital-rain-effect';
                 digit.textContent = Math.random().toString(36).substring(2, 3).toUpperCase();
@@ -925,13 +1011,6 @@
             const originalContent = terminalBody.innerHTML;
             terminalBody.innerHTML = '<div class="hack-sequence"></div>';
             const hackDiv = terminalBody.querySelector('.hack-sequence');
-            
-            hackDiv.style.cssText = `
-                font-family: 'JetBrains Mono', monospace;
-                color: var(--neon-green);
-                text-align: center;
-                padding: 2rem;
-            `;
             
             for (let i = 0; i < messages.length; i++) {
                 hackDiv.textContent = messages[i];
@@ -976,7 +1055,7 @@
             
             const contentDiv = messageDiv.querySelector('.message-content');
             for (let i = 0; i <= content.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 50));
+                await new Promise(resolve => setTimeout(resolve, 30));
                 contentDiv.textContent = content.substring(0, i) + encryptText(content.substring(i));
             }
             contentDiv.textContent = content;
@@ -1002,13 +1081,13 @@
             for (let i = 0; i <= 100; i += 10) {
                 progress.style.width = `${i}%`;
                 status.textContent = `${i}% - ${getBootMessage(i)}`;
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 150));
             }
             
             setTimeout(() => {
                 terminalBody.innerHTML = originalContent;
                 enterChat();
-            }, 1000);
+            }, 800);
         }
 
         function getBootMessage(percent) {
@@ -1054,7 +1133,7 @@
                 if (Math.random() > 0.7) {
                     addSystemMessage(messages[Math.floor(Math.random() * messages.length)]);
                 }
-            }, 10000);
+            }, 15000);
         }
 
         function generateRoomId() {
