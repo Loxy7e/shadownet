@@ -1075,6 +1075,8 @@
         let roomCheckInterval = null;
         let messageListener = null;
         let usersListener = null;
+        let heartbeatInterval = null;
+        let userSessionId = null;
         let decoyRoomManager = {
             targetCount: 0,
             activeRooms: new Set(),
@@ -1156,6 +1158,13 @@
             });
             
             matrixAnimationId = requestAnimationFrame(animateMatrixRain);
+        }
+
+        function generateStableUserID() {
+            if (!userSessionId) {
+                userSessionId = 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+            }
+            return userSessionId;
         }
 
         async function ensureAuthentication() {
@@ -1698,23 +1707,45 @@
             }
         }
 
-        function generateUserUID() {
-            return 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
-        }
-
         function setUsername() {
             const usernameInput = document.getElementById('usernameInput');
             myUsername = usernameInput.value.trim() || 'anonymous';
-            userUID = generateUserUID();
+            userUID = generateStableUserID();
         }
 
         function generateRoomId() {
             return Math.random().toString(36).substring(2, 8).toUpperCase();
         }
 
+        async function checkRoomExists(roomId) {
+            const database = firebase.database();
+            const roomRef = database.ref('rooms/' + roomId);
+            const snapshot = await roomRef.once('value');
+            return snapshot.exists();
+        }
+
+        async function createUniqueRoom() {
+            let roomId;
+            let attempts = 0;
+            
+            do {
+                roomId = generateRoomId();
+                attempts++;
+                if (attempts > 10) {
+                    alert('Failed to create unique room. Please try again.');
+                    return null;
+                }
+            } while (await checkRoomExists(roomId));
+            
+            return roomId;
+        }
+
         async function createRoom() {
             setUsername();
             if (!await ensureAuthentication()) return;
+            
+            const roomId = await createUniqueRoom();
+            if (!roomId) return;
             
             roomKey = await generateRoomKey();
             if (!roomKey) {
@@ -1724,7 +1755,7 @@
             
             const exportedKey = await exportKey(roomKey);
             
-            currentRoom = generateRoomId();
+            currentRoom = roomId;
             document.getElementById('roomCodeDisplay').textContent = currentRoom;
             document.getElementById('sessionCreated').classList.remove('hidden');
             document.getElementById('joinForm').classList.add('hidden');
@@ -1786,6 +1817,30 @@
             startFirebaseConnection();
         }
 
+        function startHeartbeat() {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+            }
+            
+            heartbeatInterval = setInterval(() => {
+                if (usersRef && userUID) {
+                    usersRef.child(userUID).child('lastSeen').set(Date.now());
+                }
+            }, 10000);
+        }
+
+        function cleanupOldSessions(users) {
+            const now = Date.now();
+            const timeout = 30000;
+            
+            for (const userId in users) {
+                const user = users[userId];
+                if (user.lastSeen && (now - user.lastSeen) > timeout) {
+                    usersRef.child(userId).remove();
+                }
+            }
+        }
+
         function startFirebaseConnection() {
             const database = firebase.database();
             roomRef = database.ref('rooms/' + currentRoom);
@@ -1799,14 +1854,11 @@
                     const userRef = usersRef.child(userUID);
                     userRef.set({
                         encryptedUsername: encrypted,
-                        lastSeen: Date.now()
+                        lastSeen: Date.now(),
+                        username: myUsername
                     });
                     
-                    userRef.onDisconnect().remove().then(() => {
-                        setTimeout(() => {
-                            checkAndDeleteEmptyRoom();
-                        }, 5000);
-                    });
+                    userRef.onDisconnect().remove();
                 }
             });
             
@@ -1816,6 +1868,7 @@
             
             usersListener = usersRef.on('value', async (snapshot) => {
                 const users = snapshot.val() || {};
+                cleanupOldSessions(users);
                 await updateUsersList(users);
             });
             
@@ -1853,6 +1906,7 @@
                 }
             });
 
+            startHeartbeat();
             startPeriodicRoomCheck();
         }
 
@@ -1889,9 +1943,16 @@
             usersList.innerHTML = '';
             
             const uniqueUsers = new Map();
+            const now = Date.now();
+            const timeout = 30000;
             
             for (const userId in users) {
                 const user = users[userId];
+                
+                if (user.lastSeen && (now - user.lastSeen) > timeout) {
+                    continue;
+                }
+                
                 let username = 'anonymous';
                 
                 if (user.encryptedUsername) {
@@ -2042,6 +2103,10 @@
                 clearInterval(roomCheckInterval);
             }
             
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+            }
+            
             if (usersListener) {
                 usersRef.off('value', usersListener);
             }
@@ -2109,6 +2174,10 @@
             
             if (roomCheckInterval) {
                 clearInterval(roomCheckInterval);
+            }
+            
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
             }
             
             if (decoyRoomManager.maintenanceInterval) {
