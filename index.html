@@ -1219,7 +1219,7 @@
                             emptyRooms.push(roomId);
                             deletePromises.push(roomsRef.child(roomId).remove());
                         }
-                    } else {
+                    } else if (room && !room.s_arch) {
                         emptyRooms.push(roomId);
                         deletePromises.push(roomsRef.child(roomId).remove());
                     }
@@ -1327,8 +1327,9 @@
             try {
                 if (!await ensureAuthentication()) return;
                 
+                const roomCount = Math.floor(Math.random() * 21) + 10;
+                
                 const statsBefore = await getRoomStats();
-                const roomCount = Math.floor(Math.random() * 46) + 5;
                 
                 if (!confirm(`Create ${roomCount} decoy rooms?\nCurrent active rooms: ${statsBefore.totalRooms}\nCurrent decoy rooms: ${statsBefore.decoyRooms}`)) {
                     return;
@@ -1522,7 +1523,7 @@
                 if (removed >= count) break;
                 
                 const room = rooms[roomId];
-                if (room && room.s_arch === true) {
+                if (room && room.s_arch === true && decoyRoomManager.activeRooms.has(roomId)) {
                     if (decoyRoomManager.nodeIntervals.has(roomId)) {
                         clearInterval(decoyRoomManager.nodeIntervals.get(roomId));
                         decoyRoomManager.nodeIntervals.delete(roomId);
