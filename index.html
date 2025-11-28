@@ -1012,6 +1012,7 @@
         let disconnectAnimationShown = false;
         let userUID = null;
         let roomKey = null;
+        let matrixAnimationId = null;
 
         const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
         const matrixCanvas = document.getElementById('matrixRain');
@@ -1019,6 +1020,10 @@
         let matrixDrops = [];
 
         function initMatrixRain() {
+            if (matrixAnimationId) {
+                cancelAnimationFrame(matrixAnimationId);
+            }
+            
             matrixCanvas.width = window.innerWidth;
             matrixCanvas.height = window.innerHeight;
             
@@ -1055,7 +1060,34 @@
                 }
             });
             
-            requestAnimationFrame(animateMatrixRain);
+            matrixAnimationId = requestAnimationFrame(animateMatrixRain);
+        }
+
+        async function cleanupEmptyRooms() {
+            try {
+                const database = firebase.database();
+                const roomsRef = database.ref('rooms');
+                const snapshot = await roomsRef.once('value');
+                const rooms = snapshot.val() || {};
+                
+                let cleanupCount = 0;
+                const cleanupPromises = [];
+                
+                for (const roomId in rooms) {
+                    const room = rooms[roomId];
+                    if (!room.users || Object.keys(room.users).length === 0) {
+                        cleanupPromises.push(roomsRef.child(roomId).remove());
+                        cleanupCount++;
+                    }
+                }
+                
+                await Promise.all(cleanupPromises);
+                if (cleanupCount > 0) {
+                    console.log(`Cleaned up ${cleanupCount} empty rooms`);
+                }
+            } catch (error) {
+                console.error('Room cleanup failed:', error);
+            }
         }
 
         async function generateRoomKey() {
@@ -1181,6 +1213,7 @@
             const database = firebase.database();
             const roomSetupRef = database.ref('rooms/' + currentRoom);
             await roomSetupRef.child('roomKey').set(exportedKey);
+            await roomSetupRef.child('createdAt').set(Date.now());
         }
 
         function showJoinForm() {
@@ -1255,8 +1288,14 @@
                 const users = snapshot.val() || {};
                 updateUsersList(users);
                 
-                if (Object.keys(users).length === 0 && roomRef) {
-                    roomRef.remove();
+                if (Object.keys(users).length === 0) {
+                    setTimeout(() => {
+                        usersRef.once('value').then(emptySnapshot => {
+                            if (Object.keys(emptySnapshot.val() || {}).length === 0) {
+                                roomRef.remove().catch(() => {});
+                            }
+                        });
+                    }, 1000);
                 }
             });
             
@@ -1458,6 +1497,10 @@
         });
 
         window.addEventListener('beforeunload', () => {
+            if (matrixAnimationId) {
+                cancelAnimationFrame(matrixAnimationId);
+            }
+            
             if (usersRef && userUID) {
                 usersRef.child(userUID).remove();
             }
@@ -1465,6 +1508,7 @@
 
         window.addEventListener('load', () => {
             initMatrixRain();
+            cleanupEmptyRooms();
             
             setTimeout(() => {
                 document.getElementById('loadingScreen').style.display = 'none';
