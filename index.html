@@ -389,6 +389,7 @@
             user-select: none;
             -webkit-user-select: none;
             min-height: 50px;
+            touch-action: manipulation;
         }
 
         .terminal-btn:active {
@@ -597,6 +598,7 @@
             user-select: none;
             -webkit-user-select: none;
             min-height: 44px;
+            touch-action: manipulation;
         }
 
         .send-btn:active {
@@ -992,11 +994,11 @@
                     </div>
 
                     <div class="btn-group">
-                        <button class="terminal-btn primary" onclick="createRoom()">CREATE SESSION</button>
-                        <button class="terminal-btn" onclick="showJoinForm()">JOIN SESSION</button>
-                        <button class="terminal-btn danger" onclick="deleteDecoyRooms()">DELETE DECOY ROOMS</button>
-                        <button class="terminal-btn" onclick="createFakeRooms()">CREATE DECOY ROOMS</button>
-                        <button class="terminal-btn danger btn-group-full-width" onclick="deleteEmptyRooms()">DELETE EMPTY ROOMS</button>
+                        <button class="terminal-btn primary" id="createRoomBtn">CREATE SESSION</button>
+                        <button class="terminal-btn" id="showJoinFormBtn">JOIN SESSION</button>
+                        <button class="terminal-btn danger" id="deleteDecoyRoomsBtn">DELETE DECOY ROOMS</button>
+                        <button class="terminal-btn" id="createFakeRoomsBtn">CREATE DECOY ROOMS</button>
+                        <button class="terminal-btn danger btn-group-full-width" id="deleteEmptyRoomsBtn">DELETE EMPTY ROOMS</button>
                     </div>
 
                     <div id="joinForm" class="hidden">
@@ -1004,16 +1006,16 @@
                             <label class="input-label">ACCESS CODE</label>
                             <input type="text" class="terminal-input" id="roomCodeInput" placeholder="ENTER 6-DIGIT CRYPTO-CODE">
                         </div>
-                        <button class="terminal-btn primary" onclick="joinRoom()">ESTABLISH CONNECTION</button>
+                        <button class="terminal-btn primary" id="joinRoomBtn">ESTABLISH CONNECTION</button>
                     </div>
 
                     <div id="sessionCreated" class="hidden">
                         <div class="access-code">
                             <div class="input-label">SESSION ACCESS CODE</div>
                             <div class="code-display" id="roomCodeDisplay"></div>
-                            <button class="terminal-btn" onclick="copyRoomCode()">COPY CRYPTO-CODE</button>
+                            <button class="terminal-btn" id="copyRoomCodeBtn">COPY CRYPTO-CODE</button>
                         </div>
-                        <button class="terminal-btn primary" onclick="enterChat()">ENTER SECURE CHAT</button>
+                        <button class="terminal-btn primary" id="enterChatBtn">ENTER SECURE CHAT</button>
                     </div>
                 </div>
 
@@ -1037,8 +1039,8 @@
                     <div class="chat-input-container">
                         <div class="chat-input-group">
                             <input type="text" class="chat-input" id="messageInput" placeholder="TRANSMIT ENCRYPTED MESSAGE...">
-                            <button class="send-btn" onclick="sendMessage()">SEND</button>
-                            <button class="send-btn danger-btn" onclick="destroyChat()">DESTROY CHAT</button>
+                            <button class="send-btn" id="sendMessageBtn">SEND</button>
+                            <button class="send-btn danger-btn" id="destroyChatBtn">DESTROY CHAT</button>
                         </div>
                     </div>
                 </div>
@@ -1071,6 +1073,8 @@
         let matrixAnimationId = null;
         let isAuthenticated = false;
         let roomCheckInterval = null;
+        let messageListener = null;
+        let usersListener = null;
         let decoyRoomManager = {
             targetCount: 0,
             activeRooms: new Set(),
@@ -1190,6 +1194,52 @@
             } catch (error) {
                 console.error('Error getting room stats:', error);
                 return { totalRooms: 0, decoyRooms: 0 };
+            }
+        }
+
+        async function deleteEmptyRooms() {
+            try {
+                if (!await ensureAuthentication()) return;
+                
+                addSystemMessage('🔄 Scanning for empty rooms...');
+                
+                const database = firebase.database();
+                const roomsRef = database.ref('rooms');
+                const snapshot = await roomsRef.once('value');
+                const rooms = snapshot.val() || {};
+                
+                let emptyRooms = [];
+                let deletePromises = [];
+                
+                for (const roomId in rooms) {
+                    const room = rooms[roomId];
+                    if (room && room.users) {
+                        const users = room.users;
+                        if (Object.keys(users).length === 0) {
+                            emptyRooms.push(roomId);
+                            deletePromises.push(roomsRef.child(roomId).remove());
+                        }
+                    } else {
+                        emptyRooms.push(roomId);
+                        deletePromises.push(roomsRef.child(roomId).remove());
+                    }
+                }
+                
+                if (emptyRooms.length === 0) {
+                    addSystemMessage('✅ No empty rooms found');
+                    alert('No empty rooms found');
+                    return;
+                }
+                
+                await Promise.all(deletePromises);
+                
+                const newStats = await getRoomStats();
+                addSystemMessage(`✅ Deleted ${emptyRooms.length} empty rooms\nRemaining active rooms: ${newStats.totalRooms}`);
+                alert(`Deleted ${emptyRooms.length} empty rooms\nRemaining active rooms: ${newStats.totalRooms}`);
+                
+            } catch (error) {
+                console.error('Error deleting empty rooms:', error);
+                addSystemMessage(`❌ Failed to delete empty rooms: ${error.message}`);
             }
         }
 
@@ -1759,12 +1809,20 @@
                 }
             });
             
-            usersRef.on('value', async (snapshot) => {
+            if (usersListener) {
+                usersRef.off('value', usersListener);
+            }
+            
+            usersListener = usersRef.on('value', async (snapshot) => {
                 const users = snapshot.val() || {};
                 await updateUsersList(users);
             });
             
-            messagesRef.limitToLast(50).on('child_added', async (snapshot) => {
+            if (messageListener) {
+                messagesRef.off('child_added', messageListener);
+            }
+            
+            messageListener = messagesRef.limitToLast(50).on('child_added', async (snapshot) => {
                 const message = snapshot.val();
                 if (message.userId !== userUID) {
                     const decryptedContent = await decryptMessage(message.encryptedContent);
@@ -1829,6 +1887,8 @@
             const usersList = document.getElementById('usersList');
             usersList.innerHTML = '';
             
+            const uniqueUsers = new Map();
+            
             for (const userId in users) {
                 const user = users[userId];
                 let username = 'anonymous';
@@ -1839,10 +1899,14 @@
                     username = user.username;
                 }
                 
-                const userTag = document.createElement('div');
-                userTag.className = 'user-tag';
-                userTag.textContent = username;
-                usersList.appendChild(userTag);
+                if (!uniqueUsers.has(username)) {
+                    uniqueUsers.set(username, userId);
+                    
+                    const userTag = document.createElement('div');
+                    userTag.className = 'user-tag';
+                    userTag.textContent = username;
+                    usersList.appendChild(userTag);
+                }
             }
         }
 
@@ -1977,6 +2041,14 @@
                 clearInterval(roomCheckInterval);
             }
             
+            if (usersListener) {
+                usersRef.off('value', usersListener);
+            }
+            
+            if (messageListener) {
+                messagesRef.off('child_added', messageListener);
+            }
+            
             document.getElementById('chatScreen').style.display = 'none';
             document.getElementById('accessScreen').style.display = 'block';
             document.getElementById('sessionCreated').classList.add('hidden');
@@ -1991,27 +2063,42 @@
             disconnectAnimationShown = false;
             userUID = null;
             roomKey = null;
+            usersListener = null;
+            messageListener = null;
         }
 
-        document.getElementById('messageInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('createRoomBtn').addEventListener('click', createRoom);
+            document.getElementById('showJoinFormBtn').addEventListener('click', showJoinForm);
+            document.getElementById('joinRoomBtn').addEventListener('click', joinRoom);
+            document.getElementById('copyRoomCodeBtn').addEventListener('click', copyRoomCode);
+            document.getElementById('enterChatBtn').addEventListener('click', enterChat);
+            document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
+            document.getElementById('destroyChatBtn').addEventListener('click', destroyChat);
+            document.getElementById('deleteDecoyRoomsBtn').addEventListener('click', deleteDecoyRooms);
+            document.getElementById('createFakeRoomsBtn').addEventListener('click', createFakeRooms);
+            document.getElementById('deleteEmptyRoomsBtn').addEventListener('click', deleteEmptyRooms);
 
-        document.getElementById('roomCodeInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                joinRoom();
-            }
-        });
+            document.getElementById('messageInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
 
-        document.getElementById('usernameInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                document.getElementById('roomCodeInput').focus();
-            }
+            document.getElementById('roomCodeInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    joinRoom();
+                }
+            });
+
+            document.getElementById('usernameInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('roomCodeInput').focus();
+                }
+            });
         });
 
         window.addEventListener('beforeunload', () => {
