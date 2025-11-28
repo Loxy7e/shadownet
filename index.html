@@ -1193,47 +1193,16 @@
             }
         }
 
-        async function deleteEmptyRooms() {
-            try {
-                if (!await ensureAuthentication()) return;
-                
-                addSystemMessage('🔄 Scanning for empty rooms...');
-                
-                const database = firebase.database();
-                const roomsRef = database.ref('rooms');
-                const snapshot = await roomsRef.once('value');
-                const rooms = snapshot.val() || {};
-                
-                const totalRooms = Object.keys(rooms).length;
-                let emptyRoomsDeleted = 0;
-                const deletePromises = [];
-                
-                for (const roomId in rooms) {
-                    const room = rooms[roomId];
-                    
-                    if (room && !room.s_arch) {
-                        const usersRef = database.ref('rooms/' + roomId + '/users');
-                        const usersSnapshot = await usersRef.once('value');
-                        const users = usersSnapshot.val() || {};
-                        
-                        if (Object.keys(users).length === 0) {
-                            addSystemMessage(`🗑️ Deleting empty room: ${roomId}`);
-                            deletePromises.push(roomsRef.child(roomId).remove());
-                            emptyRoomsDeleted++;
-                        }
-                    }
-                }
-                
-                await Promise.all(deletePromises);
-                
-                const message = `✅ Deleted ${emptyRoomsDeleted} empty rooms\nTotal active rooms: ${totalRooms}`;
-                addSystemMessage(message);
-                alert(message);
-                
-            } catch (error) {
-                console.error('Error deleting empty rooms:', error);
-                addSystemMessage(`❌ Failed to delete empty rooms: ${error.message}`);
+        function stopAllDecoyProcesses() {
+            decoyRoomManager.isActive = false;
+            decoyRoomManager.targetCount = 0;
+            
+            if (decoyRoomManager.maintenanceInterval) {
+                clearInterval(decoyRoomManager.maintenanceInterval);
+                decoyRoomManager.maintenanceInterval = null;
             }
+            
+            stopAllNodes();
         }
 
         async function stopAllNodes() {
@@ -1258,8 +1227,8 @@
                     return;
                 }
                 
-                addSystemMessage('🛑 Stopping all node activity...');
-                await stopAllNodes();
+                addSystemMessage('🛑 Stopping all decoy processes...');
+                stopAllDecoyProcesses();
                 
                 addSystemMessage('🔄 Deleting decoy rooms with random delay...');
                 
@@ -1288,12 +1257,6 @@
                             deleteCount++;
                             
                             if (deleteCount === decoyRooms.length) {
-                                decoyRoomManager.targetCount = 0;
-                                decoyRoomManager.isActive = false;
-                                if (decoyRoomManager.maintenanceInterval) {
-                                    clearInterval(decoyRoomManager.maintenanceInterval);
-                                }
-                                
                                 const newStats = await getRoomStats();
                                 addSystemMessage(`✅ Deleted ${deleteCount} decoy rooms\nRemaining active rooms: ${newStats.totalRooms}`);
                                 alert(`Deleted ${deleteCount} decoy rooms\nRemaining active rooms: ${newStats.totalRooms}`);
@@ -1337,15 +1300,17 @@
         }
 
         async function createDecoyRoomsWithDelay(totalCount) {
+            if (!decoyRoomManager.isActive) return;
+            
             const database = firebase.database();
             const roomsRef = database.ref('rooms');
             
             let createdCount = 0;
             
             const createRoomWithDelay = async (index) => {
-                if (index >= totalCount) return;
+                if (index >= totalCount || !decoyRoomManager.isActive) return;
                 
-                const delay = Math.random() * 3000 + 1000;
+                const delay = Math.random() * 1200 + 300;
                 
                 setTimeout(async () => {
                     try {
@@ -1383,6 +1348,8 @@
         }
 
         async function addUsersToRoom(roomId, roomKey) {
+            if (!decoyRoomManager.isActive) return;
+            
             const userCount = Math.floor(Math.random() * 5) + 1;
             const database = firebase.database();
             const roomRef = database.ref('rooms/' + roomId);
@@ -1402,6 +1369,11 @@
             }
             
             const nodeInterval = setInterval(async () => {
+                if (!decoyRoomManager.isActive) {
+                    clearInterval(nodeInterval);
+                    return;
+                }
+                
                 const roomCheck = await roomRef.once('value');
                 if (!roomCheck.exists()) {
                     clearInterval(nodeInterval);
@@ -1455,7 +1427,7 @@
         }
 
         async function createAdditionalDecoyRooms(count) {
-            if (count <= 0) return;
+            if (count <= 0 || !decoyRoomManager.isActive) return;
             
             const database = firebase.database();
             const roomsRef = database.ref('rooms');
@@ -1486,7 +1458,7 @@
         }
 
         async function removeExcessDecoyRooms(count) {
-            if (count <= 0) return;
+            if (count <= 0 || !decoyRoomManager.isActive) return;
             
             const database = firebase.database();
             const roomsRef = database.ref('rooms');
@@ -1514,7 +1486,7 @@
         }
 
         async function randomlyRefreshRooms() {
-            if (decoyRoomManager.activeRooms.size === 0) return;
+            if (decoyRoomManager.activeRooms.size === 0 || !decoyRoomManager.isActive) return;
             
             const refreshChance = 0.5;
             if (Math.random() > refreshChance) return;
@@ -1529,6 +1501,8 @@
         }
 
         async function refreshDecoyRoom(roomId) {
+            if (!decoyRoomManager.isActive) return;
+            
             const database = firebase.database();
             const roomRef = database.ref('rooms/' + roomId);
             
@@ -1541,6 +1515,8 @@
             decoyRoomManager.activeRooms.delete(roomId);
             
             setTimeout(async () => {
+                if (!decoyRoomManager.isActive) return;
+                
                 const newRoomId = generateRoomId();
                 const roomKey = await generateRoomKey();
                 if (!roomKey) return;
