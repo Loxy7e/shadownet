@@ -1812,8 +1812,8 @@
                 messageListener = null;
             }
             if (roomRef) {
-                roomRef.off('value');
-                roomRef.child('destroyed').off('value');
+                roomRef.off();
+                roomRef.child('destroyed').off();
             }
         }
 
@@ -1863,12 +1863,6 @@
                     if (decryptedContent) {
                         addMessageWithDecryptAnimation(decryptedContent, decryptedUsername, false, message.timestamp);
                     }
-                }
-            });
-
-            roomRef.child('destroyed').on('value', (snapshot) => {
-                if (snapshot.exists() && !disconnectAnimationShown) {
-                    showRoomDestroyAnimation();
                 }
             });
 
@@ -2109,10 +2103,10 @@
         }
 
         async function destroyChat() {
-            if (!roomRef) return;
+            if (!roomRef || disconnectAnimationShown) return;
             
-            showRoomDestroyAnimation();
             disconnectAnimationShown = true;
+            showRoomDestroyAnimation();
             
             stopFirebaseListeners();
             
@@ -2136,8 +2130,20 @@
                 usersUpdateTimeout = null;
             }
             
-            await roomRef.child('destroyed').set(true);
-            await roomRef.remove();
+            try {
+                if (usersRef && userUID) {
+                    await usersRef.child(userUID).remove();
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await roomRef.remove();
+                
+                const database = firebase.database();
+                await database.ref('rooms/' + currentRoom).remove();
+                
+            } catch (error) {
+            }
             
             setTimeout(() => {
                 resetToMainScreen();
@@ -2145,43 +2151,26 @@
         }
 
         function resetToMainScreen() {
-            if (roomCheckInterval) {
-                clearInterval(roomCheckInterval);
-                roomCheckInterval = null;
-            }
-            
-            if (heartbeatInterval) {
-                clearInterval(heartbeatInterval);
-                heartbeatInterval = null;
-            }
-            
-            if (syncInterval) {
-                clearInterval(syncInterval);
-                syncInterval = null;
-            }
-            
-            if (usersUpdateTimeout) {
-                clearTimeout(usersUpdateTimeout);
-                usersUpdateTimeout = null;
-            }
-            
             stopFirebaseListeners();
             
-            document.getElementById('chatScreen').style.display = 'none';
-            document.getElementById('accessScreen').style.display = 'block';
-            document.getElementById('sessionCreated').classList.add('hidden');
-            document.getElementById('joinForm').classList.add('hidden');
-            
-            document.getElementById('chatMessages').innerHTML = '';
+            if (roomCheckInterval) clearInterval(roomCheckInterval);
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+            if (syncInterval) clearInterval(syncInterval);
+            if (usersUpdateTimeout) clearTimeout(usersUpdateTimeout);
             
             currentRoom = null;
             roomRef = null;
             usersRef = null;
             messagesRef = null;
-            disconnectAnimationShown = false;
             roomKey = null;
-            usersListener = null;
-            messageListener = null;
+            
+            document.getElementById('chatScreen').style.display = 'none';
+            document.getElementById('accessScreen').style.display = 'block';
+            document.getElementById('sessionCreated').classList.add('hidden');
+            document.getElementById('joinForm').classList.add('hidden');
+            document.getElementById('chatMessages').innerHTML = '';
+            
+            disconnectAnimationShown = false;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
