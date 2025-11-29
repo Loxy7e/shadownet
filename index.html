@@ -1811,6 +1811,10 @@
                 messagesRef.off('child_added', messageListener);
                 messageListener = null;
             }
+            if (roomRef) {
+                roomRef.off('value');
+                roomRef.child('destroyed').off('value');
+            }
         }
 
         function startFirebaseConnection() {
@@ -2132,6 +2136,7 @@
                 usersUpdateTimeout = null;
             }
             
+            await roomRef.child('destroyed').set(true);
             await roomRef.remove();
             
             setTimeout(() => {
