@@ -37,7 +37,6 @@
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
         }
 
         #matrixRain {
@@ -1811,10 +1810,6 @@
                 messagesRef.off('child_added', messageListener);
                 messageListener = null;
             }
-            if (roomRef) {
-                roomRef.off();
-                roomRef.child('destroyed').off();
-            }
         }
 
         function startFirebaseConnection() {
@@ -1863,6 +1858,12 @@
                     if (decryptedContent) {
                         addMessageWithDecryptAnimation(decryptedContent, decryptedUsername, false, message.timestamp);
                     }
+                }
+            });
+
+            roomRef.child('destroyed').on('value', (snapshot) => {
+                if (snapshot.exists() && !disconnectAnimationShown) {
+                    showRoomDestroyAnimation();
                 }
             });
 
@@ -2103,13 +2104,42 @@
         }
 
         async function destroyChat() {
-            if (!roomRef || disconnectAnimationShown) return;
+            if (!roomRef) return;
             
-            disconnectAnimationShown = true;
-            showRoomDestroyAnimation();
-            
-            stopFirebaseListeners();
-            
+            try {
+                showRoomDestroyAnimation();
+                
+                await roomRef.remove();
+                
+                stopFirebaseListeners();
+                
+                if (roomCheckInterval) {
+                    clearInterval(roomCheckInterval);
+                    roomCheckInterval = null;
+                }
+                
+                if (heartbeatInterval) {
+                    clearInterval(heartbeatInterval);
+                    heartbeatInterval = null;
+                }
+                
+                if (syncInterval) {
+                    clearInterval(syncInterval);
+                    syncInterval = null;
+                }
+                
+                currentRoom = null;
+                roomRef = null;
+                usersRef = null;
+                messagesRef = null;
+                roomKey = null;
+                
+            } catch (error) {
+                console.error('Error destroying chat:', error);
+            }
+        }
+
+        function resetToMainScreen() {
             if (roomCheckInterval) {
                 clearInterval(roomCheckInterval);
                 roomCheckInterval = null;
@@ -2130,47 +2160,23 @@
                 usersUpdateTimeout = null;
             }
             
-            try {
-                if (usersRef && userUID) {
-                    await usersRef.child(userUID).remove();
-                }
-                
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                await roomRef.remove();
-                
-                const database = firebase.database();
-                await database.ref('rooms/' + currentRoom).remove();
-                
-            } catch (error) {
-            }
-            
-            setTimeout(() => {
-                resetToMainScreen();
-            }, 3000);
-        }
-
-        function resetToMainScreen() {
             stopFirebaseListeners();
-            
-            if (roomCheckInterval) clearInterval(roomCheckInterval);
-            if (heartbeatInterval) clearInterval(heartbeatInterval);
-            if (syncInterval) clearInterval(syncInterval);
-            if (usersUpdateTimeout) clearTimeout(usersUpdateTimeout);
-            
-            currentRoom = null;
-            roomRef = null;
-            usersRef = null;
-            messagesRef = null;
-            roomKey = null;
             
             document.getElementById('chatScreen').style.display = 'none';
             document.getElementById('accessScreen').style.display = 'block';
             document.getElementById('sessionCreated').classList.add('hidden');
             document.getElementById('joinForm').classList.add('hidden');
+            
             document.getElementById('chatMessages').innerHTML = '';
             
+            currentRoom = null;
+            roomRef = null;
+            usersRef = null;
+            messagesRef = null;
             disconnectAnimationShown = false;
+            roomKey = null;
+            usersListener = null;
+            messageListener = null;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
