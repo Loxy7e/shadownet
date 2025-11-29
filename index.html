@@ -1178,7 +1178,6 @@
                 isAuthenticated = true;
                 return true;
             } catch (error) {
-                addSystemMessage('Authentication failed: ' + error.message);
                 return false;
             }
         }
@@ -1209,8 +1208,6 @@
             try {
                 if (!await ensureAuthentication()) return;
                 
-                addSystemMessage('🔄 Scanning for empty rooms...');
-                
                 const database = firebase.database();
                 const roomsRef = database.ref('rooms');
                 const snapshot = await roomsRef.once('value');
@@ -1234,19 +1231,15 @@
                 }
                 
                 if (emptyRooms.length === 0) {
-                    addSystemMessage('✅ No empty rooms found');
                     alert('No empty rooms found');
                     return;
                 }
                 
                 await Promise.all(deletePromises);
                 
-                const newStats = await getRoomStats();
-                addSystemMessage(`✅ Deleted ${emptyRooms.length} empty rooms\nRemaining active rooms: ${newStats.totalRooms}`);
-                alert(`Deleted ${emptyRooms.length} empty rooms\nRemaining active rooms: ${newStats.totalRooms}`);
+                alert(`Deleted ${emptyRooms.length} empty rooms`);
                 
             } catch (error) {
-                addSystemMessage(`❌ Failed to delete empty rooms: ${error.message}`);
             }
         }
 
@@ -1276,18 +1269,15 @@
                 const stats = await getRoomStats();
                 
                 if (stats.decoyRooms === 0) {
-                    alert(`No decoy rooms found.\nTotal active rooms: ${stats.totalRooms}`);
+                    alert('No decoy rooms found');
                     return;
                 }
                 
-                if (!confirm(`WARNING: This will delete ${stats.decoyRooms} decoy rooms.\nTotal active rooms: ${stats.totalRooms}\nContinue?`)) {
+                if (!confirm(`WARNING: This will delete ${stats.decoyRooms} decoy rooms.\nContinue?`)) {
                     return;
                 }
                 
-                addSystemMessage('🛑 Stopping all decoy processes...');
                 stopAllDecoyProcesses();
-                
-                addSystemMessage('🔄 Deleting decoy rooms with random delay...');
                 
                 const database = firebase.database();
                 const roomsRef = database.ref('rooms');
@@ -1308,15 +1298,12 @@
                     const roomId = decoyRooms[i];
                     setTimeout(async () => {
                         try {
-                            addSystemMessage(`🗑️ Deleting decoy room: ${roomId}`);
                             await roomsRef.child(roomId).remove();
                             decoyRoomManager.activeRooms.delete(roomId);
                             deleteCount++;
                             
                             if (deleteCount === decoyRooms.length) {
-                                const newStats = await getRoomStats();
-                                addSystemMessage(`✅ Deleted ${deleteCount} decoy rooms\nRemaining active rooms: ${newStats.totalRooms}`);
-                                alert(`Deleted ${deleteCount} decoy rooms\nRemaining active rooms: ${newStats.totalRooms}`);
+                                alert(`Deleted ${deleteCount} decoy rooms`);
                             }
                         } catch (error) {
                         }
@@ -1324,7 +1311,6 @@
                 }
                 
             } catch (error) {
-                addSystemMessage(`❌ Failed to delete decoy rooms: ${error.message}`);
             }
         }
 
@@ -1334,13 +1320,9 @@
                 
                 const roomCount = Math.floor(Math.random() * 21) + 10;
                 
-                const statsBefore = await getRoomStats();
-                
-                if (!confirm(`Create ${roomCount} decoy rooms?\nCurrent active rooms: ${statsBefore.totalRooms}\nCurrent decoy rooms: ${statsBefore.decoyRooms}`)) {
+                if (!confirm(`Create ${roomCount} decoy rooms?`)) {
                     return;
                 }
-                
-                addSystemMessage(`🔄 Creating ${roomCount} decoy rooms...`);
                 
                 decoyRoomManager.targetCount = roomCount;
                 decoyRoomManager.isActive = true;
@@ -1350,7 +1332,6 @@
                 startDecoyRoomMaintenance();
                 
             } catch (error) {
-                addSystemMessage(`❌ Failed to create decoy rooms: ${error.message}`);
             }
         }
 
@@ -1384,11 +1365,6 @@
                         decoyRoomManager.activeRooms.add(roomId);
                         await addUsersToRoom(roomId, roomKey);
                         createdCount++;
-                        
-                        if (createdCount === totalCount) {
-                            const statsAfter = await getRoomStats();
-                            addSystemMessage(`✅ Created ${createdCount} decoy rooms\nTotal active rooms: ${statsAfter.totalRooms}`);
-                        }
                         
                         createRoomWithDelay(index + 1);
                         
@@ -1806,7 +1782,7 @@
             if (usersRef) {
                 usersRef.once('value').then(async (snapshot) => {
                     const users = snapshot.val() || {};
-                    await updateUsersList(users);
+                    scheduleUsersUpdate(users);
                 });
             }
         }
@@ -1862,9 +1838,7 @@
                 userRef.onDisconnect().remove();
             };
             
-            usersRef.child(userUID).remove().then(() => {
-                registerUser();
-            });
+            registerUser();
             
             usersListener = usersRef.on('value', async (snapshot) => {
                 const users = snapshot.val() || {};
@@ -1986,7 +1960,11 @@
                 return (now - user.lastSeen) <= timeout || user.isCurrent;
             });
             
-            const sortedUsers = activeUsers.sort((a, b) => {
+            const uniqueUsers = activeUsers.filter((user, index, self) => 
+                index === self.findIndex(u => u.id === user.id)
+            );
+            
+            const sortedUsers = uniqueUsers.sort((a, b) => {
                 if (a.isCurrent) return -1;
                 if (b.isCurrent) return 1;
                 return a.username.localeCompare(b.username);
