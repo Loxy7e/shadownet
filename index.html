@@ -37,6 +37,7 @@
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         #matrixRain {
@@ -2106,37 +2107,36 @@
         async function destroyChat() {
             if (!roomRef) return;
             
-            try {
-                showRoomDestroyAnimation();
-                
-                await roomRef.remove();
-                
-                stopFirebaseListeners();
-                
-                if (roomCheckInterval) {
-                    clearInterval(roomCheckInterval);
-                    roomCheckInterval = null;
-                }
-                
-                if (heartbeatInterval) {
-                    clearInterval(heartbeatInterval);
-                    heartbeatInterval = null;
-                }
-                
-                if (syncInterval) {
-                    clearInterval(syncInterval);
-                    syncInterval = null;
-                }
-                
-                currentRoom = null;
-                roomRef = null;
-                usersRef = null;
-                messagesRef = null;
-                roomKey = null;
-                
-            } catch (error) {
-                console.error('Error destroying chat:', error);
+            showRoomDestroyAnimation();
+            disconnectAnimationShown = true;
+            
+            stopFirebaseListeners();
+            
+            if (roomCheckInterval) {
+                clearInterval(roomCheckInterval);
+                roomCheckInterval = null;
             }
+            
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+            }
+            
+            if (syncInterval) {
+                clearInterval(syncInterval);
+                syncInterval = null;
+            }
+            
+            if (usersUpdateTimeout) {
+                clearTimeout(usersUpdateTimeout);
+                usersUpdateTimeout = null;
+            }
+            
+            await roomRef.remove();
+            
+            setTimeout(() => {
+                resetToMainScreen();
+            }, 3000);
         }
 
         function resetToMainScreen() {
