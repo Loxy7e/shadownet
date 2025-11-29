@@ -1162,15 +1162,10 @@
             matrixAnimationId = requestAnimationFrame(animateMatrixRain);
         }
 
-        function loadStableUserID() {
-            let storedId = localStorage.getItem('shadowNet_userUID');
-            if (!storedId) {
-                const username = document.getElementById('usernameInput').value.trim() || 'anonymous';
-                const randomId = Math.random().toString(36).substr(2, 12);
-                storedId = 'user_' + username + '_' + randomId;
-                localStorage.setItem('shadowNet_userUID', storedId);
-            }
-            return storedId;
+        function generateRandomUserID() {
+            const timestamp = Date.now().toString(36);
+            const randomPart = Math.random().toString(36).substr(2, 12);
+            return timestamp + '_' + randomPart;
         }
 
         async function ensureAuthentication() {
@@ -1414,7 +1409,7 @@
             const roomRef = database.ref('rooms/' + roomId);
             
             for (let i = 0; i < userCount; i++) {
-                const userId = 'user_' + roomId + '_' + i + '_' + Date.now();
+                const userId = generateRandomUserID();
                 const randomUsername = userNames[Math.floor(Math.random() * userNames.length)] + '_' + (Math.floor(Math.random() * 99) + 1);
                 const encryptedUsername = await encryptMessageWithKey(randomUsername, roomKey);
                 
@@ -1450,7 +1445,7 @@
                         await roomRef.child('messages').push({
                             encryptedContent: encryptedContent,
                             encryptedUsername: encryptedUsername,
-                            userId: 'user_' + roomId + '_' + Date.now(),
+                            userId: generateRandomUserID(),
                             timestamp: Date.now(),
                             node: true
                         });
@@ -1701,8 +1696,9 @@
 
         function setUsername() {
             const usernameInput = document.getElementById('usernameInput');
-            myUsername = usernameInput.value.trim() || 'anonymous';
-            userUID = loadStableUserID();
+            const randomName = userNames[Math.floor(Math.random() * userNames.length)] + '_' + (Math.floor(Math.random() * 99) + 1);
+            myUsername = usernameInput.value.trim() || randomName;
+            userUID = generateRandomUserID();
         }
 
         function generateRoomId() {
@@ -2129,28 +2125,61 @@
             }, 3000);
         }
 
-        function destroyChat() {
+        async function destroyChat() {
             if (!roomRef) return;
             
-            roomRef.child('destroyed').set(true);
-            roomRef.remove();
+            try {
+                showRoomDestroyAnimation();
+                
+                await roomRef.remove();
+                
+                stopFirebaseListeners();
+                
+                if (roomCheckInterval) {
+                    clearInterval(roomCheckInterval);
+                    roomCheckInterval = null;
+                }
+                
+                if (heartbeatInterval) {
+                    clearInterval(heartbeatInterval);
+                    heartbeatInterval = null;
+                }
+                
+                if (syncInterval) {
+                    clearInterval(syncInterval);
+                    syncInterval = null;
+                }
+                
+                currentRoom = null;
+                roomRef = null;
+                usersRef = null;
+                messagesRef = null;
+                roomKey = null;
+                
+            } catch (error) {
+                console.error('Error destroying chat:', error);
+            }
         }
 
         function resetToMainScreen() {
             if (roomCheckInterval) {
                 clearInterval(roomCheckInterval);
+                roomCheckInterval = null;
             }
             
             if (heartbeatInterval) {
                 clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
             }
             
             if (syncInterval) {
                 clearInterval(syncInterval);
+                syncInterval = null;
             }
             
             if (usersUpdateTimeout) {
                 clearTimeout(usersUpdateTimeout);
+                usersUpdateTimeout = null;
             }
             
             stopFirebaseListeners();
@@ -2173,7 +2202,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            loadStableUserID();
+            userUID = generateRandomUserID();
             
             document.getElementById('createRoomBtn').addEventListener('click', createRoom);
             document.getElementById('showJoinFormBtn').addEventListener('click', showJoinForm);
