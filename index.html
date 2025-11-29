@@ -1078,13 +1078,14 @@
         let heartbeatInterval = null;
         let userSessionId = null;
         let syncInterval = null;
+        let usersUpdateTimeout = null;
         let decoyRoomManager = {
             targetCount: 0,
             activeRooms: new Set(),
             nodeIntervals: new Map(),
             maintenanceInterval: null,
             isActive: false
-            };
+        };
 
         const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
         const matrixCanvas = document.getElementById('matrixRain');
@@ -1162,9 +1163,14 @@
         }
 
         function loadStableUserID() {
-            const username = document.getElementById('usernameInput').value.trim() || 'anonymous';
-            const randomId = Math.random().toString(36).substr(2, 12);
-            return 'user_' + randomId;
+            let storedId = localStorage.getItem('shadowNet_userUID');
+            if (!storedId) {
+                const username = document.getElementById('usernameInput').value.trim() || 'anonymous';
+                const randomId = Math.random().toString(36).substr(2, 12);
+                storedId = 'user_' + username + '_' + randomId;
+                localStorage.setItem('shadowNet_userUID', storedId);
+            }
+            return storedId;
         }
 
         async function ensureAuthentication() {
@@ -1823,7 +1829,20 @@
             }, 5000);
         }
 
+        function stopFirebaseListeners() {
+            if (usersListener) {
+                usersRef.off('value', usersListener);
+                usersListener = null;
+            }
+            if (messageListener) {
+                messagesRef.off('child_added', messageListener);
+                messageListener = null;
+            }
+        }
+
         function startFirebaseConnection() {
+            stopFirebaseListeners();
+            
             const database = firebase.database();
             roomRef = database.ref('rooms/' + currentRoom);
             usersRef = roomRef.child('users');
@@ -1847,20 +1866,14 @@
                 userRef.onDisconnect().remove();
             };
             
-            registerUser();
-            
-            if (usersListener) {
-                usersRef.off('value', usersListener);
-            }
+            usersRef.child(userUID).remove().then(() => {
+                registerUser();
+            });
             
             usersListener = usersRef.on('value', async (snapshot) => {
                 const users = snapshot.val() || {};
-                await updateUsersList(users);
+                scheduleUsersUpdate(users);
             });
-            
-            if (messageListener) {
-                messagesRef.off('child_added', messageListener);
-            }
             
             messageListener = messagesRef.limitToLast(50).on('child_added', async (snapshot) => {
                 const message = snapshot.val();
@@ -1899,6 +1912,15 @@
             syncInterval = setInterval(forceUsersSync, 3000);
         }
 
+        function scheduleUsersUpdate(users) {
+            if (usersUpdateTimeout) {
+                clearTimeout(usersUpdateTimeout);
+            }
+            usersUpdateTimeout = setTimeout(() => {
+                updateUsersList(users);
+            }, 500);
+        }
+
         function startPeriodicRoomCheck() {
             if (roomCheckInterval) {
                 clearInterval(roomCheckInterval);
@@ -1931,12 +1953,20 @@
             usersList.innerHTML = '';
             
             const now = Date.now();
-            const timeout = 60000;
+            const timeout = 30000;
             
             const tempUsers = [];
+            const seenUserIds = new Set();
             
             for (const userId in users) {
+                if (seenUserIds.has(userId)) continue;
+                seenUserIds.add(userId);
+                
                 const user = users[userId];
+                
+                if ((now - user.lastSeen) > timeout && userId !== userUID) {
+                    continue;
+                }
                 
                 let username = 'anonymous';
                 
@@ -1972,7 +2002,8 @@
                 userTag.textContent = user.username;
                 
                 if (user.isCurrent) {
-                    userTag.setAttribute('data-current-user', 'true');
+                    userTag.style.borderColor = 'var(--neon-blue)';
+                    userTag.style.background = 'rgba(0, 247, 255, 0.1)';
                 }
                 
                 usersList.appendChild(userTag);
@@ -2118,13 +2149,11 @@
                 clearInterval(syncInterval);
             }
             
-            if (usersListener) {
-                usersRef.off('value', usersListener);
+            if (usersUpdateTimeout) {
+                clearTimeout(usersUpdateTimeout);
             }
             
-            if (messageListener) {
-                messagesRef.off('child_added', messageListener);
-            }
+            stopFirebaseListeners();
             
             document.getElementById('chatScreen').style.display = 'none';
             document.getElementById('accessScreen').style.display = 'block';
@@ -2194,6 +2223,10 @@
             
             if (syncInterval) {
                 clearInterval(syncInterval);
+            }
+            
+            if (usersUpdateTimeout) {
+                clearTimeout(usersUpdateTimeout);
             }
             
             if (decoyRoomManager.maintenanceInterval) {
