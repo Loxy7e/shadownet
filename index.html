@@ -369,7 +369,7 @@
         }
 
         .btn-group-full-width {
-            grid-template-columns: 1fr;
+            grid-column: 1 / -1;
         }
 
         .terminal-btn {
@@ -721,7 +721,7 @@
             z-index: 1000;
         }
 
-        .room-destroy-animation {
+        .destroy-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -731,68 +731,9 @@
             z-index: 10000;
             pointer-events: none;
             opacity: 0;
-            animation: roomDestroy 3s ease-in-out forwards;
         }
 
-        @keyframes roomDestroy {
-            0% { 
-                opacity: 0; 
-                background: #000000;
-                filter: brightness(1) contrast(1);
-            }
-            10% { 
-                opacity: 0.3; 
-                background: radial-gradient(circle at 50% 50%, #1a1a1a, #000000);
-                filter: brightness(0.8) contrast(1.2);
-            }
-            20% { 
-                opacity: 0.6; 
-                background: radial-gradient(circle at 30% 70%, #2a2a2a, #000000);
-                filter: brightness(0.6) contrast(1.5);
-            }
-            30% { 
-                opacity: 0.8; 
-                background: radial-gradient(circle at 70% 30%, #1a1a1a, #000000);
-                filter: brightness(0.4) contrast(2);
-            }
-            40% { 
-                opacity: 0.9; 
-                background: #0a0a0a;
-                filter: brightness(0.3) contrast(2.5);
-            }
-            50% { 
-                opacity: 1; 
-                background: #000000;
-                filter: brightness(0.2) contrast(3);
-            }
-            60% { 
-                opacity: 0.9; 
-                background: #0a0a0a;
-                filter: brightness(0.3) contrast(2.5);
-            }
-            70% { 
-                opacity: 0.8; 
-                background: radial-gradient(circle at 40% 60%, #1a1a1a, #000000);
-                filter: brightness(0.4) contrast(2);
-            }
-            80% { 
-                opacity: 0.6; 
-                background: radial-gradient(circle at 60% 40%, #2a2a2a, #000000);
-                filter: brightness(0.6) contrast(1.5);
-            }
-            90% { 
-                opacity: 0.3; 
-                background: radial-gradient(circle at 50% 50%, #1a1a1a, #000000);
-                filter: brightness(0.8) contrast(1.2);
-            }
-            100% { 
-                opacity: 1; 
-                background: #000000;
-                filter: brightness(1) contrast(1);
-            }
-        }
-
-        .signal-glitch {
+        .destroy-glitch {
             position: fixed;
             top: 0;
             left: 0;
@@ -804,31 +745,13 @@
                     rgba(255, 255, 255, 0.03) 1px, 
                     transparent 1px, 
                     transparent 2px
-                ),
-                repeating-linear-gradient(90deg, 
-                    rgba(255, 255, 255, 0.02) 0px, 
-                    rgba(255, 255, 255, 0.02) 1px, 
-                    transparent 1px, 
-                    transparent 2px
                 );
             z-index: 10001;
             pointer-events: none;
             opacity: 0;
-            animation: signalGlitch 2.5s ease-in-out;
         }
 
-        @keyframes signalGlitch {
-            0% { opacity: 0; transform: translateY(-5px) skew(0deg); filter: hue-rotate(0deg); }
-            15% { opacity: 0.8; transform: translateY(3px) skew(1deg); filter: hue-rotate(90deg); }
-            30% { opacity: 0.4; transform: translateY(-2px) skew(-0.5deg); filter: hue-rotate(180deg); }
-            45% { opacity: 0.9; transform: translateY(1px) skew(0.3deg); filter: hue-rotate(270deg); }
-            60% { opacity: 0.3; transform: translateY(-1px) skew(-0.2deg); filter: hue-rotate(180deg); }
-            75% { opacity: 0.7; transform: translateY(0.5px) skew(0.1deg); filter: hue-rotate(90deg); }
-            90% { opacity: 0.2; transform: translateY(-0.3px) skew(0deg); filter: hue-rotate(0deg); }
-            100% { opacity: 0; transform: translateY(0) skew(0deg); filter: hue-rotate(0deg); }
-        }
-
-        .tv-static {
+        .destroy-static {
             position: fixed;
             top: 0;
             left: 0;
@@ -836,24 +759,13 @@
             height: 100%;
             background: 
                 radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 20%),
-                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.06) 0%, transparent 20%);
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 20%);
             z-index: 10002;
             pointer-events: none;
             opacity: 0;
-            animation: tvStatic 2s ease-in-out;
         }
 
-        @keyframes tvStatic {
-            0% { opacity: 0; filter: blur(0px) contrast(1); }
-            20% { opacity: 0.6; filter: blur(1px) contrast(2); }
-            40% { opacity: 0.3; filter: blur(0.5px) contrast(1.5); }
-            60% { opacity: 0.8; filter: blur(2px) contrast(2.5); }
-            80% { opacity: 0.4; filter: blur(1px) contrast(1.8); }
-            100% { opacity: 0; filter: blur(0px) contrast(1); }
-        }
-
-        .connection-lost {
+        .destroy-text {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -865,17 +777,39 @@
             text-align: center;
             z-index: 10003;
             opacity: 0;
-            animation: connectionLost 2.5s ease-in-out;
             text-shadow: 0 0 15px rgba(255, 0, 60, 0.7);
         }
 
-        @keyframes connectionLost {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8) rotate(-5deg); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1) rotate(2deg); }
-            40% { opacity: 0.9; transform: translate(-50%, -50%) scale(1) rotate(-1deg); }
-            60% { opacity: 1; transform: translate(-50%, -50%) scale(1.05) rotate(1deg); }
-            80% { opacity: 0.8; transform: translate(-50%, -50%) scale(0.95) rotate(0deg); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8) rotate(0deg); }
+        @keyframes destroyOverlay {
+            0% { opacity: 0; }
+            20% { opacity: 0.8; background: #1a1a1a; }
+            40% { opacity: 0.9; background: #2a2a2a; }
+            60% { opacity: 0.95; background: #1a1a1a; }
+            80% { opacity: 0.8; background: #0a0a0a; }
+            100% { opacity: 1; background: #000000; }
+        }
+
+        @keyframes destroyGlitch {
+            0% { opacity: 0; transform: translateY(-5px); }
+            25% { opacity: 0.8; transform: translateY(3px); filter: hue-rotate(90deg); }
+            50% { opacity: 0.4; transform: translateY(-2px); filter: hue-rotate(180deg); }
+            75% { opacity: 0.9; transform: translateY(1px); filter: hue-rotate(270deg); }
+            100% { opacity: 0; transform: translateY(0); filter: hue-rotate(0deg); }
+        }
+
+        @keyframes destroyStatic {
+            0% { opacity: 0; filter: blur(0px); }
+            33% { opacity: 0.6; filter: blur(1px); }
+            66% { opacity: 0.8; filter: blur(2px); }
+            100% { opacity: 0; filter: blur(0px); }
+        }
+
+        @keyframes destroyText {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            60% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+            90% { opacity: 0.8; transform: translate(-50%, -50%) scale(0.95); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
 
         @media (min-width: 768px) {
@@ -1872,16 +1806,19 @@
 
             destroyListener = roomRef.child('destroySignal').on('value', (snapshot) => {
                 if (snapshot.exists() && !disconnectAnimationShown) {
-                    showRoomDestroyAnimation();
-                    setTimeout(() => {
-                        destroyChat();
-                    }, 100);
+                    const destroyData = snapshot.val();
+                    if (destroyData.timestamp && destroyData.initiator !== userUID) {
+                        showDestroyAnimation();
+                        setTimeout(() => {
+                            destroyChat();
+                        }, 100);
+                    }
                 }
             });
 
             roomRef.on('value', (snapshot) => {
                 if (!snapshot.exists() && !disconnectAnimationShown) {
-                    showRoomDestroyAnimation();
+                    showDestroyAnimation();
                 }
             });
 
@@ -2085,41 +2022,45 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function showRoomDestroyAnimation() {
+        function showDestroyAnimation() {
             if (disconnectAnimationShown) return;
-            disconnectAnimationShown = true;
             
-            const roomDestroy = document.createElement('div');
-            roomDestroy.className = 'room-destroy-animation';
-            document.body.appendChild(roomDestroy);
+            const overlay = document.createElement('div');
+            overlay.className = 'destroy-overlay';
+            document.body.appendChild(overlay);
             
-            const signalGlitch = document.createElement('div');
-            signalGlitch.className = 'signal-glitch';
-            document.body.appendChild(signalGlitch);
+            const glitch = document.createElement('div');
+            glitch.className = 'destroy-glitch';
+            document.body.appendChild(glitch);
             
-            const tvStatic = document.createElement('div');
-            tvStatic.className = 'tv-static';
-            document.body.appendChild(tvStatic);
+            const staticEffect = document.createElement('div');
+            staticEffect.className = 'destroy-static';
+            document.body.appendChild(staticEffect);
             
-            const connectionLost = document.createElement('div');
-            connectionLost.className = 'connection-lost';
-            connectionLost.textContent = 'ROOM DESTROYED';
-            document.body.appendChild(connectionLost);
+            const text = document.createElement('div');
+            text.className = 'destroy-text';
+            text.textContent = 'CONNECTION TERMINATED';
+            document.body.appendChild(text);
+            
+            overlay.style.animation = 'destroyOverlay 1.5s ease-in-out forwards';
+            glitch.style.animation = 'destroyGlitch 1.5s ease-in-out';
+            staticEffect.style.animation = 'destroyStatic 1.5s ease-in-out';
+            text.style.animation = 'destroyText 1.5s ease-in-out';
             
             setTimeout(() => {
-                roomDestroy.remove();
-                signalGlitch.remove();
-                tvStatic.remove();
-                connectionLost.remove();
-            }, 3000);
+                overlay.remove();
+                glitch.remove();
+                staticEffect.remove();
+                text.remove();
+                resetToMainScreen();
+            }, 1500);
         }
 
         async function destroyChat() {
             if (!roomRef || disconnectAnimationShown) return;
             
+            showDestroyAnimation();
             disconnectAnimationShown = true;
-            
-            showRoomDestroyAnimation();
             
             await roomRef.child('destroySignal').set({
                 timestamp: Date.now(),
@@ -2153,19 +2094,10 @@
                     await usersRef.child(userUID).remove();
                 }
                 
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
                 await roomRef.remove();
-                
-                const database = firebase.database();
-                await database.ref('rooms/' + currentRoom).remove();
                 
             } catch (error) {
             }
-            
-            setTimeout(() => {
-                resetToMainScreen();
-            }, 3000);
         }
 
         function resetToMainScreen() {
