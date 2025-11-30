@@ -369,7 +369,7 @@
         }
 
         .btn-group-full-width {
-            grid-column: 1 / -1;
+            grid-template-columns: 1fr;
         }
 
         .terminal-btn {
@@ -1872,13 +1872,10 @@
 
             destroyListener = roomRef.child('destroySignal').on('value', (snapshot) => {
                 if (snapshot.exists() && !disconnectAnimationShown) {
-                    const destroyData = snapshot.val();
-                    if (destroyData.timestamp && destroyData.initiator !== userUID) {
-                        showRoomDestroyAnimation();
-                        setTimeout(() => {
-                            destroyChat();
-                        }, 100);
-                    }
+                    showRoomDestroyAnimation();
+                    setTimeout(() => {
+                        destroyChat();
+                    }, 100);
                 }
             });
 
