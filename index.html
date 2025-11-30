@@ -2114,7 +2114,6 @@
                 signalGlitch.remove();
                 tvStatic.remove();
                 connectionLost.remove();
-                resetToMainScreen();
             }, 3000);
         }
 
@@ -2123,12 +2122,12 @@
             
             disconnectAnimationShown = true;
             
+            showRoomDestroyAnimation();
+            
             await roomRef.child('destroySignal').set({
                 timestamp: Date.now(),
                 initiator: userUID
             });
-            
-            showRoomDestroyAnimation();
             
             stopFirebaseListeners();
             
