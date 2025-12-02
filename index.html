@@ -1015,6 +1015,7 @@
         let syncInterval = null;
         let usersUpdateTimeout = null;
         let destroyListener = null;
+        let isDestroyAnimationActive = false;
         let decoyRoomManager = {
             targetCount: 0,
             activeRooms: new Set(),
@@ -1805,7 +1806,7 @@
             });
 
             destroyListener = roomRef.child('destroySignal').on('value', (snapshot) => {
-                if (snapshot.exists() && !disconnectAnimationShown) {
+                if (snapshot.exists() && !disconnectAnimationShown && !isDestroyAnimationActive) {
                     const destroyData = snapshot.val();
                     if (destroyData.timestamp && destroyData.initiator !== userUID) {
                         showDestroyAnimation();
@@ -1817,7 +1818,7 @@
             });
 
             roomRef.on('value', (snapshot) => {
-                if (!snapshot.exists() && !disconnectAnimationShown) {
+                if (!snapshot.exists() && !disconnectAnimationShown && !isDestroyAnimationActive) {
                     showDestroyAnimation();
                 }
             });
@@ -2023,7 +2024,8 @@
         }
 
         function showDestroyAnimation() {
-            if (disconnectAnimationShown) return;
+            if (isDestroyAnimationActive) return;
+            isDestroyAnimationActive = true;
             
             const overlay = document.createElement('div');
             overlay.className = 'destroy-overlay';
@@ -2059,8 +2061,8 @@
         async function destroyChat() {
             if (!roomRef || disconnectAnimationShown) return;
             
-            showDestroyAnimation();
             disconnectAnimationShown = true;
+            showDestroyAnimation();
             
             await roomRef.child('destroySignal').set({
                 timestamp: Date.now(),
@@ -2113,14 +2115,14 @@
             usersRef = null;
             messagesRef = null;
             roomKey = null;
+            disconnectAnimationShown = false;
+            isDestroyAnimationActive = false;
             
             document.getElementById('chatScreen').style.display = 'none';
             document.getElementById('accessScreen').style.display = 'block';
             document.getElementById('sessionCreated').classList.add('hidden');
             document.getElementById('joinForm').classList.add('hidden');
             document.getElementById('chatMessages').innerHTML = '';
-            
-            disconnectAnimationShown = false;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
