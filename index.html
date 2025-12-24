@@ -46,30 +46,14 @@
             position: relative;
         }
 
-        #matrixRain {
+        #matrixSnow {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -3;
-            opacity: 0.1;
-        }
-
-        .hologram-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 65, 0.01) 50%, transparent 70%);
-            z-index: -2;
-            animation: hologramMove 25s linear infinite;
-        }
-
-        @keyframes hologramMove {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
+            z-index: 1;
+            opacity: 0.3;
         }
 
         .quantum-field {
@@ -109,9 +93,9 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 0.5rem;
+            padding: 1rem;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -124,7 +108,7 @@
             background: var(--terminal-bg);
             border: 1px solid rgba(0, 255, 65, 0.2);
             width: 100%;
-            max-width: 900px;
+            max-width: 800px;
             box-shadow: 
                 0 0 60px rgba(0, 255, 65, 0.15),
                 0 0 100px rgba(0, 247, 255, 0.08),
@@ -186,7 +170,7 @@
 
         .terminal-title {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: transparent;
             background: linear-gradient(45deg, var(--neon-green), var(--neon-cyan));
@@ -231,7 +215,7 @@
         }
 
         .terminal-body {
-            padding: 1rem;
+            padding: 1.5rem;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -245,17 +229,17 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            gap: 1rem;
         }
 
         .logo {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: transparent;
             background: linear-gradient(45deg, var(--neon-green), var(--neon-blue), var(--neon-cyan));
             -webkit-background-clip: text;
             background-clip: text;
-            margin-bottom: 1rem;
             letter-spacing: 4px;
             text-shadow: 
                 0 0 20px rgba(0, 255, 65, 0.4),
@@ -263,9 +247,8 @@
         }
 
         .tagline {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--neon-green);
-            margin-bottom: 2rem;
             letter-spacing: 2px;
             text-transform: uppercase;
             position: relative;
@@ -297,11 +280,11 @@
         .access-code {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(13, 13, 13, 0.8) 100%);
             border: 1px solid rgba(0, 255, 65, 0.2);
-            padding: 1.5rem;
-            margin: 1.5rem 0;
+            padding: 1.2rem;
             border-radius: 8px;
             position: relative;
             overflow: hidden;
+            margin-bottom: 1.2rem;
         }
 
         .access-code::before {
@@ -321,26 +304,26 @@
         }
 
         .code-display {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 800;
             letter-spacing: 6px;
             color: var(--neon-green);
-            margin: 1rem 0;
+            margin: 0.8rem 0;
             font-family: 'JetBrains Mono', monospace;
             text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
         }
 
         .input-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.5rem;
             text-align: left;
             position: relative;
         }
 
         .input-label {
             display: block;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.3rem;
             color: var(--text-secondary);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 600;
@@ -348,12 +331,12 @@
 
         .terminal-input {
             width: 100%;
-            padding: 1rem;
+            padding: 0.9rem;
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(13, 13, 13, 0.9) 100%);
             border: 1px solid rgba(0, 255, 65, 0.2);
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
             border-radius: 6px;
             -webkit-appearance: none;
@@ -372,8 +355,8 @@
         .btn-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1.5rem;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
         }
 
         .btn-group-full-width {
@@ -381,23 +364,23 @@
         }
 
         .terminal-btn {
-            padding: 1.2rem 1.5rem;
+            padding: 0.9rem;
             border: 1px solid rgba(0, 255, 65, 0.2);
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(13, 13, 13, 0.9) 100%);
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             position: relative;
             overflow: hidden;
             border-radius: 6px;
             user-select: none;
             -webkit-user-select: none;
-            min-height: 50px;
+            min-height: 45px;
             touch-action: manipulation;
         }
 
@@ -416,16 +399,12 @@
             color: var(--error);
         }
 
-        .terminal-btn.danger:active {
-            transform: scale(0.95);
-        }
-
         .chat-container {
             display: none;
             flex-direction: column;
-            height: 65vh;
+            height: 60vh;
             position: relative;
-            min-height: 500px;
+            min-height: 450px;
         }
 
         .chat-header {
@@ -454,7 +433,7 @@
         }
 
         .room-code {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--neon-green);
             letter-spacing: 2px;
             text-align: center;
@@ -474,13 +453,13 @@
         }
 
         .message {
-            padding: 0.8rem;
+            padding: 0.7rem;
             border-left: 2px solid rgba(0, 255, 65, 0.4);
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(13, 13, 13, 0.8) 100%);
             animation: messageSlide 0.3s ease-out;
             word-break: break-word;
             border-radius: 0 6px 6px 0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
         @keyframes messageSlide {
@@ -515,17 +494,17 @@
         .message-sender {
             font-weight: 700;
             color: var(--neon-green);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         .message-time {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-secondary);
             font-weight: 500;
         }
 
         .message-content {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             line-height: 1.3;
             color: var(--text-primary);
         }
@@ -578,11 +557,11 @@
             border: 1px solid rgba(0, 255, 65, 0.2);
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             border-radius: 6px;
             transition: all 0.3s ease;
             -webkit-appearance: none;
-            min-height: 44px;
+            min-height: 40px;
         }
 
         .chat-input:focus {
@@ -592,12 +571,12 @@
         }
 
         .send-btn {
-            padding: 0.8rem 1rem;
+            padding: 0.8rem;
             background: linear-gradient(135deg, rgba(0, 255, 65, 0.12) 0%, rgba(0, 247, 255, 0.08) 100%);
             border: 1px solid var(--neon-green);
             color: var(--neon-green);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -606,7 +585,7 @@
             letter-spacing: 1px;
             user-select: none;
             -webkit-user-select: none;
-            min-height: 44px;
+            min-height: 40px;
             touch-action: manipulation;
         }
 
@@ -616,33 +595,29 @@
 
         .users-panel {
             display: flex;
-            gap: 0.6rem;
+            gap: 0.5rem;
             margin-top: 0.8rem;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .user-tag {
-            padding: 0.3rem 0.8rem;
+            padding: 0.3rem 0.6rem;
             background: linear-gradient(135deg, rgba(0, 255, 65, 0.15) 0%, rgba(0, 255, 65, 0.08) 100%);
             border: 1px solid rgba(0, 255, 65, 0.4);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--neon-green);
             border-radius: 15px;
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         .danger-btn {
             background: linear-gradient(135deg, rgba(255, 0, 60, 0.12) 0%, rgba(255, 0, 60, 0.08) 100%);
             border-color: var(--error);
             color: var(--error);
-        }
-
-        .danger-btn:active {
-            transform: scale(0.95);
         }
 
         .loading-terminal {
@@ -659,35 +634,50 @@
             z-index: 10;
         }
 
+        .loading-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+        }
+
         .loading-text {
             color: var(--neon-green);
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
             animation: welcomeGlow 3s ease-in-out infinite;
             font-weight: 800;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             font-family: 'Rajdhani', sans-serif;
             text-align: center;
+            text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
         }
 
         @keyframes welcomeGlow {
             0%, 100% { 
                 opacity: 1; 
                 filter: hue-rotate(0deg) brightness(1);
+                transform: translateY(0);
             }
             50% { 
                 opacity: 0.8; 
                 filter: hue-rotate(60deg) brightness(1.2);
+                transform: translateY(-3px);
             }
         }
 
         .progress-bar {
-            width: 300px;
-            height: 3px;
+            width: 250px;
+            height: 2px;
             background: rgba(0, 255, 65, 0.2);
-            border-radius: 3px;
+            border-radius: 2px;
             overflow: hidden;
             position: relative;
+            margin-bottom: 1.5rem;
         }
 
         .progress-bar::before {
@@ -718,10 +708,80 @@
             100% { transform: translateX(100%); }
         }
 
+        .xmas-tree-container {
+            position: relative;
+            width: 140px;
+            height: 180px;
+            margin-top: 0.5rem;
+        }
+
+        .xmas-tree {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .tree-layer {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 45px solid rgba(0, 255, 65, 0.3);
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: treeGlow 4s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .tree-layer:nth-child(2) {
+            border-left-width: 45px;
+            border-right-width: 45px;
+            border-bottom-width: 60px;
+            border-bottom-color: rgba(0, 255, 65, 0.4);
+            bottom: 50px;
+            animation-delay: 0.5s;
+            z-index: 2;
+        }
+
+        .tree-layer:nth-child(3) {
+            border-left-width: 60px;
+            border-right-width: 60px;
+            border-bottom-width: 75px;
+            border-bottom-color: rgba(0, 255, 65, 0.5);
+            bottom: 95px;
+            animation-delay: 1s;
+            z-index: 3;
+        }
+
+        @keyframes treeGlow {
+            0%, 100% { 
+                border-bottom-color: rgba(0, 255, 65, 0.3);
+                filter: brightness(1) hue-rotate(0deg);
+            }
+            50% { 
+                border-bottom-color: rgba(0, 247, 255, 0.5);
+                filter: brightness(1.3) hue-rotate(90deg);
+            }
+        }
+
+        .tree-trunk {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 25px;
+            background: linear-gradient(to right, #8B4513, #A0522D);
+            border-radius: 4px 4px 0 0;
+            z-index: 0;
+        }
+
         .digital-watermark {
             position: fixed;
-            bottom: 15px;
-            right: 15px;
+            bottom: 10px;
+            right: 10px;
             color: rgba(0, 255, 65, 0.08);
             font-size: 0.6rem;
             font-family: 'JetBrains Mono', monospace;
@@ -780,7 +840,7 @@
             transform: translate(-50%, -50%);
             color: var(--error);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 800;
             text-align: center;
             z-index: 10003;
@@ -820,35 +880,92 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
 
-        .christmas-garland {
+        .top-garland {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 20px;
+            height: 40px;
             z-index: 1000;
             pointer-events: none;
+            overflow: hidden;
+        }
+
+        .garland-wire {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 5%,
+                rgba(255, 0, 60, 0.7) 10%,
+                rgba(255, 215, 0, 0.7) 20%,
+                rgba(0, 255, 65, 0.7) 30%,
+                rgba(0, 247, 255, 0.7) 40%,
+                rgba(189, 0, 255, 0.7) 50%,
+                rgba(0, 247, 255, 0.7) 60%,
+                rgba(0, 255, 65, 0.7) 70%,
+                rgba(255, 215, 0, 0.7) 80%,
+                rgba(255, 0, 60, 0.7) 90%,
+                transparent 95%
+            );
+            animation: wireFlow 8s linear infinite;
+        }
+
+        @keyframes wireFlow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
         }
 
         .garland-light {
             position: absolute;
-            width: 10px;
-            height: 10px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            top: 5px;
-            animation: garlandBlink 1.5s infinite;
+            z-index: 2;
+            animation: lightPulse 2s infinite alternate;
+            box-shadow: 
+                0 0 10px currentColor,
+                0 0 20px currentColor;
+            top: 8px;
+            transform: translateX(-50%);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: transform 0.2s ease;
         }
 
-        @keyframes garlandBlink {
-            0%, 100% { opacity: 0.3; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.2); }
+        .garland-light:hover {
+            transform: translateX(-50%) scale(1.3);
+            z-index: 1001;
+        }
+
+        @keyframes lightPulse {
+            0% { 
+                opacity: 0.7; 
+                transform: translateX(-50%) scale(0.9);
+                filter: brightness(0.9);
+            }
+            50% { 
+                opacity: 1; 
+                transform: translateX(-50%) scale(1.1);
+                filter: brightness(1.3);
+                box-shadow: 
+                    0 0 15px currentColor,
+                    0 0 30px currentColor;
+            }
+            100% { 
+                opacity: 0.7; 
+                transform: translateX(-50%) scale(0.9);
+                filter: brightness(0.9);
+            }
         }
 
         .snowflake {
             position: fixed;
             color: rgba(255, 255, 255, 0.9);
-            font-size: 1.2rem;
-            text-shadow: 0 0 5px rgba(0, 247, 255, 0.8);
+            font-size: 1rem;
+            text-shadow: 0 0 5px rgba(0, 247, 255, 0.5);
             user-select: none;
             pointer-events: none;
             z-index: 1;
@@ -861,42 +978,10 @@
             }
         }
 
-        .holiday-text {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 5rem;
-            font-weight: 800;
-            color: transparent;
-            background: linear-gradient(45deg, var(--xmas-red), var(--xmas-gold), var(--xmas-green), var(--xmas-blue));
-            -webkit-background-clip: text;
-            background-clip: text;
-            opacity: 0.08;
-            z-index: 1;
-            pointer-events: none;
-            text-align: center;
-            white-space: nowrap;
-            animation: holidayTextGlow 5s ease-in-out infinite;
-            text-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
-        }
-
-        @keyframes holidayTextGlow {
-            0%, 100% { 
-                opacity: 0.05; 
-                filter: hue-rotate(0deg) blur(0px);
-            }
-            50% { 
-                opacity: 0.12; 
-                filter: hue-rotate(180deg) blur(1px);
-            }
-        }
-
         .confetti {
             position: fixed;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             opacity: 0.8;
             z-index: 1;
             pointer-events: none;
@@ -910,137 +995,140 @@
             }
         }
 
-        .new-year-banner {
-            position: fixed;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: transparent;
-            background: linear-gradient(45deg, var(--xmas-red), var(--xmas-gold));
-            -webkit-background-clip: text;
-            background-clip: text;
-            opacity: 0.9;
-            z-index: 1001;
-            pointer-events: none;
-            text-align: center;
-            animation: bannerFloat 4s ease-in-out infinite;
-            text-shadow: 0 0 15px rgba(255, 0, 60, 0.5);
-        }
-
-        @keyframes bannerFloat {
-            0%, 100% { 
-                transform: translateX(-50%) translateY(0);
-            }
-            50% { 
-                transform: translateX(-50%) translateY(-10px);
-            }
-        }
-
         @media (min-width: 768px) {
-            .container { padding: 2rem; }
-            .terminal-body { padding: 2rem; }
-            .logo { font-size: 4rem; }
-            .code-display { font-size: 3rem; letter-spacing: 10px; }
+            .container { padding: 1.5rem; }
+            .terminal { max-width: 700px; }
+            .terminal-body { padding: 1.5rem; min-height: 380px; }
+            .logo { font-size: 2.5rem; }
+            .code-display { font-size: 2rem; letter-spacing: 8px; }
             .btn-group { grid-template-columns: 1fr 1fr; }
             .terminal-header { flex-direction: row; justify-content: space-between; align-items: center; }
             .chat-input-group { flex-direction: row; }
             .chat-info { flex-direction: row; justify-content: space-between; align-items: center; }
-            .chat-container { height: 60vh; }
-            .chat-messages { padding: 1.5rem; gap: 1rem; }
-            .message { padding: 1rem; font-size: 0.9rem; }
-            .holiday-text { font-size: 8rem; }
-            .new-year-banner { font-size: 2.2rem; top: 40px; }
+            .chat-container { height: 55vh; min-height: 400px; }
+            .chat-messages { padding: 1.2rem; gap: 0.8rem; }
+            .message { padding: 0.8rem; font-size: 0.85rem; }
+            .loading-text { font-size: 2rem; }
+            .progress-bar { width: 300px; }
+            .xmas-tree-container { width: 150px; height: 190px; }
+            .tree-layer { border-left-width: 35px; border-right-width: 35px; border-bottom-width: 50px; }
+            .tree-layer:nth-child(2) { border-left-width: 50px; border-right-width: 50px; border-bottom-width: 65px; bottom: 55px; }
+            .tree-layer:nth-child(3) { border-left-width: 65px; border-right-width: 65px; border-bottom-width: 80px; bottom: 100px; }
+            .tree-trunk { width: 18px; height: 28px; }
+            .top-garland { height: 45px; }
+            .garland-light { width: 16px; height: 16px; top: 10px; }
+            .garland-wire { top: 18px; }
         }
 
         @media (max-width: 480px) {
             .container { padding: 0.5rem; }
-            .terminal-body { padding: 0.8rem; min-height: 300px; }
-            .logo { font-size: 2rem; }
+            .terminal-body { padding: 1rem; min-height: 350px; }
+            .logo { font-size: 1.8rem; }
             .code-display { font-size: 1.5rem; letter-spacing: 4px; }
-            .chat-container { height: calc(100vh - 140px); min-height: 400px; }
-            .loading-text { font-size: 1.2rem; }
-            .progress-bar { width: 250px; }
-            .terminal-btn { padding: 1rem 1.2rem; font-size: 0.8rem; min-height: 50px; }
+            .chat-container { height: calc(100vh - 140px); min-height: 380px; }
+            .loading-text { font-size: 1.5rem; margin-bottom: 0.8rem; }
+            .progress-bar { width: 200px; margin-bottom: 1rem; }
+            .terminal-btn { padding: 0.8rem; font-size: 0.8rem; min-height: 42px; }
             .chat-input-group { gap: 0.6rem; }
-            .send-btn { padding: 0.8rem 0.9rem; font-size: 0.75rem; min-height: 44px; }
+            .send-btn { padding: 0.7rem; font-size: 0.7rem; min-height: 38px; }
             .chat-input { font-size: 16px; }
             .terminal-input { font-size: 16px; }
-            .message { padding: 0.6rem; font-size: 0.8rem; }
+            .message { padding: 0.6rem; font-size: 0.75rem; }
             .users-panel { gap: 0.4rem; }
-            .user-tag { padding: 0.2rem 0.6rem; font-size: 0.65rem; }
-            .btn-group { gap: 0.8rem; }
-            .holiday-text { font-size: 3rem; }
-            .new-year-banner { font-size: 1.5rem; top: 20px; }
+            .user-tag { padding: 0.2rem 0.5rem; font-size: 0.6rem; }
+            .btn-group { gap: 0.6rem; }
+            .xmas-tree-container { width: 120px; height: 160px; }
+            .tree-layer { border-left-width: 25px; border-right-width: 25px; border-bottom-width: 40px; }
+            .tree-layer:nth-child(2) { border-left-width: 40px; border-right-width: 40px; border-bottom-width: 55px; bottom: 45px; }
+            .tree-layer:nth-child(3) { border-left-width: 55px; border-right-width: 55px; border-bottom-width: 70px; bottom: 85px; }
+            .top-garland { height: 35px; }
+            .garland-light { width: 12px; height: 12px; top: 7px; }
+            .garland-wire { top: 13px; }
         }
 
         @media (max-width: 360px) {
-            .logo { font-size: 1.8rem; }
+            .logo { font-size: 1.6rem; }
             .terminal-title { font-size: 1.1rem; }
             .status-indicator { font-size: 0.7rem; padding: 0.3rem 0.6rem; }
             .chat-container { height: calc(100vh - 120px); min-height: 350px; }
-            .terminal-btn { padding: 0.8rem 1rem; }
-            .terminal-body { min-height: 280px; }
+            .terminal-btn { padding: 0.7rem; }
+            .terminal-body { min-height: 320px; }
             .chat-input-container { padding: 0.8rem; }
-            .holiday-text { font-size: 2.5rem; }
-            .new-year-banner { font-size: 1.3rem; top: 15px; }
+            .xmas-tree-container { width: 100px; height: 140px; }
+            .loading-text { font-size: 1.3rem; }
+            .progress-bar { width: 180px; }
+            .top-garland { height: 30px; }
+            .garland-light { width: 10px; height: 10px; top: 5px; }
+            .garland-wire { top: 10px; }
         }
 
         @media (max-height: 600px) {
             .chat-container { height: calc(100vh - 100px); min-height: 300px; }
-            .terminal-body { padding: 0.5rem; min-height: 250px; }
-            .chat-messages { padding: 0.5rem; gap: 0.5rem; }
-            .message { padding: 0.5rem; font-size: 0.75rem; }
-            .logo { font-size: 1.8rem; margin-bottom: 0.5rem; }
-            .tagline { margin-bottom: 1rem; }
-            .chat-input-container { padding: 0.6rem; }
+            .terminal-body { padding: 1rem; min-height: 300px; }
+            .chat-messages { padding: 0.8rem; gap: 0.6rem; }
+            .message { padding: 0.6rem; font-size: 0.75rem; }
+            .logo { font-size: 1.8rem; }
+            .chat-input-container { padding: 0.8rem; }
+            .loading-text { font-size: 1.5rem; margin-bottom: 0.8rem; }
+            .xmas-tree-container { width: 100px; height: 140px; margin-top: 0.3rem; }
+            .access-code { margin-bottom: 1rem; }
         }
 
         @media (max-height: 500px) {
-            .terminal-body { min-height: 200px; }
-            .chat-container { min-height: 250px; }
-            .logo { font-size: 1.5rem; }
-            .tagline { font-size: 0.8rem; }
-            .btn-group { margin-top: 1rem; gap: 0.6rem; }
-            .terminal-btn { padding: 0.7rem 0.9rem; min-height: 45px; }
-            .chat-input-container { padding: 0.5rem; }
+            .terminal-body { min-height: 280px; }
+            .chat-container { min-height: 280px; }
+            .logo { font-size: 1.6rem; }
+            .btn-group { margin-top: 0.8rem; gap: 0.6rem; }
+            .terminal-btn { padding: 0.7rem; min-height: 40px; }
+            .chat-input-container { padding: 0.7rem; }
             .chat-input-group { gap: 0.5rem; }
+            .loading-text { font-size: 1.3rem; margin-bottom: 0.6rem; }
+            .progress-bar { width: 180px; margin-bottom: 0.8rem; }
+            .xmas-tree-container { display: none; }
+            .access-code { margin-bottom: 0.8rem; padding: 1rem; }
         }
 
         @media (max-height: 400px) {
-            .chat-container { height: calc(100vh - 80px); min-height: 200px; }
-            .terminal-body { min-height: 180px; padding: 0.3rem; }
-            .chat-messages { padding: 0.3rem; gap: 0.3rem; min-height: 120px; }
-            .message { padding: 0.4rem; font-size: 0.7rem; }
-            .chat-header { padding: 0.6rem; }
-            .chat-input-container { padding: 0.4rem; }
-            .send-btn { padding: 0.6rem 0.8rem; font-size: 0.7rem; min-height: 40px; }
-            .chat-input { padding: 0.6rem; font-size: 0.8rem; min-height: 40px; }
-            .holiday-text { font-size: 2rem; }
-            .new-year-banner { font-size: 1rem; top: 10px; }
+            .chat-container { height: calc(100vh - 80px); min-height: 250px; }
+            .terminal-body { min-height: 250px; padding: 0.8rem; }
+            .chat-messages { padding: 0.6rem; gap: 0.4rem; min-height: 150px; }
+            .message { padding: 0.5rem; font-size: 0.7rem; }
+            .chat-header { padding: 0.8rem; }
+            .chat-input-container { padding: 0.6rem; }
+            .send-btn { padding: 0.6rem; font-size: 0.7rem; min-height: 36px; }
+            .chat-input { padding: 0.6rem; font-size: 0.8rem; min-height: 36px; }
+            .loading-text { font-size: 1.2rem; margin-bottom: 0.5rem; }
+            .progress-bar { width: 150px; margin-bottom: 0.6rem; }
+            .xmas-tree-container { display: none; }
+            .access-code { margin-bottom: 0.6rem; padding: 0.8rem; }
         }
     </style>
 </head>
 <body>
-    <canvas id="matrixRain"></canvas>
-    <div class="hologram-layer"></div>
+    <canvas id="matrixSnow"></canvas>
     <div class="quantum-field"></div>
     <div class="cyber-grid"></div>
-    <div class="holiday-text">HAPPY NEW YEAR</div>
-    <div class="new-year-banner">HAPPY NEW YEAR</div>
     
-    <div class="christmas-garland" id="garland"></div>
+    <div class="top-garland" id="topGarland"></div>
     
     <div class="digital-watermark">SHADOW_NET_v4.2.7_ENC_256BIT</div>
 
     <div class="container">
         <div class="terminal">
             <div class="loading-terminal" id="loadingScreen">
-                <div class="loading-text">WELCOME TO SHADOW NET</div>
-                <div class="progress-bar">
-                    <div class="progress"></div>
+                <div class="loading-content">
+                    <div class="loading-text">WELCOME TO SHADOW NET</div>
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                    <div class="xmas-tree-container">
+                        <div class="xmas-tree">
+                            <div class="tree-layer"></div>
+                            <div class="tree-layer"></div>
+                            <div class="tree-layer"></div>
+                            <div class="tree-trunk"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1090,7 +1178,7 @@
                             <div class="code-display" id="roomCodeDisplay"></div>
                             <button class="terminal-btn" id="copyRoomCodeBtn">COPY CRYPTO-CODE</button>
                         </div>
-                        <button class="terminal-btn primary" id="enterChatBtn">ENTER SECURE CHAT</button>
+                        <button class="terminal-btn primary" style="margin-top: 0.5rem;" id="enterChatBtn">ENTER SECURE CHAT</button>
                     </div>
                 </div>
 
@@ -1164,10 +1252,14 @@
             isActive: false
         };
 
-        const matrixChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
-        const matrixCanvas = document.getElementById('matrixRain');
+        const matrixSnowflakes = "❄❅❆";
+        const matrixCanvas = document.getElementById('matrixSnow');
         const ctx = matrixCanvas.getContext('2d');
-        let matrixDrops = [];
+        let matrixSnowDrops = [];
+        let activeConfetti = [];
+        let lastConfettiTime = 0;
+        const maxConfetti = 50;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
         const nodeMessages = [
             "Traffic intercepted from segment 7B",
@@ -1195,7 +1287,101 @@
             "stealth", "silent", "covert", "hidden", "unknown", "mystery", "enigma"
         ];
 
-        function initMatrixRain() {
+        function createTopGarland() {
+            const garlandContainer = document.getElementById('topGarland');
+            garlandContainer.innerHTML = '';
+            
+            const wire = document.createElement('div');
+            wire.className = 'garland-wire';
+            garlandContainer.appendChild(wire);
+            
+            const colors = [
+                '#ff003c', '#ff4500', '#ffd700', '#00ff41', '#1e90ff', 
+                '#9370db', '#ff1493', '#00ffff', '#ff69b4', '#7cfc00'
+            ];
+            
+            const lightCount = Math.floor(window.innerWidth / (isMobile ? 40 : 30));
+            
+            for (let i = 0; i < lightCount; i++) {
+                const light = document.createElement('div');
+                light.className = 'garland-light';
+                
+                const position = (i / (lightCount - 1)) * 100;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                light.style.left = `${position}%`;
+                light.style.backgroundColor = color;
+                light.style.animationDelay = `${(i % 10) * 0.2}s`;
+                light.style.filter = `hue-rotate(${i * 15}deg)`;
+                
+                light.addEventListener('click', () => {
+                    const newColor = colors[Math.floor(Math.random() * colors.length)];
+                    light.style.backgroundColor = newColor;
+                    light.style.animation = 'none';
+                    setTimeout(() => {
+                        light.style.animation = 'lightPulse 2s infinite alternate';
+                    }, 50);
+                    
+                    createConfetti();
+                });
+                
+                light.addEventListener('mouseenter', () => {
+                    if (!light.clicked) {
+                        light.style.transform = 'translateX(-50%) scale(1.4)';
+                    }
+                });
+                
+                light.addEventListener('mouseleave', () => {
+                    if (!light.clicked) {
+                        light.style.transform = 'translateX(-50%) scale(1)';
+                    }
+                });
+                
+                garlandContainer.appendChild(light);
+            }
+            
+            startColorFlow();
+        }
+
+        function startColorFlow() {
+            const lights = document.querySelectorAll('.garland-light');
+            let hue = 0;
+            
+            setInterval(() => {
+                hue = (hue + 1) % 360;
+                lights.forEach((light, index) => {
+                    const delay = index * 50;
+                    setTimeout(() => {
+                        if (!light.clicked) {
+                            const currentColor = getComputedStyle(light).backgroundColor;
+                            light.style.filter = `hue-rotate(${hue + index * 20}deg) brightness(1.2)`;
+                        }
+                    }, delay);
+                });
+            }, 100);
+        }
+
+        function getRandomGreenColor() {
+            const colors = [
+                '#00ff41', '#00ff55', '#00ff6b', '#00ff80', '#00ff95',
+                '#00ffaa', '#00ffbf', '#00ffd4', '#00ffea', '#00ffff',
+                '#00f7ff', '#00eaff', '#00ddff', '#00d0ff', '#00c3ff',
+                '#00ff00', '#33ff33', '#66ff66', '#99ff99', '#ccffcc',
+                '#00cc00', '#00ff99', '#00ffcc', '#00ffee', '#00ffb3'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function getRandomGreenShade() {
+            const shades = [
+                '#00ff41', '#00ff55', '#00ff6b', '#00ff80', '#00ff95',
+                '#00ffaa', '#00ffbf', '#00ffd4', '#00ffea', '#00ffff',
+                '#00f7ff', '#00eaff', '#00ddff', '#00d0ff', '#00c3ff'
+            ];
+            return shades[Math.floor(Math.random() * shades.length)];
+        }
+
+        function initMatrixSnow() {
             if (matrixAnimationId) {
                 cancelAnimationFrame(matrixAnimationId);
             }
@@ -1203,59 +1389,68 @@
             matrixCanvas.width = window.innerWidth;
             matrixCanvas.height = window.innerHeight;
             
-            const fontSize = 14;
-            const columns = matrixCanvas.width / fontSize;
+            const fontSize = isMobile ? 16 : 20;
+            const columns = Math.floor(matrixCanvas.width / fontSize);
+            const snowflakeCount = isMobile ? Math.min(40, columns) : Math.min(60, columns);
             
-            matrixDrops = [];
-            for (let i = 0; i < columns; i++) {
-                matrixDrops[i] = {
-                    x: i * fontSize,
+            matrixSnowDrops = [];
+            for (let i = 0; i < snowflakeCount; i++) {
+                matrixSnowDrops[i] = {
+                    x: (i / snowflakeCount) * matrixCanvas.width,
                     y: Math.random() * -matrixCanvas.height,
-                    speed: Math.random() * 1.5 + 0.5,
-                    char: matrixChars.charAt(Math.floor(Math.random() * matrixChars.length))
+                    speed: Math.random() * 0.8 + 0.3,
+                    char: matrixSnowflakes.charAt(Math.floor(Math.random() * matrixSnowflakes.length)),
+                    size: Math.random() * 6 + 10,
+                    opacity: Math.random() * 0.8 + 0.4,
+                    sway: Math.random() * 2 - 1,
+                    rotation: Math.random() * 360,
+                    color: getRandomGreenColor(),
+                    trailColor: getRandomGreenShade()
                 };
             }
             
-            animateMatrixRain();
+            animateMatrixSnow();
         }
 
-        function animateMatrixRain() {
-            ctx.fillStyle = 'rgba(10, 10, 10, 0.03)';
-            ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+        function animateMatrixSnow() {
+            ctx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
             
-            ctx.fillStyle = '#00ff41';
-            ctx.font = '14px JetBrains Mono';
-            
-            matrixDrops.forEach((drop, i) => {
-                ctx.fillText(drop.char, drop.x, drop.y);
+            matrixSnowDrops.forEach((drop, i) => {
+                const trailLength = drop.size * 2;
+                
+                ctx.save();
+                ctx.translate(drop.x + drop.sway * Math.sin(Date.now() / 1000 + i), drop.y);
+                ctx.rotate(drop.rotation * Math.PI / 180);
+                
+                ctx.fillStyle = drop.color;
+                ctx.globalAlpha = drop.opacity;
+                ctx.font = `bold ${drop.size}px JetBrains Mono`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(drop.char, 0, 0);
+                
+                ctx.restore();
                 
                 drop.y += drop.speed;
+                drop.rotation += 0.5;
+                drop.sway = Math.sin(Date.now() / 2000 + i) * 1.5;
+                
                 if (drop.y > matrixCanvas.height) {
-                    drop.y = Math.random() * -50;
-                    drop.char = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+                    drop.y = Math.random() * -100;
+                    drop.x = Math.random() * matrixCanvas.width;
+                    drop.char = matrixSnowflakes.charAt(Math.floor(Math.random() * matrixSnowflakes.length));
+                    drop.speed = Math.random() * 0.8 + 0.3;
+                    drop.opacity = Math.random() * 0.8 + 0.4;
+                    drop.color = getRandomGreenColor();
+                    drop.trailColor = getRandomGreenShade();
                 }
             });
             
-            matrixAnimationId = requestAnimationFrame(animateMatrixRain);
-        }
-
-        function createChristmasGarland() {
-            const garland = document.getElementById('garland');
-            const lightCount = Math.floor(window.innerWidth / 15);
-            const colors = ['#ff003c', '#00ff41', '#ffd700', '#1e90ff', '#ff00ff'];
-            
-            for (let i = 0; i < lightCount; i++) {
-                const light = document.createElement('div');
-                light.className = 'garland-light';
-                light.style.left = `${(i / lightCount) * 100}%`;
-                light.style.backgroundColor = colors[i % colors.length];
-                light.style.animationDelay = `${(i % 5) * 0.2}s`;
-                garland.appendChild(light);
-            }
+            matrixAnimationId = requestAnimationFrame(animateMatrixSnow);
         }
 
         function createSnowflakes() {
-            const snowflakeCount = Math.min(80, Math.floor(window.innerWidth / 10));
+            const snowflakeCount = isMobile ? 40 : 60;
             
             for (let i = 0; i < snowflakeCount; i++) {
                 setTimeout(() => {
@@ -1263,62 +1458,93 @@
                     snowflake.className = 'snowflake';
                     snowflake.innerHTML = '❄';
                     snowflake.style.left = `${Math.random() * 100}%`;
-                    snowflake.style.fontSize = `${Math.random() * 15 + 8}px`;
-                    snowflake.style.opacity = Math.random() * 0.8 + 0.2;
-                    snowflake.style.animationDuration = `${Math.random() * 8 + 6}s`;
+                    snowflake.style.fontSize = `${Math.random() * (isMobile ? 12 : 15) + 8}px`;
+                    snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+                    snowflake.style.animationDuration = `${Math.random() * 10 + 8}s`;
                     snowflake.style.animationDelay = `${Math.random() * 2}s`;
                     
                     document.body.appendChild(snowflake);
                     
                     snowflake.addEventListener('animationend', () => {
                         snowflake.remove();
-                        createSnowflake();
+                        createSingleSnowflake();
                     });
-                }, i * 100);
+                }, i * 150);
             }
         }
 
-        function createSnowflake() {
+        function createSingleSnowflake() {
+            const now = Date.now();
+            if (now - lastConfettiTime < 100) return;
+            
             const snowflake = document.createElement('div');
             snowflake.className = 'snowflake';
             snowflake.innerHTML = '❄';
             snowflake.style.left = `${Math.random() * 100}%`;
-            snowflake.style.fontSize = `${Math.random() * 15 + 8}px`;
-            snowflake.style.opacity = Math.random() * 0.8 + 0.2;
-            snowflake.style.animationDuration = `${Math.random() * 8 + 6}s`;
+            snowflake.style.fontSize = `${Math.random() * (isMobile ? 12 : 15) + 8}px`;
+            snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+            snowflake.style.animationDuration = `${Math.random() * 10 + 8}s`;
             
             document.body.appendChild(snowflake);
             
             snowflake.addEventListener('animationend', () => {
                 snowflake.remove();
-                createSnowflake();
             });
+            
+            lastConfettiTime = now;
         }
 
         function createConfetti() {
-            const confettiCount = 30;
+            const now = Date.now();
+            if (now - lastConfettiTime < 200) return;
+            
+            const confettiCount = isMobile ? 15 : 25;
             const colors = ['#ff003c', '#00ff41', '#ffd700', '#1e90ff', '#ffffff'];
             const shapes = ['●', '◆', '▲', '■', '★'];
             
-            for (let i = 0; i < confettiCount; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
-                    confetti.style.left = `${Math.random() * 100}%`;
-                    confetti.style.top = '-20px';
-                    confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.fontSize = `${Math.random() * 15 + 10}px`;
-                    confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
-                    confetti.style.animationDelay = `${Math.random() * 0.5}s`;
-                    
-                    document.body.appendChild(confetti);
-                    
-                    confetti.addEventListener('animationend', () => {
+            if (activeConfetti.length > maxConfetti) {
+                activeConfetti.slice(0, activeConfetti.length - maxConfetti).forEach(confetti => {
+                    if (confetti && confetti.parentNode) {
                         confetti.remove();
-                    });
-                }, i * 50);
+                    }
+                });
+                activeConfetti = activeConfetti.slice(-maxConfetti);
             }
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.top = '-20px';
+                confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.fontSize = `${Math.random() * (isMobile ? 10 : 15) + 8}px`;
+                confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
+                confetti.style.animationDelay = `${Math.random() * 0.3}s`;
+                
+                document.body.appendChild(confetti);
+                activeConfetti.push(confetti);
+                
+                confetti.addEventListener('animationend', () => {
+                    const index = activeConfetti.indexOf(confetti);
+                    if (index > -1) {
+                        activeConfetti.splice(index, 1);
+                    }
+                    confetti.remove();
+                });
+            }
+            
+            lastConfettiTime = now;
+        }
+
+        function cleanUpOldConfetti() {
+            const now = Date.now();
+            activeConfetti = activeConfetti.filter(confetti => {
+                if (!confetti || !confetti.parentNode) return false;
+                const style = window.getComputedStyle(confetti);
+                const opacity = parseFloat(style.opacity);
+                return opacity > 0.1;
+            });
         }
 
         function generateRandomUserID() {
@@ -1922,7 +2148,7 @@
         }
 
         function enterChat() {
-            document.getElementById('accessScreen').style.display = 'none';
+            document.getElementById('accessScreen').classList.add('hidden');
             document.getElementById('chatScreen').style.display = 'flex';
             document.getElementById('currentRoomCode').textContent = currentRoom;
             
@@ -2341,7 +2567,7 @@
             isDestroyAnimationActive = false;
             
             document.getElementById('chatScreen').style.display = 'none';
-            document.getElementById('accessScreen').style.display = 'block';
+            document.getElementById('accessScreen').classList.remove('hidden');
             document.getElementById('sessionCreated').classList.add('hidden');
             document.getElementById('joinForm').classList.add('hidden');
             document.getElementById('chatMessages').innerHTML = '';
@@ -2382,13 +2608,22 @@
                 }
             });
             
-            createChristmasGarland();
+            createTopGarland();
             
-            setTimeout(createSnowflakes, 500);
-            setInterval(createSnowflakes, 4000);
+            setTimeout(() => {
+                createSnowflakes();
+                setInterval(() => {
+                    createSingleSnowflake();
+                }, 3000);
+            }, 1000);
             
-            setTimeout(createConfetti, 1000);
-            setInterval(createConfetti, 7000);
+            setTimeout(() => {
+                createConfetti();
+                setInterval(() => {
+                    createConfetti();
+                    cleanUpOldConfetti();
+                }, 8000);
+            }, 2000);
         });
 
         window.addEventListener('beforeunload', () => {
@@ -2421,17 +2656,28 @@
             if (usersRef && userUID) {
                 usersRef.child(userUID).remove();
             }
+            
+            activeConfetti.forEach(confetti => {
+                if (confetti && confetti.parentNode) {
+                    confetti.remove();
+                }
+            });
+            activeConfetti = [];
         });
 
         window.addEventListener('load', () => {
-            initMatrixRain();
+            initMatrixSnow();
             
             setTimeout(() => {
                 document.getElementById('loadingScreen').style.display = 'none';
             }, 3500);
         });
 
-        window.addEventListener('resize', initMatrixRain);
+        window.addEventListener('resize', () => {
+            initMatrixSnow();
+            document.getElementById('topGarland').innerHTML = '';
+            createTopGarland();
+        });
 
         document.addEventListener('touchstart', function() {}, {passive: true});
     </script>
