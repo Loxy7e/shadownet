@@ -21,6 +21,11 @@
             --text-secondary: #8a8a8a;
             --success: #00ff41;
             --error: #ff003c;
+            --xmas-red: #ff003c;
+            --xmas-green: #00ff41;
+            --xmas-gold: #ffd700;
+            --xmas-silver: #c0c0c0;
+            --xmas-blue: #1e90ff;
         }
 
         * {
@@ -38,6 +43,7 @@
             min-height: 100vh;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            position: relative;
         }
 
         #matrixRain {
@@ -110,6 +116,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            z-index: 2;
         }
 
         .terminal {
@@ -812,6 +820,125 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
 
+        .christmas-garland {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .garland-light {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            top: 5px;
+            animation: garlandBlink 1.5s infinite;
+        }
+
+        @keyframes garlandBlink {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .snowflake {
+            position: fixed;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px rgba(0, 247, 255, 0.8);
+            user-select: none;
+            pointer-events: none;
+            z-index: 1;
+            animation: snowFall linear infinite;
+        }
+
+        @keyframes snowFall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .holiday-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 5rem;
+            font-weight: 800;
+            color: transparent;
+            background: linear-gradient(45deg, var(--xmas-red), var(--xmas-gold), var(--xmas-green), var(--xmas-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            opacity: 0.08;
+            z-index: 1;
+            pointer-events: none;
+            text-align: center;
+            white-space: nowrap;
+            animation: holidayTextGlow 5s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
+        }
+
+        @keyframes holidayTextGlow {
+            0%, 100% { 
+                opacity: 0.05; 
+                filter: hue-rotate(0deg) blur(0px);
+            }
+            50% { 
+                opacity: 0.12; 
+                filter: hue-rotate(180deg) blur(1px);
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            opacity: 0.8;
+            z-index: 1;
+            pointer-events: none;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .new-year-banner {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: transparent;
+            background: linear-gradient(45deg, var(--xmas-red), var(--xmas-gold));
+            -webkit-background-clip: text;
+            background-clip: text;
+            opacity: 0.9;
+            z-index: 1001;
+            pointer-events: none;
+            text-align: center;
+            animation: bannerFloat 4s ease-in-out infinite;
+            text-shadow: 0 0 15px rgba(255, 0, 60, 0.5);
+        }
+
+        @keyframes bannerFloat {
+            0%, 100% { 
+                transform: translateX(-50%) translateY(0);
+            }
+            50% { 
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
         @media (min-width: 768px) {
             .container { padding: 2rem; }
             .terminal-body { padding: 2rem; }
@@ -824,6 +951,8 @@
             .chat-container { height: 60vh; }
             .chat-messages { padding: 1.5rem; gap: 1rem; }
             .message { padding: 1rem; font-size: 0.9rem; }
+            .holiday-text { font-size: 8rem; }
+            .new-year-banner { font-size: 2.2rem; top: 40px; }
         }
 
         @media (max-width: 480px) {
@@ -843,6 +972,8 @@
             .users-panel { gap: 0.4rem; }
             .user-tag { padding: 0.2rem 0.6rem; font-size: 0.65rem; }
             .btn-group { gap: 0.8rem; }
+            .holiday-text { font-size: 3rem; }
+            .new-year-banner { font-size: 1.5rem; top: 20px; }
         }
 
         @media (max-width: 360px) {
@@ -853,6 +984,8 @@
             .terminal-btn { padding: 0.8rem 1rem; }
             .terminal-body { min-height: 280px; }
             .chat-input-container { padding: 0.8rem; }
+            .holiday-text { font-size: 2.5rem; }
+            .new-year-banner { font-size: 1.3rem; top: 15px; }
         }
 
         @media (max-height: 600px) {
@@ -885,6 +1018,8 @@
             .chat-input-container { padding: 0.4rem; }
             .send-btn { padding: 0.6rem 0.8rem; font-size: 0.7rem; min-height: 40px; }
             .chat-input { padding: 0.6rem; font-size: 0.8rem; min-height: 40px; }
+            .holiday-text { font-size: 2rem; }
+            .new-year-banner { font-size: 1rem; top: 10px; }
         }
     </style>
 </head>
@@ -893,6 +1028,11 @@
     <div class="hologram-layer"></div>
     <div class="quantum-field"></div>
     <div class="cyber-grid"></div>
+    <div class="holiday-text">HAPPY NEW YEAR</div>
+    <div class="new-year-banner">HAPPY NEW YEAR</div>
+    
+    <div class="christmas-garland" id="garland"></div>
+    
     <div class="digital-watermark">SHADOW_NET_v4.2.7_ENC_256BIT</div>
 
     <div class="container">
@@ -1097,6 +1237,88 @@
             });
             
             matrixAnimationId = requestAnimationFrame(animateMatrixRain);
+        }
+
+        function createChristmasGarland() {
+            const garland = document.getElementById('garland');
+            const lightCount = Math.floor(window.innerWidth / 15);
+            const colors = ['#ff003c', '#00ff41', '#ffd700', '#1e90ff', '#ff00ff'];
+            
+            for (let i = 0; i < lightCount; i++) {
+                const light = document.createElement('div');
+                light.className = 'garland-light';
+                light.style.left = `${(i / lightCount) * 100}%`;
+                light.style.backgroundColor = colors[i % colors.length];
+                light.style.animationDelay = `${(i % 5) * 0.2}s`;
+                garland.appendChild(light);
+            }
+        }
+
+        function createSnowflakes() {
+            const snowflakeCount = Math.min(80, Math.floor(window.innerWidth / 10));
+            
+            for (let i = 0; i < snowflakeCount; i++) {
+                setTimeout(() => {
+                    const snowflake = document.createElement('div');
+                    snowflake.className = 'snowflake';
+                    snowflake.innerHTML = '❄';
+                    snowflake.style.left = `${Math.random() * 100}%`;
+                    snowflake.style.fontSize = `${Math.random() * 15 + 8}px`;
+                    snowflake.style.opacity = Math.random() * 0.8 + 0.2;
+                    snowflake.style.animationDuration = `${Math.random() * 8 + 6}s`;
+                    snowflake.style.animationDelay = `${Math.random() * 2}s`;
+                    
+                    document.body.appendChild(snowflake);
+                    
+                    snowflake.addEventListener('animationend', () => {
+                        snowflake.remove();
+                        createSnowflake();
+                    });
+                }, i * 100);
+            }
+        }
+
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.innerHTML = '❄';
+            snowflake.style.left = `${Math.random() * 100}%`;
+            snowflake.style.fontSize = `${Math.random() * 15 + 8}px`;
+            snowflake.style.opacity = Math.random() * 0.8 + 0.2;
+            snowflake.style.animationDuration = `${Math.random() * 8 + 6}s`;
+            
+            document.body.appendChild(snowflake);
+            
+            snowflake.addEventListener('animationend', () => {
+                snowflake.remove();
+                createSnowflake();
+            });
+        }
+
+        function createConfetti() {
+            const confettiCount = 30;
+            const colors = ['#ff003c', '#00ff41', '#ffd700', '#1e90ff', '#ffffff'];
+            const shapes = ['●', '◆', '▲', '■', '★'];
+            
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.top = '-20px';
+                    confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.fontSize = `${Math.random() * 15 + 10}px`;
+                    confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
+                    confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    confetti.addEventListener('animationend', () => {
+                        confetti.remove();
+                    });
+                }, i * 50);
+            }
         }
 
         function generateRandomUserID() {
@@ -2159,6 +2381,14 @@
                     document.getElementById('roomCodeInput').focus();
                 }
             });
+            
+            createChristmasGarland();
+            
+            setTimeout(createSnowflakes, 500);
+            setInterval(createSnowflakes, 4000);
+            
+            setTimeout(createConfetti, 1000);
+            setInterval(createConfetti, 7000);
         });
 
         window.addEventListener('beforeunload', () => {
