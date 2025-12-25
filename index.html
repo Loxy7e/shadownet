@@ -1376,7 +1376,8 @@
         let activeConfetti = [];
         let lastConfettiTime = 0;
         let lastAutoConfettiTime = 0;
-        const maxConfetti = 30;
+        const maxConfetti = 25;
+        const maxSnowflakes = 30;
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
         const nodeMessages = [
@@ -1404,6 +1405,31 @@
             "cypher", "nexus", "vector", "quantum", "neural", "digital", "crypto",
             "stealth", "silent", "covert", "hidden", "unknown", "mystery", "enigma"
         ];
+
+        let activeSnowflakes = [];
+        let isPageVisible = true;
+
+        document.addEventListener('visibilitychange', () => {
+            isPageVisible = !document.hidden;
+            if (isPageVisible) {
+                resumeAnimations();
+            } else {
+                pauseAnimations();
+            }
+        });
+
+        function pauseAnimations() {
+            if (xmasAnimationId) {
+                cancelAnimationFrame(xmasAnimationId);
+                xmasAnimationId = null;
+            }
+        }
+
+        function resumeAnimations() {
+            if (!xmasAnimationId && isPageVisible) {
+                animateXmasCanvas();
+            }
+        }
 
         function createTopGarland() {
             const garlandContainer = document.getElementById('topGarland');
@@ -1475,27 +1501,31 @@
             xmasCanvas.width = window.innerWidth;
             xmasCanvas.height = window.innerHeight;
             
-            const particleCount = isMobile ? 30 : 60;
+            const particleCount = isMobile ? 25 : 40;
             
             xmasParticles = [];
             for (let i = 0; i < particleCount; i++) {
                 xmasParticles.push({
                     x: Math.random() * xmasCanvas.width,
                     y: Math.random() * -xmasCanvas.height,
-                    speed: Math.random() * 0.5 + 0.2,
+                    speed: Math.random() * 0.3 + 0.15,
                     char: xmasChars.charAt(Math.floor(Math.random() * xmasChars.length)),
-                    size: Math.random() * 8 + 16,
-                    opacity: Math.random() * 0.6 + 0.4,
+                    size: Math.random() * 6 + 14,
+                    opacity: Math.random() * 0.5 + 0.3,
                     sway: Math.random() * 2 - 1,
                     rotation: Math.random() * 360,
                     color: getRandomXmasColor()
                 });
             }
             
-            animateXmasCanvas();
+            if (isPageVisible) {
+                animateXmasCanvas();
+            }
         }
 
         function animateXmasCanvas() {
+            if (!isPageVisible) return;
+            
             ctx.clearRect(0, 0, xmasCanvas.width, xmasCanvas.height);
             
             xmasParticles.forEach((particle, i) => {
@@ -1513,15 +1543,15 @@
                 ctx.restore();
                 
                 particle.y += particle.speed;
-                particle.rotation += 0.3;
-                particle.sway = Math.sin(Date.now() / 2000 + i) * 1.2;
+                particle.rotation += 0.2;
+                particle.sway = Math.sin(Date.now() / 2000 + i) * 0.8;
                 
                 if (particle.y > xmasCanvas.height) {
                     particle.y = Math.random() * -100;
                     particle.x = Math.random() * xmasCanvas.width;
                     particle.char = xmasChars.charAt(Math.floor(Math.random() * xmasChars.length));
-                    particle.speed = Math.random() * 0.5 + 0.2;
-                    particle.opacity = Math.random() * 0.6 + 0.4;
+                    particle.speed = Math.random() * 0.3 + 0.15;
+                    particle.opacity = Math.random() * 0.5 + 0.3;
                     particle.color = getRandomXmasColor();
                 }
             });
@@ -1530,22 +1560,34 @@
         }
 
         function createSnowflakes() {
-            const snowflakeCount = isMobile ? 20 : 30;
+            const snowflakeCount = Math.min(isMobile ? 15 : 25, maxSnowflakes);
             
             for (let i = 0; i < snowflakeCount; i++) {
                 setTimeout(() => {
+                    if (activeSnowflakes.length >= maxSnowflakes) {
+                        const oldestSnowflake = activeSnowflakes.shift();
+                        if (oldestSnowflake && oldestSnowflake.parentNode) {
+                            oldestSnowflake.remove();
+                        }
+                    }
+                    
                     const snowflake = document.createElement('div');
                     snowflake.className = 'snowflake';
                     snowflake.innerHTML = '❄';
                     snowflake.style.left = `${Math.random() * 100}%`;
-                    snowflake.style.fontSize = `${Math.random() * 12 + 8}px`;
-                    snowflake.style.opacity = Math.random() * 0.7 + 0.3;
-                    snowflake.style.animationDuration = `${Math.random() * 10 + 8}s`;
+                    snowflake.style.fontSize = `${Math.random() * 10 + 6}px`;
+                    snowflake.style.opacity = Math.random() * 0.6 + 0.2;
+                    snowflake.style.animationDuration = `${Math.random() * 8 + 6}s`;
                     snowflake.style.animationDelay = `${Math.random() * 2}s`;
                     
                     document.body.appendChild(snowflake);
+                    activeSnowflakes.push(snowflake);
                     
                     snowflake.addEventListener('animationend', () => {
+                        const index = activeSnowflakes.indexOf(snowflake);
+                        if (index > -1) {
+                            activeSnowflakes.splice(index, 1);
+                        }
                         snowflake.remove();
                         createSingleSnowflake();
                     });
@@ -1555,19 +1597,31 @@
 
         function createSingleSnowflake() {
             const now = Date.now();
-            if (now - lastConfettiTime < 100) return;
+            if (now - lastConfettiTime < 150) return;
+            
+            if (activeSnowflakes.length >= maxSnowflakes) {
+                const oldestSnowflake = activeSnowflakes.shift();
+                if (oldestSnowflake && oldestSnowflake.parentNode) {
+                    oldestSnowflake.remove();
+                }
+            }
             
             const snowflake = document.createElement('div');
             snowflake.className = 'snowflake';
             snowflake.innerHTML = '❄';
             snowflake.style.left = `${Math.random() * 100}%`;
-            snowflake.style.fontSize = `${Math.random() * 12 + 8}px`;
-            snowflake.style.opacity = Math.random() * 0.7 + 0.3;
-            snowflake.style.animationDuration = `${Math.random() * 10 + 8}s`;
+            snowflake.style.fontSize = `${Math.random() * 10 + 6}px`;
+            snowflake.style.opacity = Math.random() * 0.6 + 0.2;
+            snowflake.style.animationDuration = `${Math.random() * 8 + 6}s`;
             
             document.body.appendChild(snowflake);
+            activeSnowflakes.push(snowflake);
             
             snowflake.addEventListener('animationend', () => {
+                const index = activeSnowflakes.indexOf(snowflake);
+                if (index > -1) {
+                    activeSnowflakes.splice(index, 1);
+                }
                 snowflake.remove();
             });
             
@@ -1576,19 +1630,21 @@
 
         function createAutoConfetti() {
             const now = Date.now();
-            if (now - lastAutoConfettiTime < 5000) return;
+            if (now - lastAutoConfettiTime < 7000) return;
             
-            const confettiCount = isMobile ? 8 : 15;
+            const confettiCount = isMobile ? 6 : 12;
             const colors = ['#ff003c', '#00ff41', '#ffd700', '#1e90ff', '#ffffff'];
             const shapes = ['❄', '✨', '●', '◆', '★'];
             
             if (activeConfetti.length > maxConfetti) {
-                activeConfetti.slice(0, activeConfetti.length - maxConfetti).forEach(confetti => {
+                const toRemove = activeConfetti.length - maxConfetti;
+                for (let i = 0; i < toRemove; i++) {
+                    const confetti = activeConfetti[i];
                     if (confetti && confetti.parentNode) {
                         confetti.remove();
                     }
-                });
-                activeConfetti = activeConfetti.slice(-maxConfetti);
+                }
+                activeConfetti = activeConfetti.slice(toRemove);
             }
             
             for (let i = 0; i < confettiCount; i++) {
@@ -1598,9 +1654,9 @@
                 confetti.style.left = `${Math.random() * 100}%`;
                 confetti.style.top = '-20px';
                 confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.fontSize = `${Math.random() * 10 + 12}px`;
-                confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
-                confetti.style.animationDelay = `${Math.random() * 0.3}s`;
+                confetti.style.fontSize = `${Math.random() * 8 + 10}px`;
+                confetti.style.animationDuration = `${Math.random() * 1.5 + 1}s`;
+                confetti.style.animationDelay = `${Math.random() * 0.2}s`;
                 
                 document.body.appendChild(confetti);
                 activeConfetti.push(confetti);
@@ -1619,19 +1675,21 @@
 
         function createConfetti() {
             const now = Date.now();
-            if (now - lastConfettiTime < 200) return;
+            if (now - lastConfettiTime < 250) return;
             
-            const confettiCount = isMobile ? 10 : 20;
+            const confettiCount = isMobile ? 8 : 15;
             const colors = ['#ff003c', '#00ff41', '#ffd700', '#1e90ff', '#ffffff'];
             const shapes = ['❄', '✨', '●', '◆', '★'];
             
             if (activeConfetti.length > maxConfetti) {
-                activeConfetti.slice(0, activeConfetti.length - maxConfetti).forEach(confetti => {
+                const toRemove = activeConfetti.length - maxConfetti;
+                for (let i = 0; i < toRemove; i++) {
+                    const confetti = activeConfetti[i];
                     if (confetti && confetti.parentNode) {
                         confetti.remove();
                     }
-                });
-                activeConfetti = activeConfetti.slice(-maxConfetti);
+                }
+                activeConfetti = activeConfetti.slice(toRemove);
             }
             
             for (let i = 0; i < confettiCount; i++) {
@@ -1641,9 +1699,9 @@
                 confetti.style.left = `${Math.random() * 100}%`;
                 confetti.style.top = '-20px';
                 confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.fontSize = `${Math.random() * 10 + 12}px`;
-                confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
-                confetti.style.animationDelay = `${Math.random() * 0.3}s`;
+                confetti.style.fontSize = `${Math.random() * 8 + 10}px`;
+                confetti.style.animationDuration = `${Math.random() * 1.5 + 1}s`;
+                confetti.style.animationDelay = `${Math.random() * 0.2}s`;
                 
                 document.body.appendChild(confetti);
                 activeConfetti.push(confetti);
@@ -1667,6 +1725,108 @@
                 const opacity = parseFloat(style.opacity);
                 return opacity > 0.1;
             });
+            
+            activeSnowflakes = activeSnowflakes.filter(snowflake => {
+                if (!snowflake || !snowflake.parentNode) return false;
+                const style = window.getComputedStyle(snowflake);
+                const opacity = parseFloat(style.opacity);
+                return opacity > 0.1;
+            });
+        }
+
+        function generateRandomChars(length) {
+            if (length <= 0) return '';
+            
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+            const charsLength = chars.length;
+            let result = '';
+            
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * charsLength));
+            }
+            return result;
+        }
+
+        function addMessageWithDecryptAnimation(content, username, isMe, timestamp) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isMe ? 'outgoing' : 'incoming'}`;
+            
+            const time = new Date(timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            const messageId = 'msg-' + timestamp + '-' + Math.random().toString(36).substr(2, 9);
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-sender">${username}</span>
+                    <span class="message-time">${time}</span>
+                </div>
+                <div class="message-content">
+                    <span class="decrypting-text" id="${messageId}">${generateRandomChars(content.length)}</span>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            const decryptElement = document.getElementById(messageId);
+            startDecryptAnimation(decryptElement, content);
+        }
+
+        function startDecryptAnimation(element, targetText) {
+            const totalLength = targetText.length;
+            let currentIndex = 0;
+            let lastTime = 0;
+            let animationFrameId = null;
+            
+            const charsCache = {};
+            const getRandomChars = (length) => {
+                if (!charsCache[length]) {
+                    charsCache[length] = generateRandomChars(length);
+                }
+                return charsCache[length];
+            };
+            
+            const isElementVisible = () => {
+                const rect = element.getBoundingClientRect();
+                const messagesContainer = document.getElementById('chatMessages');
+                const containerRect = messagesContainer.getBoundingClientRect();
+                
+                return rect.top >= containerRect.top && 
+                       rect.bottom <= containerRect.bottom;
+            };
+            
+            const decryptFrame = (timestamp) => {
+                if (!lastTime) lastTime = timestamp;
+                const deltaTime = timestamp - lastTime;
+                
+                if (currentIndex >= totalLength) {
+                    element.innerHTML = targetText;
+                    cancelAnimationFrame(animationFrameId);
+                    return;
+                }
+                
+                const visible = isElementVisible();
+                const baseSpeed = visible ? 20 : 40;
+                const charsPerFrame = Math.max(1, Math.floor(totalLength / 80) + 1);
+                
+                if (deltaTime > baseSpeed) {
+                    const charsToProcess = Math.min(charsPerFrame, totalLength - currentIndex);
+                    currentIndex += charsToProcess;
+                    
+                    const currentText = targetText.substring(0, currentIndex);
+                    const remainingLength = totalLength - currentIndex;
+                    const randomChars = getRandomChars(remainingLength);
+                    
+                    element.innerHTML = currentText + `<span class="decrypting-char">${randomChars}</span>`;
+                    lastTime = timestamp;
+                }
+                
+                animationFrameId = requestAnimationFrame(decryptFrame);
+            };
+            
+            animationFrameId = requestAnimationFrame(decryptFrame);
+            
+            element.dataset.animationId = animationFrameId;
         }
 
         function generateRandomUserID() {
@@ -2532,57 +2692,6 @@
             input.focus();
         }
 
-        function generateRandomChars(length) {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-
-        function addMessageWithDecryptAnimation(content, username, isMe, timestamp) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isMe ? 'outgoing' : 'incoming'}`;
-            
-            const time = new Date(timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            const messageId = 'msg-' + timestamp + '-' + Math.random().toString(36).substr(2, 9);
-            
-            messageDiv.innerHTML = `
-                <div class="message-header">
-                    <span class="message-sender">${username}</span>
-                    <span class="message-time">${time}</span>
-                </div>
-                <div class="message-content">
-                    <span class="decrypting-text" id="${messageId}">${generateRandomChars(content.length)}</span>
-                </div>
-            `;
-            
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
-            const decryptElement = document.getElementById(messageId);
-            decryptText(decryptElement, content, 0, 50);
-        }
-
-        function decryptText(element, targetText, currentIndex, speed) {
-            if (currentIndex >= targetText.length) {
-                element.innerHTML = targetText;
-                return;
-            }
-
-            const currentText = targetText.substring(0, currentIndex + 1);
-            const remainingLength = targetText.length - currentIndex - 1;
-            const randomChars = generateRandomChars(remainingLength);
-            
-            element.innerHTML = currentText + `<span class="decrypting-char">${randomChars}</span>`;
-            
-            setTimeout(() => {
-                decryptText(element, targetText, currentIndex + 1, speed);
-            }, speed);
-        }
-
         function addSystemMessage(content) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
@@ -2736,14 +2845,14 @@
                 createSnowflakes();
                 setInterval(() => {
                     createSingleSnowflake();
-                }, 2000);
+                }, 2500);
             }, 1000);
             
             setTimeout(() => {
                 createAutoConfetti();
                 setInterval(() => {
                     createAutoConfetti();
-                }, 5000);
+                }, 7000);
             }, 2000);
             
             setInterval(() => {
@@ -2788,6 +2897,13 @@
                 }
             });
             activeConfetti = [];
+            
+            activeSnowflakes.forEach(snowflake => {
+                if (snowflake && snowflake.parentNode) {
+                    snowflake.remove();
+                }
+            });
+            activeSnowflakes = [];
         });
 
         window.addEventListener('load', () => {
