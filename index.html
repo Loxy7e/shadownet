@@ -46,7 +46,7 @@
             position: relative;
         }
 
-        #matrixSnow {
+        #xmasCanvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -56,40 +56,41 @@
             opacity: 0.3;
         }
 
-        .quantum-field {
+        .xmas-field {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 20% 80%, rgba(0, 255, 65, 0.03) 0%, transparent 50%),
-                       radial-gradient(circle at 80% 20%, rgba(0, 247, 255, 0.03) 0%, transparent 50%);
+            background: 
+                radial-gradient(circle at 10% 90%, rgba(255, 0, 60, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 90% 10%, rgba(0, 255, 65, 0.03) 0%, transparent 50%);
             z-index: -2;
-            animation: quantumPulse 12s ease-in-out infinite;
+            animation: xmasPulse 15s ease-in-out infinite;
         }
 
-        @keyframes quantumPulse {
+        @keyframes xmasPulse {
             0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.05); }
+            50% { opacity: 0.4; transform: scale(1.02); }
         }
 
-        .cyber-grid {
+        .holiday-grid {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(0, 255, 65, 0.02) 1px, transparent 1px),
+                linear-gradient(rgba(255, 0, 60, 0.02) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 255, 65, 0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
+            background-size: 40px 40px;
             z-index: -2;
-            animation: gridPulse 15s ease-in-out infinite;
+            animation: gridTwinkle 20s ease-in-out infinite;
         }
 
-        @keyframes gridPulse {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 0.4; }
+        @keyframes gridTwinkle {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.25; }
         }
 
         .container {
@@ -105,24 +106,25 @@
         }
 
         .terminal {
-            background: var(--terminal-bg);
-            border: 1px solid rgba(0, 255, 65, 0.2);
+            background: linear-gradient(135deg, rgba(13, 13, 13, 0.95), rgba(20, 10, 10, 0.9));
+            border: 1px solid rgba(255, 0, 60, 0.2);
             width: 100%;
             max-width: 800px;
             box-shadow: 
-                0 0 60px rgba(0, 255, 65, 0.15),
-                0 0 100px rgba(0, 247, 255, 0.08),
-                inset 0 0 40px rgba(0, 255, 65, 0.03);
+                0 0 60px rgba(255, 0, 60, 0.15),
+                0 0 100px rgba(0, 255, 65, 0.08),
+                inset 0 0 40px rgba(255, 215, 0, 0.03);
             position: relative;
             overflow: hidden;
             transition: all 0.4s ease;
+            border-radius: 8px;
         }
 
         .terminal:hover {
             box-shadow: 
-                0 0 80px rgba(0, 255, 65, 0.2),
-                0 0 120px rgba(0, 247, 255, 0.1),
-                inset 0 0 60px rgba(0, 255, 65, 0.05);
+                0 0 80px rgba(255, 0, 60, 0.2),
+                0 0 120px rgba(0, 255, 65, 0.1),
+                inset 0 0 60px rgba(255, 215, 0, 0.05);
         }
 
         .terminal::before {
@@ -132,7 +134,7 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            background: linear-gradient(90deg, transparent, var(--xmas-red), var(--xmas-green), transparent);
             animation: terminalGlow 3s ease-in-out infinite;
         }
 
@@ -142,9 +144,9 @@
         }
 
         .terminal-header {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(13, 13, 13, 0.95) 100%);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.9), rgba(20, 5, 5, 0.95));
             padding: 1rem;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.15);
+            border-bottom: 1px solid rgba(255, 0, 60, 0.15);
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
@@ -159,7 +161,7 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            background: linear-gradient(90deg, transparent, var(--xmas-red), var(--xmas-green), transparent);
             animation: headerScan 4s linear infinite;
         }
 
@@ -173,12 +175,12 @@
             font-size: 1.2rem;
             font-weight: 700;
             color: transparent;
-            background: linear-gradient(45deg, var(--neon-green), var(--neon-cyan));
+            background: linear-gradient(45deg, var(--xmas-red), var(--xmas-gold), var(--xmas-green));
             -webkit-background-clip: text;
             background-clip: text;
             letter-spacing: 3px;
             text-align: center;
-            text-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+            text-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
         }
 
         .terminal-status {
@@ -237,18 +239,34 @@
             font-size: 2.2rem;
             font-weight: 800;
             color: transparent;
-            background: linear-gradient(45deg, var(--neon-green), var(--neon-blue), var(--neon-cyan));
+            background: linear-gradient(45deg, var(--xmas-red), var(--xmas-gold), var(--xmas-green), var(--xmas-blue));
             -webkit-background-clip: text;
             background-clip: text;
             letter-spacing: 4px;
             text-shadow: 
-                0 0 20px rgba(0, 255, 65, 0.4),
-                0 0 40px rgba(0, 247, 255, 0.2);
+                0 0 20px rgba(255, 0, 60, 0.4),
+                0 0 40px rgba(0, 255, 65, 0.2);
+            position: relative;
+        }
+
+        .logo::after {
+            content: '❄';
+            position: absolute;
+            top: -10px;
+            right: -20px;
+            font-size: 1.5rem;
+            animation: snowflakeSpin 8s linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes snowflakeSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .tagline {
             font-size: 0.85rem;
-            color: var(--neon-green);
+            color: var(--xmas-green);
             letter-spacing: 2px;
             text-transform: uppercase;
             position: relative;
@@ -259,11 +277,11 @@
         @keyframes taglineGlow {
             0%, 100% { 
                 opacity: 1;
-                filter: hue-rotate(0deg) brightness(1);
+                filter: hue-rotate(0deg);
             }
             50% { 
                 opacity: 0.8;
-                filter: hue-rotate(90deg) brightness(1.3);
+                filter: hue-rotate(180deg);
             }
         }
 
@@ -274,17 +292,19 @@
             left: 25%;
             width: 50%;
             height: 1px;
-            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            background: linear-gradient(90deg, transparent, var(--xmas-red), var(--xmas-green), transparent);
         }
 
         .access-code {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(13, 13, 13, 0.8) 100%);
-            border: 1px solid rgba(0, 255, 65, 0.2);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.7), rgba(20, 5, 5, 0.8));
+            border: 1px solid rgba(255, 0, 60, 0.2);
             padding: 1.2rem;
             border-radius: 8px;
             position: relative;
             overflow: hidden;
             margin-bottom: 1.2rem;
+            border-left: 3px solid var(--xmas-green);
+            border-right: 3px solid var(--xmas-red);
         }
 
         .access-code::before {
@@ -307,10 +327,14 @@
             font-size: 1.8rem;
             font-weight: 800;
             letter-spacing: 6px;
-            color: var(--neon-green);
+            color: var(--xmas-gold);
             margin: 0.8rem 0;
             font-family: 'JetBrains Mono', monospace;
-            text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            position: relative;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
         }
 
         .input-group {
@@ -332,9 +356,9 @@
         .terminal-input {
             width: 100%;
             padding: 0.9rem;
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(13, 13, 13, 0.9) 100%);
-            border: 1px solid rgba(0, 255, 65, 0.2);
-            color: var(--neon-green);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.8), rgba(20, 5, 5, 0.9));
+            border: 1px solid rgba(255, 0, 60, 0.2);
+            color: var(--xmas-green);
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.95rem;
             transition: all 0.3s ease;
@@ -344,12 +368,13 @@
 
         .terminal-input:focus {
             outline: none;
-            border-color: var(--neon-green);
+            border-color: var(--xmas-green);
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.9), rgba(20, 10, 10, 0.95));
         }
 
         .terminal-input::placeholder {
-            color: rgba(0, 255, 65, 0.3);
+            color: rgba(255, 0, 60, 0.3);
         }
 
         .btn-group {
@@ -365,9 +390,9 @@
 
         .terminal-btn {
             padding: 0.9rem;
-            border: 1px solid rgba(0, 255, 65, 0.2);
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(13, 13, 13, 0.9) 100%);
-            color: var(--neon-green);
+            border: 1px solid rgba(255, 0, 60, 0.2);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.8), rgba(20, 5, 5, 0.9));
+            color: var(--xmas-green);
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem;
             font-weight: 600;
@@ -389,12 +414,30 @@
         }
 
         .terminal-btn.primary {
-            background: linear-gradient(135deg, rgba(0, 255, 65, 0.12) 0%, rgba(0, 247, 255, 0.08) 100%);
-            border-color: var(--neon-green);
+            background: linear-gradient(135deg, rgba(255, 0, 60, 0.12), rgba(0, 255, 65, 0.08));
+            border-color: var(--xmas-green);
+            color: var(--xmas-green);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal-btn.primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .terminal-btn.primary:hover::before {
+            left: 100%;
         }
 
         .terminal-btn.danger {
-            background: linear-gradient(135deg, rgba(255, 0, 60, 0.12) 0%, rgba(255, 0, 60, 0.08) 100%);
+            background: linear-gradient(135deg, rgba(255, 0, 60, 0.12), rgba(255, 0, 60, 0.08));
             border-color: var(--error);
             color: var(--error);
         }
@@ -408,9 +451,9 @@
         }
 
         .chat-header {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(13, 13, 13, 0.95) 100%);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.9), rgba(20, 5, 5, 0.95));
             padding: 1rem;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.15);
+            border-bottom: 1px solid rgba(255, 0, 60, 0.15);
             position: relative;
             flex-shrink: 0;
         }
@@ -422,7 +465,7 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            background: linear-gradient(90deg, transparent, var(--xmas-red), var(--xmas-green), transparent);
             animation: headerScan 4s linear infinite;
         }
 
@@ -434,32 +477,70 @@
 
         .room-code {
             font-size: 1rem;
-            color: var(--neon-green);
+            color: var(--xmas-gold);
             letter-spacing: 2px;
             text-align: center;
             font-weight: 700;
+            position: relative;
+            padding: 0.3rem;
+        }
+
+        .room-code::before {
+            content: '🔒';
+            position: absolute;
+            left: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .room-code::after {
+            content: '🔒';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         .chat-messages {
             flex: 1;
             padding: 1rem;
             overflow-y: auto;
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(13, 13, 13, 0.6) 100%);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.4), rgba(20, 10, 10, 0.6));
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
             min-height: 200px;
             -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+
+        .chat-messages::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(0deg, 
+                    transparent 0px, 
+                    transparent 1px, 
+                    rgba(255, 215, 0, 0.02) 1px, 
+                    rgba(255, 215, 0, 0.02) 2px
+                );
+            pointer-events: none;
+            z-index: -1;
         }
 
         .message {
             padding: 0.7rem;
             border-left: 2px solid rgba(0, 255, 65, 0.4);
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(13, 13, 13, 0.8) 100%);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.7), rgba(20, 10, 10, 0.8));
             animation: messageSlide 0.3s ease-out;
             word-break: break-word;
             border-radius: 0 6px 6px 0;
             font-size: 0.8rem;
+            position: relative;
         }
 
         @keyframes messageSlide {
@@ -468,18 +549,18 @@
         }
 
         .message.outgoing {
-            border-left-color: var(--neon-blue);
-            background: linear-gradient(135deg, rgba(0, 247, 255, 0.1) 0%, rgba(13, 13, 13, 0.8) 100%);
+            border-left-color: var(--xmas-blue);
+            background: linear-gradient(135deg, rgba(30, 144, 255, 0.1), rgba(20, 10, 10, 0.8));
         }
 
         .message.incoming {
-            border-left-color: var(--neon-purple);
-            background: linear-gradient(135deg, rgba(189, 0, 255, 0.1) 0%, rgba(13, 13, 13, 0.8) 100%);
+            border-left-color: var(--xmas-red);
+            background: linear-gradient(135deg, rgba(255, 0, 60, 0.1), rgba(20, 10, 10, 0.8));
         }
 
         .message.system {
-            border-left-color: var(--neon-green);
-            background: linear-gradient(135deg, rgba(0, 255, 65, 0.08) 0%, rgba(13, 13, 13, 0.8) 100%);
+            border-left-color: var(--xmas-gold);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(20, 10, 10, 0.8));
         }
 
         .message-header {
@@ -493,7 +574,7 @@
 
         .message-sender {
             font-weight: 700;
-            color: var(--neon-green);
+            color: var(--xmas-green);
             font-size: 0.75rem;
         }
 
@@ -515,7 +596,7 @@
 
         .decrypting-char {
             display: inline-block;
-            color: var(--neon-cyan);
+            color: var(--xmas-gold);
             animation: charDecrypt 0.1s ease-out forwards;
         }
 
@@ -526,9 +607,9 @@
         }
 
         .chat-input-container {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(13, 13, 13, 0.95) 100%);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.9), rgba(20, 5, 5, 0.95));
             padding: 1rem;
-            border-top: 1px solid rgba(0, 255, 65, 0.15);
+            border-top: 1px solid rgba(255, 0, 60, 0.15);
             position: relative;
             flex-shrink: 0;
         }
@@ -540,7 +621,7 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            background: linear-gradient(90deg, transparent, var(--xmas-red), var(--xmas-green), transparent);
             animation: headerScan 4s linear infinite;
         }
 
@@ -553,9 +634,9 @@
         .chat-input {
             flex: 1;
             padding: 0.8rem;
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(13, 13, 13, 0.9) 100%);
-            border: 1px solid rgba(0, 255, 65, 0.2);
-            color: var(--neon-green);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.8), rgba(20, 5, 5, 0.9));
+            border: 1px solid rgba(255, 0, 60, 0.2);
+            color: var(--xmas-green);
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem;
             border-radius: 6px;
@@ -566,15 +647,16 @@
 
         .chat-input:focus {
             outline: none;
-            border-color: var(--neon-green);
+            border-color: var(--xmas-green);
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            background: linear-gradient(135deg, rgba(10, 0, 0, 0.9), rgba(20, 10, 10, 0.95));
         }
 
         .send-btn {
             padding: 0.8rem;
-            background: linear-gradient(135deg, rgba(0, 255, 65, 0.12) 0%, rgba(0, 247, 255, 0.08) 100%);
-            border: 1px solid var(--neon-green);
-            color: var(--neon-green);
+            background: linear-gradient(135deg, rgba(255, 0, 60, 0.12), rgba(0, 255, 65, 0.08));
+            border: 1px solid var(--xmas-green);
+            color: var(--xmas-green);
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.75rem;
             font-weight: 600;
@@ -587,6 +669,23 @@
             -webkit-user-select: none;
             min-height: 40px;
             touch-action: manipulation;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .send-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .send-btn:hover::before {
+            left: 100%;
         }
 
         .send-btn:active {
@@ -603,11 +702,28 @@
 
         .user-tag {
             padding: 0.3rem 0.6rem;
-            background: linear-gradient(135deg, rgba(0, 255, 65, 0.15) 0%, rgba(0, 255, 65, 0.08) 100%);
-            border: 1px solid rgba(0, 255, 65, 0.4);
+            background: linear-gradient(135deg, rgba(255, 0, 60, 0.15), rgba(0, 255, 65, 0.08));
+            border: 1px solid rgba(255, 0, 60, 0.4);
             font-size: 0.65rem;
-            color: var(--neon-green);
+            color: var(--xmas-green);
             border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-tag::after {
+            content: '⛄';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease, right 0.3s ease;
+        }
+
+        .user-tag:hover::after {
+            opacity: 0.7;
+            right: 5px;
         }
 
         .hidden {
@@ -615,7 +731,7 @@
         }
 
         .danger-btn {
-            background: linear-gradient(135deg, rgba(255, 0, 60, 0.12) 0%, rgba(255, 0, 60, 0.08) 100%);
+            background: linear-gradient(135deg, rgba(255, 0, 60, 0.12), rgba(255, 0, 60, 0.08));
             border-color: var(--error);
             color: var(--error);
         }
@@ -626,12 +742,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--terminal-bg);
+            background: linear-gradient(135deg, rgba(13, 13, 13, 0.95), rgba(20, 10, 10, 0.9));
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
             z-index: 10;
+            border-radius: 8px;
         }
 
         .loading-content {
@@ -646,7 +763,7 @@
         }
 
         .loading-text {
-            color: var(--neon-green);
+            color: var(--xmas-gold);
             font-size: 1.8rem;
             margin-bottom: 1rem;
             animation: welcomeGlow 3s ease-in-out infinite;
@@ -654,18 +771,18 @@
             letter-spacing: 2px;
             font-family: 'Rajdhani', sans-serif;
             text-align: center;
-            text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
         }
 
         @keyframes welcomeGlow {
             0%, 100% { 
                 opacity: 1; 
-                filter: hue-rotate(0deg) brightness(1);
+                filter: hue-rotate(0deg);
                 transform: translateY(0);
             }
             50% { 
                 opacity: 0.8; 
-                filter: hue-rotate(60deg) brightness(1.2);
+                filter: hue-rotate(180deg);
                 transform: translateY(-3px);
             }
         }
@@ -673,7 +790,7 @@
         .progress-bar {
             width: 250px;
             height: 2px;
-            background: rgba(0, 255, 65, 0.2);
+            background: rgba(255, 0, 60, 0.2);
             border-radius: 2px;
             overflow: hidden;
             position: relative;
@@ -687,13 +804,13 @@
             left: 0;
             height: 100%;
             width: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.6), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.6), transparent);
             animation: progressShine 2s linear infinite;
         }
 
         .progress {
             height: 100%;
-            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+            background: linear-gradient(90deg, var(--xmas-red), var(--xmas-gold), var(--xmas-green));
             width: 0%;
             animation: progressLoad 3.5s ease-in-out;
         }
@@ -739,7 +856,7 @@
             border-left-width: 45px;
             border-right-width: 45px;
             border-bottom-width: 60px;
-            border-bottom-color: rgba(0, 255, 65, 0.4);
+            border-bottom-color: rgba(255, 215, 0, 0.4);
             bottom: 50px;
             animation-delay: 0.5s;
             z-index: 2;
@@ -749,7 +866,7 @@
             border-left-width: 60px;
             border-right-width: 60px;
             border-bottom-width: 75px;
-            border-bottom-color: rgba(0, 255, 65, 0.5);
+            border-bottom-color: rgba(255, 0, 60, 0.5);
             bottom: 95px;
             animation-delay: 1s;
             z-index: 3;
@@ -761,8 +878,8 @@
                 filter: brightness(1) hue-rotate(0deg);
             }
             50% { 
-                border-bottom-color: rgba(0, 247, 255, 0.5);
-                filter: brightness(1.3) hue-rotate(90deg);
+                border-bottom-color: rgba(255, 215, 0, 0.5);
+                filter: brightness(1.3) hue-rotate(120deg);
             }
         }
 
@@ -782,7 +899,7 @@
             position: fixed;
             bottom: 10px;
             right: 10px;
-            color: rgba(0, 255, 65, 0.08);
+            color: rgba(255, 0, 60, 0.08);
             font-size: 0.6rem;
             font-family: 'JetBrains Mono', monospace;
             pointer-events: none;
@@ -902,9 +1019,9 @@
                 rgba(255, 0, 60, 0.7) 10%,
                 rgba(255, 215, 0, 0.7) 20%,
                 rgba(0, 255, 65, 0.7) 30%,
-                rgba(0, 247, 255, 0.7) 40%,
+                rgba(30, 144, 255, 0.7) 40%,
                 rgba(189, 0, 255, 0.7) 50%,
-                rgba(0, 247, 255, 0.7) 60%,
+                rgba(30, 144, 255, 0.7) 60%,
                 rgba(0, 255, 65, 0.7) 70%,
                 rgba(255, 215, 0, 0.7) 80%,
                 rgba(255, 0, 60, 0.7) 90%,
@@ -1105,13 +1222,13 @@
     </style>
 </head>
 <body>
-    <canvas id="matrixSnow"></canvas>
-    <div class="quantum-field"></div>
-    <div class="cyber-grid"></div>
+    <canvas id="xmasCanvas"></canvas>
+    <div class="xmas-field"></div>
+    <div class="holiday-grid"></div>
     
     <div class="top-garland" id="topGarland"></div>
     
-    <div class="digital-watermark">SHADOW_NET_v4.2.7_ENC_256BIT</div>
+    <div class="digital-watermark">SHADOW_NET_v4.2.7_XMAS_ENC_256BIT</div>
 
     <div class="container">
         <div class="terminal">
@@ -1233,7 +1350,7 @@
         let disconnectAnimationShown = false;
         let userUID = null;
         let roomKey = null;
-        let matrixAnimationId = null;
+        let xmasAnimationId = null;
         let isAuthenticated = false;
         let roomCheckInterval = null;
         let messageListener = null;
@@ -1252,13 +1369,14 @@
             isActive: false
         };
 
-        const matrixSnowflakes = "❄❅❆";
-        const matrixCanvas = document.getElementById('matrixSnow');
-        const ctx = matrixCanvas.getContext('2d');
-        let matrixSnowDrops = [];
+        const xmasChars = "❄❅❆";
+        const xmasCanvas = document.getElementById('xmasCanvas');
+        const ctx = xmasCanvas.getContext('2d');
+        let xmasParticles = [];
         let activeConfetti = [];
         let lastConfettiTime = 0;
-        const maxConfetti = 50;
+        let lastAutoConfettiTime = 0;
+        const maxConfetti = 30;
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
         const nodeMessages = [
@@ -1300,7 +1418,7 @@
                 '#9370db', '#ff1493', '#00ffff', '#ff69b4', '#7cfc00'
             ];
             
-            const lightCount = Math.floor(window.innerWidth / (isMobile ? 40 : 30));
+            const lightCount = Math.floor(window.innerWidth / (isMobile ? 50 : 35));
             
             for (let i = 0; i < lightCount; i++) {
                 const light = document.createElement('div');
@@ -1339,118 +1457,80 @@
                 
                 garlandContainer.appendChild(light);
             }
-            
-            startColorFlow();
         }
 
-        function startColorFlow() {
-            const lights = document.querySelectorAll('.garland-light');
-            let hue = 0;
-            
-            setInterval(() => {
-                hue = (hue + 1) % 360;
-                lights.forEach((light, index) => {
-                    const delay = index * 50;
-                    setTimeout(() => {
-                        if (!light.clicked) {
-                            const currentColor = getComputedStyle(light).backgroundColor;
-                            light.style.filter = `hue-rotate(${hue + index * 20}deg) brightness(1.2)`;
-                        }
-                    }, delay);
-                });
-            }, 100);
-        }
-
-        function getRandomGreenColor() {
+        function getRandomXmasColor() {
             const colors = [
-                '#00ff41', '#00ff55', '#00ff6b', '#00ff80', '#00ff95',
-                '#00ffaa', '#00ffbf', '#00ffd4', '#00ffea', '#00ffff',
-                '#00f7ff', '#00eaff', '#00ddff', '#00d0ff', '#00c3ff',
-                '#00ff00', '#33ff33', '#66ff66', '#99ff99', '#ccffcc',
-                '#00cc00', '#00ff99', '#00ffcc', '#00ffee', '#00ffb3'
+                '#ff003c', '#ff4500', '#ffd700', '#00ff41', '#1e90ff',
+                '#ff1493', '#00ffff', '#ff69b4', '#7cfc00', '#9370db'
             ];
             return colors[Math.floor(Math.random() * colors.length)];
         }
 
-        function getRandomGreenShade() {
-            const shades = [
-                '#00ff41', '#00ff55', '#00ff6b', '#00ff80', '#00ff95',
-                '#00ffaa', '#00ffbf', '#00ffd4', '#00ffea', '#00ffff',
-                '#00f7ff', '#00eaff', '#00ddff', '#00d0ff', '#00c3ff'
-            ];
-            return shades[Math.floor(Math.random() * shades.length)];
-        }
-
-        function initMatrixSnow() {
-            if (matrixAnimationId) {
-                cancelAnimationFrame(matrixAnimationId);
+        function initXmasCanvas() {
+            if (xmasAnimationId) {
+                cancelAnimationFrame(xmasAnimationId);
             }
             
-            matrixCanvas.width = window.innerWidth;
-            matrixCanvas.height = window.innerHeight;
+            xmasCanvas.width = window.innerWidth;
+            xmasCanvas.height = window.innerHeight;
             
-            const fontSize = isMobile ? 16 : 20;
-            const columns = Math.floor(matrixCanvas.width / fontSize);
-            const snowflakeCount = isMobile ? Math.min(40, columns) : Math.min(60, columns);
+            const particleCount = isMobile ? 30 : 60;
             
-            matrixSnowDrops = [];
-            for (let i = 0; i < snowflakeCount; i++) {
-                matrixSnowDrops[i] = {
-                    x: (i / snowflakeCount) * matrixCanvas.width,
-                    y: Math.random() * -matrixCanvas.height,
-                    speed: Math.random() * 0.8 + 0.3,
-                    char: matrixSnowflakes.charAt(Math.floor(Math.random() * matrixSnowflakes.length)),
-                    size: Math.random() * 6 + 10,
-                    opacity: Math.random() * 0.8 + 0.4,
+            xmasParticles = [];
+            for (let i = 0; i < particleCount; i++) {
+                xmasParticles.push({
+                    x: Math.random() * xmasCanvas.width,
+                    y: Math.random() * -xmasCanvas.height,
+                    speed: Math.random() * 0.5 + 0.2,
+                    char: xmasChars.charAt(Math.floor(Math.random() * xmasChars.length)),
+                    size: Math.random() * 8 + 16,
+                    opacity: Math.random() * 0.6 + 0.4,
                     sway: Math.random() * 2 - 1,
                     rotation: Math.random() * 360,
-                    color: getRandomGreenColor(),
-                    trailColor: getRandomGreenShade()
-                };
+                    color: getRandomXmasColor()
+                });
             }
             
-            animateMatrixSnow();
+            animateXmasCanvas();
         }
 
-        function animateMatrixSnow() {
-            ctx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+        function animateXmasCanvas() {
+            ctx.clearRect(0, 0, xmasCanvas.width, xmasCanvas.height);
             
-            matrixSnowDrops.forEach((drop, i) => {
-                const trailLength = drop.size * 2;
-                
+            xmasParticles.forEach((particle, i) => {
                 ctx.save();
-                ctx.translate(drop.x + drop.sway * Math.sin(Date.now() / 1000 + i), drop.y);
-                ctx.rotate(drop.rotation * Math.PI / 180);
+                ctx.translate(particle.x + particle.sway * Math.sin(Date.now() / 1000 + i), particle.y);
+                ctx.rotate(particle.rotation * Math.PI / 180);
                 
-                ctx.fillStyle = drop.color;
-                ctx.globalAlpha = drop.opacity;
-                ctx.font = `bold ${drop.size}px JetBrains Mono`;
+                ctx.font = `bold ${particle.size}px Arial, sans-serif`;
+                ctx.fillStyle = particle.color;
+                ctx.globalAlpha = particle.opacity;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(drop.char, 0, 0);
+                ctx.fillText(particle.char, 0, 0);
                 
                 ctx.restore();
                 
-                drop.y += drop.speed;
-                drop.rotation += 0.5;
-                drop.sway = Math.sin(Date.now() / 2000 + i) * 1.5;
+                particle.y += particle.speed;
+                particle.rotation += 0.3;
+                particle.sway = Math.sin(Date.now() / 2000 + i) * 1.2;
                 
-                if (drop.y > matrixCanvas.height) {
-                    drop.y = Math.random() * -100;
-                    drop.x = Math.random() * matrixCanvas.width;
-                    drop.char = matrixSnowflakes.charAt(Math.floor(Math.random() * matrixSnowflakes.length));
-                    drop.speed = Math.random() * 0.8 + 0.3;
-                    drop.opacity = Math.random() * 0.8 + 0.4;
-                    drop.color = getRandomGreenColor();
-                    drop.trailColor = getRandomGreenShade();
+                if (particle.y > xmasCanvas.height) {
+                    particle.y = Math.random() * -100;
+                    particle.x = Math.random() * xmasCanvas.width;
+                    particle.char = xmasChars.charAt(Math.floor(Math.random() * xmasChars.length));
+                    particle.speed = Math.random() * 0.5 + 0.2;
+                    particle.opacity = Math.random() * 0.6 + 0.4;
+                    particle.color = getRandomXmasColor();
                 }
             });
             
-            matrixAnimationId = requestAnimationFrame(animateMatrixSnow);
+            xmasAnimationId = requestAnimationFrame(animateXmasCanvas);
         }
 
         function createSnowflakes() {
-            const snowflakeCount = isMobile ? 40 : 60;
+            const snowflakeCount = isMobile ? 20 : 30;
             
             for (let i = 0; i < snowflakeCount; i++) {
                 setTimeout(() => {
@@ -1458,7 +1538,7 @@
                     snowflake.className = 'snowflake';
                     snowflake.innerHTML = '❄';
                     snowflake.style.left = `${Math.random() * 100}%`;
-                    snowflake.style.fontSize = `${Math.random() * (isMobile ? 12 : 15) + 8}px`;
+                    snowflake.style.fontSize = `${Math.random() * 12 + 8}px`;
                     snowflake.style.opacity = Math.random() * 0.7 + 0.3;
                     snowflake.style.animationDuration = `${Math.random() * 10 + 8}s`;
                     snowflake.style.animationDelay = `${Math.random() * 2}s`;
@@ -1481,7 +1561,7 @@
             snowflake.className = 'snowflake';
             snowflake.innerHTML = '❄';
             snowflake.style.left = `${Math.random() * 100}%`;
-            snowflake.style.fontSize = `${Math.random() * (isMobile ? 12 : 15) + 8}px`;
+            snowflake.style.fontSize = `${Math.random() * 12 + 8}px`;
             snowflake.style.opacity = Math.random() * 0.7 + 0.3;
             snowflake.style.animationDuration = `${Math.random() * 10 + 8}s`;
             
@@ -1494,13 +1574,13 @@
             lastConfettiTime = now;
         }
 
-        function createConfetti() {
+        function createAutoConfetti() {
             const now = Date.now();
-            if (now - lastConfettiTime < 200) return;
+            if (now - lastAutoConfettiTime < 5000) return;
             
-            const confettiCount = isMobile ? 15 : 25;
+            const confettiCount = isMobile ? 8 : 15;
             const colors = ['#ff003c', '#00ff41', '#ffd700', '#1e90ff', '#ffffff'];
-            const shapes = ['●', '◆', '▲', '■', '★'];
+            const shapes = ['❄', '✨', '●', '◆', '★'];
             
             if (activeConfetti.length > maxConfetti) {
                 activeConfetti.slice(0, activeConfetti.length - maxConfetti).forEach(confetti => {
@@ -1518,7 +1598,50 @@
                 confetti.style.left = `${Math.random() * 100}%`;
                 confetti.style.top = '-20px';
                 confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.fontSize = `${Math.random() * (isMobile ? 10 : 15) + 8}px`;
+                confetti.style.fontSize = `${Math.random() * 10 + 12}px`;
+                confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
+                confetti.style.animationDelay = `${Math.random() * 0.3}s`;
+                
+                document.body.appendChild(confetti);
+                activeConfetti.push(confetti);
+                
+                confetti.addEventListener('animationend', () => {
+                    const index = activeConfetti.indexOf(confetti);
+                    if (index > -1) {
+                        activeConfetti.splice(index, 1);
+                    }
+                    confetti.remove();
+                });
+            }
+            
+            lastAutoConfettiTime = now;
+        }
+
+        function createConfetti() {
+            const now = Date.now();
+            if (now - lastConfettiTime < 200) return;
+            
+            const confettiCount = isMobile ? 10 : 20;
+            const colors = ['#ff003c', '#00ff41', '#ffd700', '#1e90ff', '#ffffff'];
+            const shapes = ['❄', '✨', '●', '◆', '★'];
+            
+            if (activeConfetti.length > maxConfetti) {
+                activeConfetti.slice(0, activeConfetti.length - maxConfetti).forEach(confetti => {
+                    if (confetti && confetti.parentNode) {
+                        confetti.remove();
+                    }
+                });
+                activeConfetti = activeConfetti.slice(-maxConfetti);
+            }
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.top = '-20px';
+                confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.fontSize = `${Math.random() * 10 + 12}px`;
                 confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
                 confetti.style.animationDelay = `${Math.random() * 0.3}s`;
                 
@@ -1538,7 +1661,6 @@
         }
 
         function cleanUpOldConfetti() {
-            const now = Date.now();
             activeConfetti = activeConfetti.filter(confetti => {
                 if (!confetti || !confetti.parentNode) return false;
                 const style = window.getComputedStyle(confetti);
@@ -2374,8 +2496,8 @@
                 userTag.textContent = user.username;
                 
                 if (user.isCurrent) {
-                    userTag.style.borderColor = 'var(--neon-blue)';
-                    userTag.style.background = 'rgba(0, 247, 255, 0.1)';
+                    userTag.style.borderColor = 'var(--xmas-blue)';
+                    userTag.style.background = 'rgba(30, 144, 255, 0.1)';
                 }
                 
                 usersList.appendChild(userTag);
@@ -2614,21 +2736,24 @@
                 createSnowflakes();
                 setInterval(() => {
                     createSingleSnowflake();
-                }, 3000);
+                }, 2000);
             }, 1000);
             
             setTimeout(() => {
-                createConfetti();
+                createAutoConfetti();
                 setInterval(() => {
-                    createConfetti();
-                    cleanUpOldConfetti();
-                }, 8000);
+                    createAutoConfetti();
+                }, 5000);
             }, 2000);
+            
+            setInterval(() => {
+                cleanUpOldConfetti();
+            }, 10000);
         });
 
         window.addEventListener('beforeunload', () => {
-            if (matrixAnimationId) {
-                cancelAnimationFrame(matrixAnimationId);
+            if (xmasAnimationId) {
+                cancelAnimationFrame(xmasAnimationId);
             }
             
             if (roomCheckInterval) {
@@ -2666,7 +2791,7 @@
         });
 
         window.addEventListener('load', () => {
-            initMatrixSnow();
+            initXmasCanvas();
             
             setTimeout(() => {
                 document.getElementById('loadingScreen').style.display = 'none';
@@ -2674,7 +2799,7 @@
         });
 
         window.addEventListener('resize', () => {
-            initMatrixSnow();
+            initXmasCanvas();
             document.getElementById('topGarland').innerHTML = '';
             createTopGarland();
         });
