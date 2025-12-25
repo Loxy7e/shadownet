@@ -578,12 +578,6 @@
             font-size: 0.75rem;
         }
 
-        .message-time {
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
         .message-content {
             font-size: 0.75rem;
             line-height: 1.3;
@@ -1752,13 +1746,11 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isMe ? 'outgoing' : 'incoming'}`;
             
-            const time = new Date(timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             const messageId = 'msg-' + timestamp + '-' + Math.random().toString(36).substr(2, 9);
             
             messageDiv.innerHTML = `
                 <div class="message-header">
                     <span class="message-sender">${username}</span>
-                    <span class="message-time">${time}</span>
                 </div>
                 <div class="message-content">
                     <span class="decrypting-text" id="${messageId}">${generateRandomChars(content.length)}</span>
