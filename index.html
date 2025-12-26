@@ -1513,10 +1513,17 @@
 
         let p2pConnection = null;
         let p2pDataChannel = null;
+        let p2pSignalingRef = null;
+        let p2pIceCandidatesRef = null;
+        let p2pOfferRef = null;
+        let p2pAnswerRef = null;
+        let p2pDestroyRef = null;
         let p2pConnected = false;
         let remoteUsername = 'anonymous';
         let isP2PInitiator = false;
         let p2pConnectionTimeout = null;
+        let p2pRetryCount = 0;
+        const MAX_P2P_RETRIES = 3;
 
         const xmasChars = "❄❅❆";
         const xmasCanvas = document.getElementById('xmasCanvas');
@@ -2624,17 +2631,38 @@
                 const roomId = generateRoomId();
                 currentRoom = roomId;
                 
-                const database = firebase.database();
-                await database.ref('p2p_signaling/' + currentRoom).remove();
+                await cleanupP2PRoomData();
                 
+                const database = firebase.database();
+                const roomSetupRef = database.ref('p2p_signaling/' + currentRoom);
+                
+                await roomSetupRef.set({
+                    createdAt: Date.now(),
+                    mode: 'p2p',
+                    creator: userUID,
+                    creatorUsername: myUsername,
+                    offer: null,
+                    answer: null,
+                    iceCandidates: {},
+                    destroySignal: null
+                });
+                
+                await setupP2PConnection(true);
                 document.getElementById('roomCodeDisplay').textContent = currentRoom;
                 document.getElementById('sessionCreated').classList.remove('hidden');
                 document.getElementById('joinForm').classList.add('hidden');
                 document.getElementById('p2pNotification').classList.remove('hidden');
-                
-                showP2PConnecting();
-                await setupP2PConnection(true);
             }
+        }
+
+        async function cleanupP2PRoomData() {
+            if (!currentRoom) return;
+            
+            try {
+                const database = firebase.database();
+                const roomRef = database.ref('p2p_signaling/' + currentRoom);
+                await roomRef.remove();
+            } catch (error) {}
         }
 
         function showJoinForm() {
@@ -2695,11 +2723,8 @@
                         return;
                     }
                     
-                    document.getElementById('roomCodeDisplay').textContent = currentRoom;
-                    document.getElementById('sessionCreated').classList.remove('hidden');
-                    document.getElementById('joinForm').classList.add('hidden');
-                    document.getElementById('p2pNotification').classList.remove('hidden');
-                    document.getElementById('enterChatBtn').style.display = 'none';
+                    const roomData = snapshot.val();
+                    remoteUsername = roomData.creatorUsername || 'anonymous';
                     
                     showP2PConnecting();
                     await setupP2PConnection(false);
@@ -2711,137 +2736,213 @@
         }
 
         async function setupP2PConnection(isInitiator) {
-            try {
-                if (!currentRoom) {
-                    alert('Room not selected');
-                    return;
-                }
-                
-                isP2PInitiator = isInitiator;
-                
-                const database = firebase.database();
-                const roomPath = 'p2p_signaling/' + currentRoom;
-                
-                await database.ref(roomPath).remove();
-                
-                const iceServers = [
-                    { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' }
-                ];
-                
-                if (p2pConnection) {
-                    p2pConnection.close();
-                    p2pConnection = null;
-                }
-                
-                p2pConnection = new RTCPeerConnection({ iceServers: iceServers });
-                
-                p2pConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        database.ref(roomPath + '/candidates/' + userUID).push({
-                            candidate: event.candidate.candidate,
-                            sdpMid: event.candidate.sdpMid,
-                            sdpMLineIndex: event.candidate.sdpMLineIndex
-                        });
-                    }
-                };
-                
-                p2pConnection.oniceconnectionstatechange = () => {
-                    if (p2pConnection.iceConnectionState === 'connected' || 
-                        p2pConnection.iceConnectionState === 'completed') {
-                        document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
-                        p2pConnected = true;
-                        hideP2PConnecting();
-                        clearTimeout(p2pConnectionTimeout);
-                        
-                        if (!isP2PInitiator) {
-                            enterChat();
-                        }
-                    } else if (p2pConnection.iceConnectionState === 'disconnected' ||
-                              p2pConnection.iceConnectionState === 'failed' ||
-                              p2pConnection.iceConnectionState === 'closed') {
-                        document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
-                        p2pConnected = false;
-                        
-                        if (!disconnectAnimationShown && !isDestroyAnimationActive) {
-                            showDestroyAnimation();
-                        }
-                    }
-                };
-                
-                if (isInitiator) {
-                    p2pDataChannel = p2pConnection.createDataChannel('chat');
-                    setupDataChannel();
-                    
-                    const offer = await p2pConnection.createOffer();
-                    await p2pConnection.setLocalDescription(offer);
-                    
-                    await database.ref(roomPath + '/offer').set({
-                        sdp: offer.sdp,
-                        type: offer.type
-                    });
-                    
-                    database.ref(roomPath + '/answer').on('value', async (snapshot) => {
-                        if (snapshot.exists()) {
-                            const answer = snapshot.val();
-                            await p2pConnection.setRemoteDescription(
-                                new RTCSessionDescription(answer)
-                            );
-                            enterChat();
-                        }
-                    });
-                    
-                } else {
-                    p2pConnection.ondatachannel = (event) => {
-                        p2pDataChannel = event.channel;
-                        setupDataChannel();
+            if (!currentRoom) {
+                alert('Room not selected');
+                return;
+            }
+            
+            isP2PInitiator = isInitiator;
+            p2pRetryCount = 0;
+            
+            const database = firebase.database();
+            const signalingRef = database.ref('p2p_signaling/' + currentRoom);
+            
+            p2pSignalingRef = signalingRef;
+            p2pIceCandidatesRef = signalingRef.child('iceCandidates');
+            p2pOfferRef = signalingRef.child('offer');
+            p2pAnswerRef = signalingRef.child('answer');
+            p2pDestroyRef = signalingRef.child('destroySignal');
+            
+            const iceServers = [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun4.l.google.com:19302' }
+            ];
+            
+            if (p2pConnection) {
+                p2pConnection.close();
+                p2pConnection = null;
+            }
+            
+            p2pConnection = new RTCPeerConnection({ 
+                iceServers: iceServers,
+                iceTransportPolicy: 'all',
+                bundlePolicy: 'max-bundle',
+                rtcpMuxPolicy: 'require'
+            });
+            
+            p2pConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    const candidateData = {
+                        candidate: event.candidate.candidate,
+                        sdpMid: event.candidate.sdpMid,
+                        sdpMLineIndex: event.candidate.sdpMLineIndex,
+                        usernameFragment: event.candidate.usernameFragment
                     };
                     
-                    database.ref(roomPath + '/offer').on('value', async (snapshot) => {
+                    p2pIceCandidatesRef.child(userUID).push(candidateData);
+                }
+            };
+            
+            p2pConnection.onicegatheringstatechange = () => {
+                if (p2pConnection.iceGatheringState === 'complete') {
+                }
+            };
+            
+            p2pConnection.oniceconnectionstatechange = () => {
+                const state = p2pConnection.iceConnectionState;
+                if (state === 'connected' || state === 'completed') {
+                    document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
+                    p2pConnected = true;
+                    hideP2PConnecting();
+                    clearTimeout(p2pConnectionTimeout);
+                } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
+                    document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
+                    p2pConnected = false;
+                    if (state === 'failed' && p2pRetryCount < MAX_P2P_RETRIES) {
+                        p2pRetryCount++;
+                        setTimeout(() => {
+                            setupP2PConnection(isP2PInitiator);
+                        }, 1000 * p2pRetryCount);
+                    }
+                }
+            };
+            
+            p2pConnection.onconnectionstatechange = () => {
+                if (p2pConnection.connectionState === 'connected') {
+                } else if (p2pConnection.connectionState === 'disconnected' ||
+                          p2pConnection.connectionState === 'failed') {
+                    if (!disconnectAnimationShown && !isDestroyAnimationActive) {
+                        showDestroyAnimation();
+                    }
+                }
+            };
+            
+            if (isInitiator) {
+                p2pDataChannel = p2pConnection.createDataChannel('chat', {
+                    ordered: true,
+                    maxRetransmits: 3
+                });
+                setupDataChannel();
+                
+                try {
+                    const offer = await p2pConnection.createOffer({
+                        offerToReceiveAudio: false,
+                        offerToReceiveVideo: false,
+                        iceRestart: false
+                    });
+                    
+                    await p2pConnection.setLocalDescription(offer);
+                    
+                    await p2pOfferRef.set({
+                        sdp: offer.sdp,
+                        type: offer.type,
+                        from: userUID,
+                        timestamp: Date.now()
+                    });
+                    
+                    p2pAnswerRef.on('value', async (snapshot) => {
                         if (snapshot.exists()) {
-                            const offer = snapshot.val();
-                            await p2pConnection.setRemoteDescription(
-                                new RTCSessionDescription(offer)
-                            );
-                            
-                            const answer = await p2pConnection.createAnswer();
-                            await p2pConnection.setLocalDescription(answer);
-                            
-                            await database.ref(roomPath + '/answer').set({
-                                sdp: answer.sdp,
-                                type: answer.type
-                            });
+                            const answer = snapshot.val();
+                            if (answer.from !== userUID && p2pConnection.signalingState !== 'stable') {
+                                try {
+                                    await p2pConnection.setRemoteDescription(
+                                        new RTCSessionDescription({
+                                            type: answer.type,
+                                            sdp: answer.sdp
+                                        })
+                                    );
+                                } catch (error) {}
+                            }
                         }
                     });
-                }
-                
-                database.ref(roomPath + '/candidates').on('child_added', (snapshot) => {
-                    const userId = snapshot.key;
-                    if (userId === userUID) return;
                     
-                    snapshot.ref.on('child_added', async (candidateSnapshot) => {
-                        const candidateData = candidateSnapshot.val();
-                        try {
-                            await p2pConnection.addIceCandidate(
-                                new RTCIceCandidate(candidateData)
-                            );
-                        } catch (error) {}
-                    });
-                });
+                } catch (error) {}
                 
-                p2pConnectionTimeout = setTimeout(() => {
-                    if (!p2pConnected) {
-                        hideP2PConnecting();
-                        alert('P2P connection timeout. Please try again.');
-                        cleanupP2PSignaling();
+            } else {
+                p2pConnection.ondatachannel = (event) => {
+                    p2pDataChannel = event.channel;
+                    setupDataChannel();
+                };
+                
+                p2pOfferRef.on('value', async (snapshot) => {
+                    if (snapshot.exists()) {
+                        const offer = snapshot.val();
+                        if (offer.from !== userUID && !p2pConnection.currentRemoteDescription) {
+                            try {
+                                await p2pConnection.setRemoteDescription(
+                                    new RTCSessionDescription({
+                                        type: offer.type,
+                                        sdp: offer.sdp
+                                    })
+                                );
+                                
+                                const answer = await p2pConnection.createAnswer();
+                                await p2pConnection.setLocalDescription(answer);
+                                
+                                await p2pAnswerRef.set({
+                                    sdp: answer.sdp,
+                                    type: answer.type,
+                                    from: userUID,
+                                    timestamp: Date.now(),
+                                    username: myUsername
+                                });
+                            } catch (error) {}
+                        }
                     }
-                }, 30000);
-                
-            } catch (error) {
-                console.error('P2P setup error:', error);
-                hideP2PConnecting();
-                alert('P2P setup failed: ' + error.message);
+                });
             }
+            
+            p2pIceCandidatesRef.on('child_added', (snapshot) => {
+                const userId = snapshot.key;
+                if (userId === userUID) return;
+                
+                snapshot.ref.on('child_added', async (candidateSnapshot) => {
+                    const candidateData = candidateSnapshot.val();
+                    
+                    try {
+                        await p2pConnection.addIceCandidate(
+                            new RTCIceCandidate({
+                                candidate: candidateData.candidate,
+                                sdpMid: candidateData.sdpMid,
+                                sdpMLineIndex: candidateData.sdpMLineIndex,
+                                usernameFragment: candidateData.usernameFragment
+                            })
+                        );
+                    } catch (error) {}
+                });
+            });
+            
+            p2pAnswerRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const answer = snapshot.val();
+                    if (answer.username && answer.username !== myUsername) {
+                        remoteUsername = answer.username;
+                    }
+                }
+            });
+            
+            p2pDestroyRef.on('value', (snapshot) => {
+                if (snapshot.exists() && !disconnectAnimationShown && !isDestroyAnimationActive) {
+                    const destroyData = snapshot.val();
+                    if (destroyData.timestamp && destroyData.initiator !== userUID) {
+                        showDestroyAnimation();
+                        setTimeout(() => {
+                            destroyChat();
+                        }, 100);
+                    }
+                }
+            });
+            
+            p2pConnectionTimeout = setTimeout(() => {
+                if (!p2pConnected) {
+                    hideP2PConnecting();
+                    alert('P2P connection timeout. Please try again.');
+                    cleanupP2PSignaling();
+                }
+            }, 30000);
         }
 
         function setupDataChannel() {
@@ -2905,6 +3006,10 @@
                     await roomRef.remove();
                 }
             } catch (error) {}
+        }
+
+        async function deleteP2PSignaling() {
+            await cleanupP2PSignaling();
         }
 
         function copyRoomCode() {
@@ -3052,8 +3157,26 @@
         }
 
         function stopP2PListeners() {
-            cleanupP2PSignaling();
-            
+            if (p2pSignalingRef) {
+                p2pSignalingRef.off();
+                p2pSignalingRef = null;
+            }
+            if (p2pIceCandidatesRef) {
+                p2pIceCandidatesRef.off();
+                p2pIceCandidatesRef = null;
+            }
+            if (p2pOfferRef) {
+                p2pOfferRef.off();
+                p2pOfferRef = null;
+            }
+            if (p2pAnswerRef) {
+                p2pAnswerRef.off();
+                p2pAnswerRef = null;
+            }
+            if (p2pDestroyRef) {
+                p2pDestroyRef.off();
+                p2pDestroyRef = null;
+            }
             if (p2pConnection) {
                 p2pConnection.close();
                 p2pConnection = null;
@@ -3268,6 +3391,13 @@
             showDestroyAnimation();
             
             if (currentMode === 'p2p') {
+                if (p2pDestroyRef) {
+                    await p2pDestroyRef.set({
+                        timestamp: Date.now(),
+                        initiator: userUID
+                    });
+                }
+                
                 stopP2PListeners();
                 cleanupP2PSignaling();
                 
@@ -3333,6 +3463,7 @@
             p2pConnected = false;
             isP2PInitiator = false;
             remoteUsername = 'anonymous';
+            p2pRetryCount = 0;
             
             document.getElementById('chatScreen').style.display = 'none';
             document.getElementById('modeScreen').classList.remove('hidden');
@@ -3340,7 +3471,6 @@
             document.getElementById('joinForm').classList.add('hidden');
             document.getElementById('chatMessages').innerHTML = '';
             document.getElementById('p2pNotification').classList.add('hidden');
-            document.getElementById('enterChatBtn').style.display = 'block';
             
             document.getElementById('connectionStatus').textContent = 'CONNECTION SECURE';
             document.getElementById('connectionStatus').style.color = '';
