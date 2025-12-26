@@ -1514,16 +1514,13 @@
         let p2pConnection = null;
         let p2pDataChannel = null;
         let p2pSignalingRef = null;
-        let p2pIceCandidatesRef = null;
-        let p2pOfferRef = null;
-        let p2pAnswerRef = null;
-        let p2pDestroyRef = null;
         let p2pConnected = false;
         let remoteUsername = 'anonymous';
         let isP2PInitiator = false;
         let p2pConnectionTimeout = null;
-        let p2pRetryCount = 0;
-        const MAX_P2P_RETRIES = 3;
+        let p2pIceCandidatesRef = null;
+        let p2pOfferRef = null;
+        let p2pAnswerRef = null;
 
         const xmasChars = "❄❅❆";
         const xmasCanvas = document.getElementById('xmasCanvas');
@@ -2631,38 +2628,16 @@
                 const roomId = generateRoomId();
                 currentRoom = roomId;
                 
-                await cleanupP2PRoomData();
-                
                 const database = firebase.database();
-                const roomSetupRef = database.ref('p2p_signaling/' + currentRoom);
+                await database.ref('p2p_signaling/' + currentRoom).remove();
                 
-                await roomSetupRef.set({
-                    createdAt: Date.now(),
-                    mode: 'p2p',
-                    creator: userUID,
-                    creatorUsername: myUsername,
-                    offer: null,
-                    answer: null,
-                    iceCandidates: {},
-                    destroySignal: null
-                });
-                
-                await setupP2PConnection(true);
                 document.getElementById('roomCodeDisplay').textContent = currentRoom;
                 document.getElementById('sessionCreated').classList.remove('hidden');
                 document.getElementById('joinForm').classList.add('hidden');
                 document.getElementById('p2pNotification').classList.remove('hidden');
+                
+                await setupP2PConnection(true);
             }
-        }
-
-        async function cleanupP2PRoomData() {
-            if (!currentRoom) return;
-            
-            try {
-                const database = firebase.database();
-                const roomRef = database.ref('p2p_signaling/' + currentRoom);
-                await roomRef.remove();
-            } catch (error) {}
         }
 
         function showJoinForm() {
@@ -2723,8 +2698,11 @@
                         return;
                     }
                     
-                    const roomData = snapshot.val();
-                    remoteUsername = roomData.creatorUsername || 'anonymous';
+                    document.getElementById('roomCodeDisplay').textContent = currentRoom;
+                    document.getElementById('sessionCreated').classList.remove('hidden');
+                    document.getElementById('joinForm').classList.add('hidden');
+                    document.getElementById('p2pNotification').classList.remove('hidden');
+                    document.getElementById('enterChatBtn').style.display = 'none';
                     
                     showP2PConnecting();
                     await setupP2PConnection(false);
@@ -2742,7 +2720,6 @@
             }
             
             isP2PInitiator = isInitiator;
-            p2pRetryCount = 0;
             
             const database = firebase.database();
             const signalingRef = database.ref('p2p_signaling/' + currentRoom);
@@ -2751,7 +2728,6 @@
             p2pIceCandidatesRef = signalingRef.child('iceCandidates');
             p2pOfferRef = signalingRef.child('offer');
             p2pAnswerRef = signalingRef.child('answer');
-            p2pDestroyRef = signalingRef.child('destroySignal');
             
             const iceServers = [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -2767,99 +2743,84 @@
             }
             
             p2pConnection = new RTCPeerConnection({ 
-                iceServers: iceServers,
-                iceTransportPolicy: 'all',
-                bundlePolicy: 'max-bundle',
-                rtcpMuxPolicy: 'require'
+                iceServers: iceServers
             });
             
             p2pConnection.onicecandidate = (event) => {
                 if (event.candidate) {
-                    const candidateData = {
+                    p2pIceCandidatesRef.child(userUID).push({
                         candidate: event.candidate.candidate,
                         sdpMid: event.candidate.sdpMid,
-                        sdpMLineIndex: event.candidate.sdpMLineIndex,
-                        usernameFragment: event.candidate.usernameFragment
-                    };
-                    
-                    p2pIceCandidatesRef.child(userUID).push(candidateData);
-                }
-            };
-            
-            p2pConnection.onicegatheringstatechange = () => {
-                if (p2pConnection.iceGatheringState === 'complete') {
+                        sdpMLineIndex: event.candidate.sdpMLineIndex
+                    });
                 }
             };
             
             p2pConnection.oniceconnectionstatechange = () => {
-                const state = p2pConnection.iceConnectionState;
-                if (state === 'connected' || state === 'completed') {
+                console.log('ICE state:', p2pConnection.iceConnectionState);
+                
+                if (p2pConnection.iceConnectionState === 'connected' || 
+                    p2pConnection.iceConnectionState === 'completed') {
                     document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
                     p2pConnected = true;
                     hideP2PConnecting();
                     clearTimeout(p2pConnectionTimeout);
-                } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
+                    
+                    if (!isP2PInitiator) {
+                        enterChat();
+                    }
+                } else if (p2pConnection.iceConnectionState === 'disconnected' ||
+                          p2pConnection.iceConnectionState === 'failed' ||
+                          p2pConnection.iceConnectionState === 'closed') {
                     document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
                     p2pConnected = false;
-                    if (state === 'failed' && p2pRetryCount < MAX_P2P_RETRIES) {
-                        p2pRetryCount++;
-                        setTimeout(() => {
-                            setupP2PConnection(isP2PInitiator);
-                        }, 1000 * p2pRetryCount);
-                    }
-                }
-            };
-            
-            p2pConnection.onconnectionstatechange = () => {
-                if (p2pConnection.connectionState === 'connected') {
-                } else if (p2pConnection.connectionState === 'disconnected' ||
-                          p2pConnection.connectionState === 'failed') {
+                    
                     if (!disconnectAnimationShown && !isDestroyAnimationActive) {
                         showDestroyAnimation();
                     }
                 }
             };
             
+            p2pConnection.onconnectionstatechange = () => {
+                console.log('Connection state:', p2pConnection.connectionState);
+            };
+            
             if (isInitiator) {
-                p2pDataChannel = p2pConnection.createDataChannel('chat', {
-                    ordered: true,
-                    maxRetransmits: 3
-                });
+                p2pDataChannel = p2pConnection.createDataChannel('chat');
                 setupDataChannel();
                 
-                try {
-                    const offer = await p2pConnection.createOffer({
-                        offerToReceiveAudio: false,
-                        offerToReceiveVideo: false,
-                        iceRestart: false
-                    });
-                    
-                    await p2pConnection.setLocalDescription(offer);
-                    
-                    await p2pOfferRef.set({
-                        sdp: offer.sdp,
-                        type: offer.type,
-                        from: userUID,
-                        timestamp: Date.now()
-                    });
-                    
-                    p2pAnswerRef.on('value', async (snapshot) => {
-                        if (snapshot.exists()) {
-                            const answer = snapshot.val();
-                            if (answer.from !== userUID && p2pConnection.signalingState !== 'stable') {
-                                try {
-                                    await p2pConnection.setRemoteDescription(
-                                        new RTCSessionDescription({
-                                            type: answer.type,
-                                            sdp: answer.sdp
-                                        })
-                                    );
-                                } catch (error) {}
+                const offer = await p2pConnection.createOffer();
+                await p2pConnection.setLocalDescription(offer);
+                
+                await p2pOfferRef.set({
+                    sdp: offer.sdp,
+                    type: offer.type,
+                    from: userUID,
+                    username: myUsername,
+                    timestamp: Date.now()
+                });
+                
+                p2pAnswerRef.on('value', async (snapshot) => {
+                    if (snapshot.exists()) {
+                        const answer = snapshot.val();
+                        if (answer.from !== userUID && p2pConnection.signalingState !== 'stable') {
+                            try {
+                                await p2pConnection.setRemoteDescription(
+                                    new RTCSessionDescription({
+                                        type: answer.type,
+                                        sdp: answer.sdp
+                                    })
+                                );
+                                
+                                if (answer.username) {
+                                    remoteUsername = answer.username;
+                                }
+                            } catch (error) {
+                                console.error('Error setting remote description:', error);
                             }
                         }
-                    });
-                    
-                } catch (error) {}
+                    }
+                });
                 
             } else {
                 p2pConnection.ondatachannel = (event) => {
@@ -2879,6 +2840,10 @@
                                     })
                                 );
                                 
+                                if (offer.username) {
+                                    remoteUsername = offer.username;
+                                }
+                                
                                 const answer = await p2pConnection.createAnswer();
                                 await p2pConnection.setLocalDescription(answer);
                                 
@@ -2886,10 +2851,12 @@
                                     sdp: answer.sdp,
                                     type: answer.type,
                                     from: userUID,
-                                    timestamp: Date.now(),
-                                    username: myUsername
+                                    username: myUsername,
+                                    timestamp: Date.now()
                                 });
-                            } catch (error) {}
+                            } catch (error) {
+                                console.error('Error handling offer:', error);
+                            }
                         }
                     }
                 });
@@ -2907,33 +2874,13 @@
                             new RTCIceCandidate({
                                 candidate: candidateData.candidate,
                                 sdpMid: candidateData.sdpMid,
-                                sdpMLineIndex: candidateData.sdpMLineIndex,
-                                usernameFragment: candidateData.usernameFragment
+                                sdpMLineIndex: candidateData.sdpMLineIndex
                             })
                         );
-                    } catch (error) {}
+                    } catch (error) {
+                        console.error('Error adding ICE candidate:', error);
+                    }
                 });
-            });
-            
-            p2pAnswerRef.on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const answer = snapshot.val();
-                    if (answer.username && answer.username !== myUsername) {
-                        remoteUsername = answer.username;
-                    }
-                }
-            });
-            
-            p2pDestroyRef.on('value', (snapshot) => {
-                if (snapshot.exists() && !disconnectAnimationShown && !isDestroyAnimationActive) {
-                    const destroyData = snapshot.val();
-                    if (destroyData.timestamp && destroyData.initiator !== userUID) {
-                        showDestroyAnimation();
-                        setTimeout(() => {
-                            destroyChat();
-                        }, 100);
-                    }
-                }
             });
             
             p2pConnectionTimeout = setTimeout(() => {
@@ -2947,6 +2894,7 @@
 
         function setupDataChannel() {
             p2pDataChannel.onopen = () => {
+                console.log('Data channel opened');
                 addSystemMessage('P2P connection established');
                 document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
                 p2pConnected = true;
@@ -2973,6 +2921,7 @@
             };
             
             p2pDataChannel.onclose = () => {
+                console.log('Data channel closed');
                 addSystemMessage('P2P connection closed');
                 document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
                 p2pConnected = false;
@@ -2992,10 +2941,14 @@
                         false,
                         Date.now()
                     );
-                } catch (error) {}
+                } catch (error) {
+                    console.error('Error parsing message:', error);
+                }
             };
             
-            p2pDataChannel.onerror = (error) => {};
+            p2pDataChannel.onerror = (error) => {
+                console.error('Data channel error:', error);
+            };
         }
 
         async function cleanupP2PSignaling() {
@@ -3005,11 +2958,9 @@
                     const roomRef = database.ref('p2p_signaling/' + currentRoom);
                     await roomRef.remove();
                 }
-            } catch (error) {}
-        }
-
-        async function deleteP2PSignaling() {
-            await cleanupP2PSignaling();
+            } catch (error) {
+                console.error('Error cleaning up signaling:', error);
+            }
         }
 
         function copyRoomCode() {
@@ -3172,10 +3123,6 @@
             if (p2pAnswerRef) {
                 p2pAnswerRef.off();
                 p2pAnswerRef = null;
-            }
-            if (p2pDestroyRef) {
-                p2pDestroyRef.off();
-                p2pDestroyRef = null;
             }
             if (p2pConnection) {
                 p2pConnection.close();
@@ -3391,13 +3338,6 @@
             showDestroyAnimation();
             
             if (currentMode === 'p2p') {
-                if (p2pDestroyRef) {
-                    await p2pDestroyRef.set({
-                        timestamp: Date.now(),
-                        initiator: userUID
-                    });
-                }
-                
                 stopP2PListeners();
                 cleanupP2PSignaling();
                 
@@ -3463,7 +3403,6 @@
             p2pConnected = false;
             isP2PInitiator = false;
             remoteUsername = 'anonymous';
-            p2pRetryCount = 0;
             
             document.getElementById('chatScreen').style.display = 'none';
             document.getElementById('modeScreen').classList.remove('hidden');
@@ -3471,6 +3410,7 @@
             document.getElementById('joinForm').classList.add('hidden');
             document.getElementById('chatMessages').innerHTML = '';
             document.getElementById('p2pNotification').classList.add('hidden');
+            document.getElementById('enterChatBtn').style.display = 'block';
             
             document.getElementById('connectionStatus').textContent = 'CONNECTION SECURE';
             document.getElementById('connectionStatus').style.color = '';
