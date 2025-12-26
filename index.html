@@ -2747,40 +2747,46 @@
             const iceServers = [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' }
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun4.l.google.com:19302' }
             ];
             
             p2pConnection = new RTCPeerConnection({ 
                 iceServers: iceServers,
-                iceTransportPolicy: 'all'
+                iceTransportPolicy: 'all',
+                bundlePolicy: 'max-bundle',
+                rtcpMuxPolicy: 'require'
             });
             
             p2pConnection.onicecandidate = (event) => {
                 if (event.candidate) {
-                    p2pIceCandidatesRef.child(userUID).push({
+                    const candidateData = {
                         candidate: event.candidate.candidate,
                         sdpMid: event.candidate.sdpMid,
                         sdpMLineIndex: event.candidate.sdpMLineIndex,
                         usernameFragment: event.candidate.usernameFragment
-                    });
+                    };
+                    
+                    p2pIceCandidatesRef.child(userUID).push(candidateData);
+                }
+            };
+            
+            p2pConnection.onicegatheringstatechange = () => {
+                if (p2pConnection.iceGatheringState === 'complete') {
                 }
             };
             
             p2pConnection.oniceconnectionstatechange = () => {
-                if (p2pConnection.iceConnectionState === 'connected' || 
-                    p2pConnection.iceConnectionState === 'completed') {
+                const state = p2pConnection.iceConnectionState;
+                if (state === 'connected' || state === 'completed') {
                     document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
                     p2pConnected = true;
                     
-                    if (isP2PInitiator) {
-                        setTimeout(() => {
-                            if (p2pConnected && p2pSignalingRef) {
-                                p2pSignalingRef.remove();
-                            }
-                        }, 3000);
+                    if (p2pDataChannel && p2pDataChannel.readyState === 'open') {
+                        deleteP2PSignaling();
                     }
-                } else if (p2pConnection.iceConnectionState === 'disconnected' ||
-                         p2pConnection.iceConnectionState === 'failed') {
+                } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
                     document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
                     p2pConnected = false;
                 }
@@ -2798,13 +2804,14 @@
             if (isInitiator) {
                 p2pDataChannel = p2pConnection.createDataChannel('chat', {
                     ordered: true,
-                    maxPacketLifeTime: 3000
+                    maxRetransmits: 3
                 });
                 setupDataChannel();
                 
                 const offer = await p2pConnection.createOffer({
                     offerToReceiveAudio: false,
-                    offerToReceiveVideo: false
+                    offerToReceiveVideo: false,
+                    iceRestart: false
                 });
                 
                 await p2pConnection.setLocalDescription(offer);
@@ -2904,6 +2911,8 @@
                 document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
                 p2pConnected = true;
                 
+                deleteP2PSignaling();
+                
                 const usersList = document.getElementById('usersList');
                 usersList.innerHTML = '';
                 
@@ -2918,14 +2927,6 @@
                 userTagRemote.className = 'user-tag';
                 userTagRemote.textContent = remoteUsername;
                 usersList.appendChild(userTagRemote);
-                
-                if (isP2PInitiator) {
-                    setTimeout(() => {
-                        if (p2pConnected && p2pSignalingRef) {
-                            p2pSignalingRef.remove();
-                        }
-                    }, 3000);
-                }
             };
             
             p2pDataChannel.onclose = () => {
@@ -2949,6 +2950,18 @@
                     );
                 } catch (error) {}
             };
+            
+            p2pDataChannel.onerror = (error) => {
+            };
+        }
+
+        async function deleteP2PSignaling() {
+            try {
+                const database = firebase.database();
+                const p2pRootRef = database.ref('p2p_signaling');
+                await p2pRootRef.remove();
+            } catch (error) {
+            }
         }
 
         function copyRoomCode() {
@@ -3348,9 +3361,7 @@
                 
                 stopP2PListeners();
                 
-                if (p2pSignalingRef) {
-                    await p2pSignalingRef.remove();
-                }
+                deleteP2PSignaling();
                 
             } else {
                 if (roomRef) {
