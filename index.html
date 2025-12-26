@@ -1477,7 +1477,14 @@
             appId: "1:477144065218:web:a27ed2f1f92727f8e7475b"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
 
         let currentMode = null;
         let currentRoom = null;
@@ -2060,15 +2067,35 @@
         }
 
         async function ensureAuthentication() {
-            if (isAuthenticated) return true;
+            if (isAuthenticated && currentUser) return true;
             
             try {
-                await firebase.auth().signOut();
+                console.log('Starting authentication...');
+                
+                const currentAuth = firebase.auth().currentUser;
+                if (currentAuth) {
+                    currentUser = currentAuth;
+                    isAuthenticated = true;
+                    console.log('Already authenticated:', currentUser.uid);
+                    return true;
+                }
+                
+                console.log('Trying anonymous auth...');
                 const userCredential = await firebase.auth().signInAnonymously();
                 currentUser = userCredential.user;
                 isAuthenticated = true;
+                console.log('Anonymous auth successful:', currentUser.uid);
                 return true;
+                
             } catch (error) {
+                console.error('Authentication ERROR:', error);
+                
+                if (currentMode === 'p2p') {
+                    console.warn('Using fallback P2P without Firebase');
+                    return false;
+                }
+                
+                alert('Network authentication failed. Check console.');
                 return false;
             }
         }
@@ -2632,12 +2659,24 @@
                 document.getElementById('joinForm').classList.add('hidden');
                 document.getElementById('p2pNotification').classList.remove('hidden');
                 
-                if (!await ensureAuthentication()) return;
+                if (!await ensureAuthentication()) {
+                    alert('Cannot create P2P room: Firebase auth failed');
+                    return;
+                }
                 
                 const database = firebase.database();
                 const roomSetupRef = database.ref('p2p_signaling/' + currentRoom);
-                await roomSetupRef.child('createdAt').set(Date.now());
-                await roomSetupRef.child('mode').set('p2p');
+                
+                await roomSetupRef.set({
+                    createdAt: Date.now(),
+                    mode: 'p2p',
+                    creator: userUID,
+                    offer: null,
+                    answer: null,
+                    iceCandidates: {}
+                });
+                
+                console.log('P2P room created in Firebase:', currentRoom);
                 
                 await setupP2PConnection(true);
                 
@@ -2687,7 +2726,10 @@
                     enterChat();
                     
                 } else if (currentMode === 'p2p') {
-                    if (!await ensureAuthentication()) return;
+                    if (!await ensureAuthentication()) {
+                        alert('Cannot join P2P room: Firebase auth failed');
+                        return;
+                    }
                     
                     const database = firebase.database();
                     const checkRoom = database.ref('p2p_signaling/' + roomCode);
@@ -2697,6 +2739,8 @@
                         alert('P2P channel does not exist');
                         return;
                     }
+                    
+                    console.log('P2P room found, joining:', roomCode);
                     
                     showP2PConnecting();
                     
@@ -2717,6 +2761,14 @@
         }
 
         async function setupP2PConnection(isInitiator) {
+            if (!currentRoom) {
+                console.error('No current room set!');
+                alert('Room not selected');
+                return;
+            }
+            
+            console.log('Setting up P2P for room:', currentRoom, 'as', isInitiator ? 'initiator' : 'responder');
+            
             const database = firebase.database();
             const signalingRef = database.ref('p2p_signaling/' + currentRoom);
             
