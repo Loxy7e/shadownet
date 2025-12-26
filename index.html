@@ -2719,7 +2719,7 @@
                             hideP2PConnecting();
                             alert('Failed to establish P2P connection. Please try again.');
                         }
-                    }, 20000);
+                    }, 15000);
                 }
                 
             } else {
@@ -2782,7 +2782,6 @@
                 if (state === 'connected' || state === 'completed') {
                     document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
                     p2pConnected = true;
-                    deleteP2PSignaling();
                 } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
                     document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
                     p2pConnected = false;
@@ -2918,6 +2917,8 @@
                 addSystemMessage('P2P connection established');
                 document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
                 p2pConnected = true;
+                
+                deleteP2PSignaling();
                 
                 const usersList = document.getElementById('usersList');
                 usersList.innerHTML = '';
