@@ -1513,14 +1513,10 @@
 
         let p2pConnection = null;
         let p2pDataChannel = null;
-        let p2pSignalingRef = null;
         let p2pConnected = false;
         let remoteUsername = 'anonymous';
         let isP2PInitiator = false;
         let p2pConnectionTimeout = null;
-        let p2pIceCandidatesRef = null;
-        let p2pOfferRef = null;
-        let p2pAnswerRef = null;
 
         const xmasChars = "❄❅❆";
         const xmasCanvas = document.getElementById('xmasCanvas');
@@ -2636,6 +2632,7 @@
                 document.getElementById('joinForm').classList.add('hidden');
                 document.getElementById('p2pNotification').classList.remove('hidden');
                 
+                showP2PConnecting();
                 await setupP2PConnection(true);
             }
         }
@@ -2714,187 +2711,141 @@
         }
 
         async function setupP2PConnection(isInitiator) {
-            if (!currentRoom) {
-                alert('Room not selected');
-                return;
-            }
-            
-            isP2PInitiator = isInitiator;
-            
-            const database = firebase.database();
-            const signalingRef = database.ref('p2p_signaling/' + currentRoom);
-            
-            p2pSignalingRef = signalingRef;
-            p2pIceCandidatesRef = signalingRef.child('iceCandidates');
-            p2pOfferRef = signalingRef.child('offer');
-            p2pAnswerRef = signalingRef.child('answer');
-            
-            const iceServers = [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' }
-            ];
-            
-            if (p2pConnection) {
-                p2pConnection.close();
-                p2pConnection = null;
-            }
-            
-            p2pConnection = new RTCPeerConnection({ 
-                iceServers: iceServers
-            });
-            
-            p2pConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    p2pIceCandidatesRef.child(userUID).push({
-                        candidate: event.candidate.candidate,
-                        sdpMid: event.candidate.sdpMid,
-                        sdpMLineIndex: event.candidate.sdpMLineIndex
-                    });
+            try {
+                if (!currentRoom) {
+                    alert('Room not selected');
+                    return;
                 }
-            };
-            
-            p2pConnection.oniceconnectionstatechange = () => {
-                console.log('ICE state:', p2pConnection.iceConnectionState);
                 
-                if (p2pConnection.iceConnectionState === 'connected' || 
-                    p2pConnection.iceConnectionState === 'completed') {
-                    document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
-                    p2pConnected = true;
-                    hideP2PConnecting();
-                    clearTimeout(p2pConnectionTimeout);
-                    
-                    if (!isP2PInitiator) {
-                        enterChat();
-                    }
-                } else if (p2pConnection.iceConnectionState === 'disconnected' ||
-                          p2pConnection.iceConnectionState === 'failed' ||
-                          p2pConnection.iceConnectionState === 'closed') {
-                    document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
-                    p2pConnected = false;
-                    
-                    if (!disconnectAnimationShown && !isDestroyAnimationActive) {
-                        showDestroyAnimation();
-                    }
+                isP2PInitiator = isInitiator;
+                
+                const database = firebase.database();
+                const roomPath = 'p2p_signaling/' + currentRoom;
+                
+                await database.ref(roomPath).remove();
+                
+                const iceServers = [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' }
+                ];
+                
+                if (p2pConnection) {
+                    p2pConnection.close();
+                    p2pConnection = null;
                 }
-            };
-            
-            p2pConnection.onconnectionstatechange = () => {
-                console.log('Connection state:', p2pConnection.connectionState);
-            };
-            
-            if (isInitiator) {
-                p2pDataChannel = p2pConnection.createDataChannel('chat');
-                setupDataChannel();
                 
-                const offer = await p2pConnection.createOffer();
-                await p2pConnection.setLocalDescription(offer);
+                p2pConnection = new RTCPeerConnection({ iceServers: iceServers });
                 
-                await p2pOfferRef.set({
-                    sdp: offer.sdp,
-                    type: offer.type,
-                    from: userUID,
-                    username: myUsername,
-                    timestamp: Date.now()
-                });
-                
-                p2pAnswerRef.on('value', async (snapshot) => {
-                    if (snapshot.exists()) {
-                        const answer = snapshot.val();
-                        if (answer.from !== userUID && p2pConnection.signalingState !== 'stable') {
-                            try {
-                                await p2pConnection.setRemoteDescription(
-                                    new RTCSessionDescription({
-                                        type: answer.type,
-                                        sdp: answer.sdp
-                                    })
-                                );
-                                
-                                if (answer.username) {
-                                    remoteUsername = answer.username;
-                                }
-                            } catch (error) {
-                                console.error('Error setting remote description:', error);
-                            }
-                        }
+                p2pConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        database.ref(roomPath + '/candidates/' + userUID).push({
+                            candidate: event.candidate.candidate,
+                            sdpMid: event.candidate.sdpMid,
+                            sdpMLineIndex: event.candidate.sdpMLineIndex
+                        });
                     }
-                });
-                
-            } else {
-                p2pConnection.ondatachannel = (event) => {
-                    p2pDataChannel = event.channel;
-                    setupDataChannel();
                 };
                 
-                p2pOfferRef.on('value', async (snapshot) => {
-                    if (snapshot.exists()) {
-                        const offer = snapshot.val();
-                        if (offer.from !== userUID && !p2pConnection.currentRemoteDescription) {
-                            try {
-                                await p2pConnection.setRemoteDescription(
-                                    new RTCSessionDescription({
-                                        type: offer.type,
-                                        sdp: offer.sdp
-                                    })
-                                );
-                                
-                                if (offer.username) {
-                                    remoteUsername = offer.username;
-                                }
-                                
-                                const answer = await p2pConnection.createAnswer();
-                                await p2pConnection.setLocalDescription(answer);
-                                
-                                await p2pAnswerRef.set({
-                                    sdp: answer.sdp,
-                                    type: answer.type,
-                                    from: userUID,
-                                    username: myUsername,
-                                    timestamp: Date.now()
-                                });
-                            } catch (error) {
-                                console.error('Error handling offer:', error);
-                            }
+                p2pConnection.oniceconnectionstatechange = () => {
+                    if (p2pConnection.iceConnectionState === 'connected' || 
+                        p2pConnection.iceConnectionState === 'completed') {
+                        document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
+                        p2pConnected = true;
+                        hideP2PConnecting();
+                        clearTimeout(p2pConnectionTimeout);
+                        
+                        if (!isP2PInitiator) {
+                            enterChat();
+                        }
+                    } else if (p2pConnection.iceConnectionState === 'disconnected' ||
+                              p2pConnection.iceConnectionState === 'failed' ||
+                              p2pConnection.iceConnectionState === 'closed') {
+                        document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
+                        p2pConnected = false;
+                        
+                        if (!disconnectAnimationShown && !isDestroyAnimationActive) {
+                            showDestroyAnimation();
                         }
                     }
-                });
-            }
-            
-            p2pIceCandidatesRef.on('child_added', (snapshot) => {
-                const userId = snapshot.key;
-                if (userId === userUID) return;
+                };
                 
-                snapshot.ref.on('child_added', async (candidateSnapshot) => {
-                    const candidateData = candidateSnapshot.val();
+                if (isInitiator) {
+                    p2pDataChannel = p2pConnection.createDataChannel('chat');
+                    setupDataChannel();
                     
-                    try {
-                        await p2pConnection.addIceCandidate(
-                            new RTCIceCandidate({
-                                candidate: candidateData.candidate,
-                                sdpMid: candidateData.sdpMid,
-                                sdpMLineIndex: candidateData.sdpMLineIndex
-                            })
-                        );
-                    } catch (error) {
-                        console.error('Error adding ICE candidate:', error);
-                    }
-                });
-            });
-            
-            p2pConnectionTimeout = setTimeout(() => {
-                if (!p2pConnected) {
-                    hideP2PConnecting();
-                    alert('P2P connection timeout. Please try again.');
-                    cleanupP2PSignaling();
+                    const offer = await p2pConnection.createOffer();
+                    await p2pConnection.setLocalDescription(offer);
+                    
+                    await database.ref(roomPath + '/offer').set({
+                        sdp: offer.sdp,
+                        type: offer.type
+                    });
+                    
+                    database.ref(roomPath + '/answer').on('value', async (snapshot) => {
+                        if (snapshot.exists()) {
+                            const answer = snapshot.val();
+                            await p2pConnection.setRemoteDescription(
+                                new RTCSessionDescription(answer)
+                            );
+                            enterChat();
+                        }
+                    });
+                    
+                } else {
+                    p2pConnection.ondatachannel = (event) => {
+                        p2pDataChannel = event.channel;
+                        setupDataChannel();
+                    };
+                    
+                    database.ref(roomPath + '/offer').on('value', async (snapshot) => {
+                        if (snapshot.exists()) {
+                            const offer = snapshot.val();
+                            await p2pConnection.setRemoteDescription(
+                                new RTCSessionDescription(offer)
+                            );
+                            
+                            const answer = await p2pConnection.createAnswer();
+                            await p2pConnection.setLocalDescription(answer);
+                            
+                            await database.ref(roomPath + '/answer').set({
+                                sdp: answer.sdp,
+                                type: answer.type
+                            });
+                        }
+                    });
                 }
-            }, 30000);
+                
+                database.ref(roomPath + '/candidates').on('child_added', (snapshot) => {
+                    const userId = snapshot.key;
+                    if (userId === userUID) return;
+                    
+                    snapshot.ref.on('child_added', async (candidateSnapshot) => {
+                        const candidateData = candidateSnapshot.val();
+                        try {
+                            await p2pConnection.addIceCandidate(
+                                new RTCIceCandidate(candidateData)
+                            );
+                        } catch (error) {}
+                    });
+                });
+                
+                p2pConnectionTimeout = setTimeout(() => {
+                    if (!p2pConnected) {
+                        hideP2PConnecting();
+                        alert('P2P connection timeout. Please try again.');
+                        cleanupP2PSignaling();
+                    }
+                }, 30000);
+                
+            } catch (error) {
+                console.error('P2P setup error:', error);
+                hideP2PConnecting();
+                alert('P2P setup failed: ' + error.message);
+            }
         }
 
         function setupDataChannel() {
             p2pDataChannel.onopen = () => {
-                console.log('Data channel opened');
                 addSystemMessage('P2P connection established');
                 document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
                 p2pConnected = true;
@@ -2921,7 +2872,6 @@
             };
             
             p2pDataChannel.onclose = () => {
-                console.log('Data channel closed');
                 addSystemMessage('P2P connection closed');
                 document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
                 p2pConnected = false;
@@ -2941,14 +2891,10 @@
                         false,
                         Date.now()
                     );
-                } catch (error) {
-                    console.error('Error parsing message:', error);
-                }
+                } catch (error) {}
             };
             
-            p2pDataChannel.onerror = (error) => {
-                console.error('Data channel error:', error);
-            };
+            p2pDataChannel.onerror = (error) => {};
         }
 
         async function cleanupP2PSignaling() {
@@ -2958,9 +2904,7 @@
                     const roomRef = database.ref('p2p_signaling/' + currentRoom);
                     await roomRef.remove();
                 }
-            } catch (error) {
-                console.error('Error cleaning up signaling:', error);
-            }
+            } catch (error) {}
         }
 
         function copyRoomCode() {
@@ -3108,22 +3052,8 @@
         }
 
         function stopP2PListeners() {
-            if (p2pSignalingRef) {
-                p2pSignalingRef.off();
-                p2pSignalingRef = null;
-            }
-            if (p2pIceCandidatesRef) {
-                p2pIceCandidatesRef.off();
-                p2pIceCandidatesRef = null;
-            }
-            if (p2pOfferRef) {
-                p2pOfferRef.off();
-                p2pOfferRef = null;
-            }
-            if (p2pAnswerRef) {
-                p2pAnswerRef.off();
-                p2pAnswerRef = null;
-            }
+            cleanupP2PSignaling();
+            
             if (p2pConnection) {
                 p2pConnection.close();
                 p2pConnection = null;
