@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SHADOW NET | Secure P2P & Firebase Chat</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMGEwYTBhIi8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMjQiIHI9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwZmY0MSIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMjQiIHI9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwZjdmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPHBhdGggZD0iTTE2IDQwQzE2IDM2IDIwIDMyIDMyIDMyczE2IDQgMTYgOHY4SDE2VjQwWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBmZjQxIiBzdHJva2Utd2lkdGg9IjIiLz4KPGxpbmUgeDE9IjIwIiB5MT0iNTAiIHgyPSI0NCIgeTI9IjUwIiBzdHJva2U9IiMwMGZmNDEiIHN0cm9rZS13aWR0aD0iMiIvPgo8bGluZSB4MT0iMjQiIHkxPSI1NCIgeDI9IjQwIiB5Mj0iNTQiIHN0cm9rZT0iIzAwZmY0MSIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPgo=">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMGEwYTBhIi8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMjQiIHI9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwZmY0MSIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMjQiIHI9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwZjdmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPHBhdGggZD0iTTE2IDQwQzE2IDM2IDIwIDMyIDMyIDMyczE2IDQgMTYgOHY4SDE2VjQwWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBmZjQxIiBzdHJva2Utd2lkdGg9IjIiLz4KPGxpbmUgeDE9IjIwIiB5MT0iNTAiIHgyPSI0NCIgeTI9IjUwIiBzdHJva2U9IiMwMGZmNDEiIHN0cm9rZS13aWR0aD0iIi8+CjxsaW5lIHgxPSIyNCIgeTE9IjU0IiB4Mj0iNDAiIHkyPSI1NCIgc3Ryb2tlPSIjMDBmZjQxIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+Cg==">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -2576,8 +2576,6 @@
                 const roomSetupRef = database.ref('p2p_signaling/' + currentRoom);
                 await roomSetupRef.child('createdAt').set(Date.now());
                 await roomSetupRef.child('mode').set('p2p');
-                
-                roomKey = await generateRoomKey();
             }
         }
 
@@ -2634,10 +2632,6 @@
                         return;
                     }
                     
-                    remoteUserId = 'remote_' + generateRandomUserID().substr(0, 8);
-                    
-                    await setupP2PConnection(false);
-                    
                     enterChat();
                 }
                 
@@ -2661,41 +2655,65 @@
                 { urls: 'stun:stun2.l.google.com:19302' }
             ];
             
-            p2pConnection = new RTCPeerConnection({ iceServers });
+            p2pConnection = new RTCPeerConnection({ 
+                iceServers: iceServers,
+                iceTransportPolicy: 'all'
+            });
             
             p2pConnection.onicecandidate = (event) => {
                 if (event.candidate) {
-                    p2pIceCandidatesRef.push({
-                        candidate: event.candidate,
-                        from: userUID
+                    p2pIceCandidatesRef.child(userUID).push({
+                        candidate: event.candidate.candidate,
+                        sdpMid: event.candidate.sdpMid,
+                        sdpMLineIndex: event.candidate.sdpMLineIndex,
+                        usernameFragment: event.candidate.usernameFragment
                     });
                 }
             };
             
-            p2pConnection.onconnectionstatechange = () => {
-                console.log('P2P connection state:', p2pConnection.connectionState);
+            p2pConnection.oniceconnectionstatechange = () => {
+                if (p2pConnection.iceConnectionState === 'connected' || 
+                    p2pConnection.iceConnectionState === 'completed') {
+                    document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
+                } else if (p2pConnection.iceConnectionState === 'disconnected' ||
+                         p2pConnection.iceConnectionState === 'failed') {
+                    document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
+                }
             };
             
             if (isInitiator) {
-                p2pDataChannel = p2pConnection.createDataChannel('chat');
+                p2pDataChannel = p2pConnection.createDataChannel('chat', {
+                    ordered: true,
+                    maxPacketLifeTime: 3000
+                });
                 setupDataChannel();
                 
-                const offer = await p2pConnection.createOffer();
+                const offer = await p2pConnection.createOffer({
+                    offerToReceiveAudio: false,
+                    offerToReceiveVideo: false
+                });
+                
                 await p2pConnection.setLocalDescription(offer);
                 
                 await p2pOfferRef.set({
                     sdp: offer.sdp,
                     type: offer.type,
-                    from: userUID
+                    from: userUID,
+                    timestamp: Date.now()
                 });
                 
                 p2pAnswerRef.on('value', async (snapshot) => {
                     if (snapshot.exists()) {
                         const answer = snapshot.val();
-                        if (answer.from !== userUID) {
-                            await p2pConnection.setRemoteDescription(
-                                new RTCSessionDescription(answer)
-                            );
+                        if (answer.from !== userUID && p2pConnection.signalingState !== 'stable') {
+                            try {
+                                await p2pConnection.setRemoteDescription(
+                                    new RTCSessionDescription({
+                                        type: answer.type,
+                                        sdp: answer.sdp
+                                    })
+                                );
+                            } catch (error) {}
                         }
                     }
                 });
@@ -2709,38 +2727,48 @@
                 p2pOfferRef.on('value', async (snapshot) => {
                     if (snapshot.exists()) {
                         const offer = snapshot.val();
-                        if (offer.from !== userUID) {
-                            await p2pConnection.setRemoteDescription(
-                                new RTCSessionDescription(offer)
-                            );
-                            
-                            const answer = await p2pConnection.createAnswer();
-                            await p2pConnection.setLocalDescription(answer);
-                            
-                            await p2pAnswerRef.set({
-                                sdp: answer.sdp,
-                                type: answer.type,
-                                from: userUID
-                            });
+                        if (offer.from !== userUID && !p2pConnection.currentRemoteDescription) {
+                            try {
+                                await p2pConnection.setRemoteDescription(
+                                    new RTCSessionDescription({
+                                        type: offer.type,
+                                        sdp: offer.sdp
+                                    })
+                                );
+                                
+                                const answer = await p2pConnection.createAnswer();
+                                await p2pConnection.setLocalDescription(answer);
+                                
+                                await p2pAnswerRef.set({
+                                    sdp: answer.sdp,
+                                    type: answer.type,
+                                    from: userUID,
+                                    timestamp: Date.now()
+                                });
+                            } catch (error) {}
                         }
                     }
                 });
             }
             
-            p2pIceCandidatesRef.on('child_added', async (snapshot) => {
-                const candidateData = snapshot.val();
-                if (candidateData.from !== userUID) {
-                    await p2pConnection.addIceCandidate(
-                        new RTCIceCandidate(candidateData.candidate)
-                    );
-                }
-            });
-            
-            signalingRef.child('users').child(userUID).set({
-                username: myUsername,
-                joinedAt: Date.now()
-            }).then(() => {
-                signalingRef.child('users').child(userUID).onDisconnect().remove();
+            p2pIceCandidatesRef.on('child_added', (snapshot) => {
+                const userId = snapshot.key;
+                if (userId === userUID) return;
+                
+                snapshot.ref.on('child_added', async (candidateSnapshot) => {
+                    const candidateData = candidateSnapshot.val();
+                    
+                    try {
+                        await p2pConnection.addIceCandidate(
+                            new RTCIceCandidate({
+                                candidate: candidateData.candidate,
+                                sdpMid: candidateData.sdpMid,
+                                sdpMLineIndex: candidateData.sdpMLineIndex,
+                                usernameFragment: candidateData.usernameFragment
+                            })
+                        );
+                    } catch (error) {}
+                });
             });
         }
 
@@ -2764,9 +2792,7 @@
                         false,
                         Date.now()
                     );
-                } catch (error) {
-                    console.error('Failed to parse P2P message:', error);
-                }
+                } catch (error) {}
             };
         }
 
