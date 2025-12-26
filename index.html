@@ -2782,13 +2782,11 @@
                 if (state === 'connected' || state === 'completed') {
                     document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
                     p2pConnected = true;
-                    
-                    if (p2pDataChannel && p2pDataChannel.readyState === 'open') {
-                        deleteP2PSignaling();
-                    }
+                    deleteP2PSignaling();
                 } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
                     document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
                     p2pConnected = false;
+                    deleteP2PSignaling();
                 }
             };
             
@@ -2864,7 +2862,8 @@
                                     sdp: answer.sdp,
                                     type: answer.type,
                                     from: userUID,
-                                    timestamp: Date.now()
+                                    timestamp: Date.now(),
+                                    username: myUsername
                                 });
                             } catch (error) {}
                         }
@@ -2892,6 +2891,15 @@
                 });
             });
             
+            p2pAnswerRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const answer = snapshot.val();
+                    if (answer.username && answer.username !== myUsername) {
+                        remoteUsername = answer.username;
+                    }
+                }
+            });
+            
             p2pDestroyRef.on('value', (snapshot) => {
                 if (snapshot.exists() && !disconnectAnimationShown && !isDestroyAnimationActive) {
                     const destroyData = snapshot.val();
@@ -2910,8 +2918,6 @@
                 addSystemMessage('P2P connection established');
                 document.getElementById('connectionStatus').textContent = 'P2P CONNECTED';
                 p2pConnected = true;
-                
-                deleteP2PSignaling();
                 
                 const usersList = document.getElementById('usersList');
                 usersList.innerHTML = '';
@@ -2933,6 +2939,7 @@
                 addSystemMessage('P2P connection closed');
                 document.getElementById('connectionStatus').textContent = 'P2P DISCONNECTED';
                 p2pConnected = false;
+                deleteP2PSignaling();
                 
                 if (!disconnectAnimationShown && !isDestroyAnimationActive) {
                     showDestroyAnimation();
@@ -2978,13 +2985,7 @@
             const roomCodeElement = document.getElementById('currentRoomCode');
             roomCodeElement.textContent = currentRoom;
             
-            let modeIndicator = '';
-            if (currentMode === 'p2p') {
-                modeIndicator = '<span class="connection-mode p2p">P2P</span>';
-            } else {
-                modeIndicator = '<span class="connection-mode firebase">FIREBASE</span>';
-            }
-            roomCodeElement.innerHTML = currentRoom + modeIndicator;
+            updateModeIndicator();
             
             document.getElementById('chatMessages').innerHTML = '';
             
@@ -2993,13 +2994,6 @@
                 addSystemMessage('P2P mode: Messages go directly between devices');
             } else {
                 addSystemMessage('Channel will close when all users disconnect');
-            }
-            
-            updateModeIndicator();
-            
-            if (currentMode === 'p2p') {
-                
-            } else {
                 startFirebaseConnection();
             }
         }
@@ -3360,7 +3354,6 @@
                 }
                 
                 stopP2PListeners();
-                
                 deleteP2PSignaling();
                 
             } else {
