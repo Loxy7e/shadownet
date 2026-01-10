@@ -1,7 +1,7 @@
 {
   "name": "SHADOW NET",
   "short_name": "ShadowNet",
-  "description": "Quantum Secure Communications",
+  "description": "Encrypted Communications",
   "start_url": "https://loxy7e.github.io/shadownet/",
   "scope": "/shadownet/",
   "display": "standalone",
