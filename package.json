@@ -1,7 +1,0 @@
-{
-  "name": "shadownet",
-  "private": true,
-  "scripts": {
-    "deploy": "echo 'Static site, no build needed'"
-  }
-}
