@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHADOW NET | Secure Firebase Chat</title>
+    <title>SECURE CHAT | Encrypted Communications</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00ff41">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SHADOW NET">
+    <meta name="apple-mobile-web-app-title" content="SECURE CHAT">
     <link rel="apple-touch-icon" href="icon-180.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     
@@ -36,8 +36,6 @@
             --xmas-gold: #ffd700;
             --xmas-silver: #c0c0c0;
             --xmas-blue: #1e90ff;
-            --p2p-color: #00ffff;
-            --firebase-color: #ff6b00;
         }
 
         * {
@@ -1241,13 +1239,13 @@
     
     <div class="top-garland" id="topGarland"></div>
     
-    <div class="digital-watermark">SHADOW_NET_v5.0_ENC_256BIT</div>
+    <div class="digital-watermark">SECURE_CHAT_v1.0_AES_256BIT</div>
 
     <div class="container">
         <div class="terminal">
             <div class="loading-terminal" id="loadingScreen">
                 <div class="loading-content">
-                    <div class="loading-text">WELCOME TO SHADOW NET</div>
+                    <div class="loading-text">SECURE CONNECTION</div>
                     <div class="progress-bar">
                         <div class="progress"></div>
                     </div>
@@ -1263,7 +1261,7 @@
             </div>
 
             <div class="terminal-header">
-                <div class="terminal-title">SHADOW NET</div>
+                <div class="terminal-title">SECURE CHAT</div>
                 <div class="terminal-status">
                     <div class="status-indicator">
                         <div class="status-dot"></div>
@@ -1278,8 +1276,8 @@
 
             <div class="terminal-body">
                 <div id="modeScreen" class="access-screen">
-                    <div class="logo">SHADOW NET</div>
-                    <div class="tagline">QUANTUM SECURE COMMUNICATIONS</div>
+                    <div class="logo">SECURE CHAT</div>
+                    <div class="tagline">ENCRYPTED COMMUNICATIONS</div>
                     
                     <div class="input-group">
                         <label class="input-label">DIGITAL IDENTITY (OPTIONAL)</label>
@@ -1297,7 +1295,7 @@
                     <div id="joinForm" class="hidden">
                         <div class="input-group">
                             <label class="input-label">ACCESS CODE</label>
-                            <input type="text" class="terminal-input" id="roomCodeInput" placeholder="ENTER 6-DIGIT CRYPTO-CODE">
+                            <input type="text" class="terminal-input" id="roomCodeInput" placeholder="ENTER 6-DIGIT CODE">
                         </div>
                         <button class="terminal-btn primary" id="joinRoomBtn">ESTABLISH CONNECTION</button>
                     </div>
@@ -1306,9 +1304,9 @@
                         <div class="access-code">
                             <div class="input-label">SESSION ACCESS CODE</div>
                             <div class="code-display" id="roomCodeDisplay"></div>
-                            <button class="terminal-btn" id="copyRoomCodeBtn">COPY CRYPTO-CODE</button>
+                            <button class="terminal-btn" id="copyRoomCodeBtn">COPY CODE</button>
                         </div>
-                        <button class="terminal-btn primary" style="margin-top: 0.5rem;" id="enterChatBtn">ENTER SECURE CHAT</button>
+                        <button class="terminal-btn primary" style="margin-top: 0.5rem;" id="enterChatBtn">ENTER CHAT</button>
                     </div>
                 </div>
 
@@ -1331,7 +1329,7 @@
 
                     <div class="chat-input-container">
                         <div class="chat-input-group">
-                            <input type="text" class="chat-input" id="messageInput" placeholder="TRANSMIT ENCRYPTED MESSAGE...">
+                            <input type="text" class="chat-input" id="messageInput" placeholder="TYPE YOUR MESSAGE...">
                             <button class="send-btn" id="sendMessageBtn">SEND</button>
                             <button class="send-btn danger-btn" id="destroyChatBtn">DESTROY CHAT</button>
                         </div>
@@ -1357,7 +1355,7 @@
                 firebase.initializeApp(firebaseConfig);
             }
         } catch (error) {
-            console.error("Firebase initialization failed:", error);
+            console.error("Initialization failed:", error);
         }
 
         let currentRoom = null;
@@ -1391,18 +1389,18 @@
         const maxSnowflakes = 30;
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        const nodeMessages = [
+        const systemMessages = [
             "Traffic intercepted from segment 7B",
             "AES-256 encryption active",
             "Channel secure for transmission",
             "Port scanning detected",
-            "Ghost protocol activated",
-            "Node synchronization complete",
+            "Protocol activated",
+            "Synchronization complete",
             "Traffic masked successfully",
             "Suspicious packets detected",
-            "Quantum protocol active",
-            "Routing through shadow core",
-            "DDoS protection active",
+            "Encryption protocol active",
+            "Routing through secure core",
+            "Protection active",
             "End-to-end encryption established",
             "Channel ready for data transfer",
             "Network monitoring active",
@@ -1413,7 +1411,7 @@
             "ghost", "phantom", "shadow", "raven", "wolf", "viper", "hawk", "falcon",
             "specter", "wraith", "hunter", "ranger", "sentinel", "guardian", "watcher",
             "strider", "nomad", "voyager", "pioneer", "explorer", "operative", "agent",
-            "cypher", "nexus", "vector", "quantum", "neural", "digital", "crypto",
+            "cypher", "nexus", "vector", "digital", "neural", "secure", "crypto",
             "stealth", "silent", "covert", "hidden", "unknown", "mystery", "enigma"
         ];
 
@@ -1422,7 +1420,7 @@
         let decoyRoomManager = {
             targetCount: 0,
             activeRooms: new Set(),
-            nodeIntervals: new Map(),
+            messageIntervals: new Map(),
             maintenanceInterval: null,
             isActive: false
         };
@@ -1753,16 +1751,16 @@
             return result;
         }
 
-        function addMessageWithDecryptAnimation(content, username, isMe, timestamp, isNode = false) {
+        function addMessageWithDecryptAnimation(content, username, isMe, timestamp, isSystem = false) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isNode ? 'node' : (isMe ? 'outgoing' : 'incoming')}`;
+            messageDiv.className = `message ${isSystem ? 'system' : (isMe ? 'outgoing' : 'incoming')}`;
             
             const messageId = 'msg-' + timestamp + '-' + Math.random().toString(36).substr(2, 9);
             
             messageDiv.innerHTML = `
                 <div class="message-header">
-                    <span class="message-sender">${username} ${isNode ? '[NODE]' : ''}</span>
+                    <span class="message-sender">${username} ${isSystem ? '[SYSTEM]' : ''}</span>
                 </div>
                 <div class="message-content">
                     <span class="decrypting-text" id="${messageId}">${generateRandomChars(content.length)}</span>
@@ -1872,7 +1870,7 @@
                 let decoyRooms = 0;
                 
                 for (const roomId in rooms) {
-                    if (rooms[roomId] && rooms[roomId].s_arch === true) {
+                    if (rooms[roomId] && rooms[roomId].isDecoy === true) {
                         decoyRooms++;
                     }
                 }
@@ -1902,7 +1900,7 @@
                         if (Object.keys(users).length === 0) {
                             emptyRooms.push(roomId);
                         }
-                    } else if (room && !room.s_arch) {
+                    } else if (room && !room.isDecoy) {
                         emptyRooms.push(roomId);
                     }
                 }
@@ -1937,14 +1935,14 @@
                 decoyRoomManager.maintenanceInterval = null;
             }
             
-            stopAllNodes();
+            stopAllDecoyMessages();
         }
 
-        async function stopAllNodes() {
-            for (const [roomId, interval] of decoyRoomManager.nodeIntervals) {
+        async function stopAllDecoyMessages() {
+            for (const [roomId, interval] of decoyRoomManager.messageIntervals) {
                 clearInterval(interval);
             }
-            decoyRoomManager.nodeIntervals.clear();
+            decoyRoomManager.messageIntervals.clear();
         }
 
         async function deleteDecoyRooms() {
@@ -1974,7 +1972,7 @@
                 
                 for (const roomId in rooms) {
                     const room = rooms[roomId];
-                    if (room && room.s_arch === true) {
+                    if (room && room.isDecoy === true) {
                         decoyRooms.push(roomId);
                     }
                 }
@@ -2051,7 +2049,7 @@
                         await roomsRef.child(roomId).set({
                             roomKey: exportedKey,
                             createdAt: Date.now(),
-                            s_arch: true
+                            isDecoy: true
                         });
                         
                         decoyRoomManager.activeRooms.add(roomId);
@@ -2086,26 +2084,26 @@
                     await roomRef.child('users').child(userId).set({
                         encryptedUsername: encryptedUsername,
                         lastSeen: Date.now(),
-                        node: true
+                        isDecoy: true
                     });
                 }
             }
             
-            const nodeInterval = setInterval(async () => {
+            const messageInterval = setInterval(async () => {
                 if (!decoyRoomManager.isActive) {
-                    clearInterval(nodeInterval);
+                    clearInterval(messageInterval);
                     return;
                 }
                 
                 const roomCheck = await roomRef.once('value');
                 if (!roomCheck.exists()) {
-                    clearInterval(nodeInterval);
-                    decoyRoomManager.nodeIntervals.delete(roomId);
+                    clearInterval(messageInterval);
+                    decoyRoomManager.messageIntervals.delete(roomId);
                     return;
                 }
                 
                 if (Math.random() > 0.3) {
-                    const message = nodeMessages[Math.floor(Math.random() * nodeMessages.length)];
+                    const message = systemMessages[Math.floor(Math.random() * systemMessages.length)];
                     const encryptedContent = await encryptMessageWithKey(message, roomKey);
                     const randomUsername = userNames[Math.floor(Math.random() * userNames.length)] + '_' + (Math.floor(Math.random() * 99) + 1);
                     const encryptedUsername = await encryptMessageWithKey(randomUsername, roomKey);
@@ -2116,13 +2114,13 @@
                             encryptedUsername: encryptedUsername,
                             userId: generateRandomUserID(),
                             timestamp: Date.now(),
-                            node: true
+                            isSystem: true
                         });
                     }
                 }
             }, Math.random() * 20000 + 10000);
             
-            decoyRoomManager.nodeIntervals.set(roomId, nodeInterval);
+            decoyRoomManager.messageIntervals.set(roomId, messageInterval);
         }
 
         function startDecoyRoomMaintenance() {
@@ -2168,7 +2166,7 @@
                     await roomsRef.child(roomId).set({
                         roomKey: exportedKey,
                         createdAt: Date.now(),
-                        s_arch: true
+                        isDecoy: true
                     });
                     
                     decoyRoomManager.activeRooms.add(roomId);
@@ -2195,10 +2193,10 @@
                 if (removed >= count) break;
                 
                 const room = rooms[roomId];
-                if (room && room.s_arch === true && decoyRoomManager.activeRooms.has(roomId)) {
-                    if (decoyRoomManager.nodeIntervals.has(roomId)) {
-                        clearInterval(decoyRoomManager.nodeIntervals.get(roomId));
-                        decoyRoomManager.nodeIntervals.delete(roomId);
+                if (room && room.isDecoy === true && decoyRoomManager.activeRooms.has(roomId)) {
+                    if (decoyRoomManager.messageIntervals.has(roomId)) {
+                        clearInterval(decoyRoomManager.messageIntervals.get(roomId));
+                        decoyRoomManager.messageIntervals.delete(roomId);
                     }
                     
                     await roomsRef.child(roomId).remove();
@@ -2229,9 +2227,9 @@
             const database = firebase.database();
             const roomRef = database.ref('rooms/' + roomId);
             
-            if (decoyRoomManager.nodeIntervals.has(roomId)) {
-                clearInterval(decoyRoomManager.nodeIntervals.get(roomId));
-                decoyRoomManager.nodeIntervals.delete(roomId);
+            if (decoyRoomManager.messageIntervals.has(roomId)) {
+                clearInterval(decoyRoomManager.messageIntervals.get(roomId));
+                decoyRoomManager.messageIntervals.delete(roomId);
             }
             
             await roomRef.remove();
@@ -2249,7 +2247,7 @@
                 await database.ref('rooms').child(newRoomId).set({
                     roomKey: exportedKey,
                     createdAt: Date.now(),
-                    s_arch: true
+                    isDecoy: true
                 });
                 
                 decoyRoomManager.activeRooms.add(newRoomId);
@@ -2450,7 +2448,7 @@
                 const snapshot = await checkRoom.once('value');
                 
                 if (!snapshot.exists()) {
-                    alert('Secure channel does not exist');
+                    alert('Room does not exist');
                     return;
                 }
                 
@@ -2481,9 +2479,19 @@
             
             document.getElementById('chatMessages').innerHTML = '';
             
-            addSystemMessage('Secure connection established');
+            addSystemMessage('Connection established');
             addSystemMessage('Channel will close when all users disconnect');
             startFirebaseConnection();
+        }
+
+        function addSystemMessage(content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message system';
+            messageDiv.innerHTML = `<div class="message-content">[SYSTEM] ${content}</div>`;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         function startFirebaseConnection() {
@@ -2535,7 +2543,7 @@
                             decryptedUsername, 
                             false, 
                             message.timestamp,
-                            message.node || false
+                            message.isSystem || false
                         );
                     }
                 }
@@ -2739,16 +2747,6 @@
             addMessageWithDecryptAnimation(message, myUsername, true, messageData.timestamp);
             input.value = '';
             input.focus();
-        }
-
-        function addSystemMessage(content) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message system';
-            messageDiv.innerHTML = `<div class="message-content">[SYSTEM] ${content}</div>`;
-            
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         function showDestroyAnimation() {
