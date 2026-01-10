@@ -2435,34 +2435,44 @@
             setUsername();
             const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
             
-            if (roomCode.length === 6) {
-                currentRoom = roomCode;
-                
-                if (!await ensureAuthentication()) {
-                    alert('Authentication failed. Please check your internet connection.');
-                    return;
-                }
-                
-                const database = firebase.database();
-                const checkRoom = database.ref('rooms/' + roomCode);
-                const snapshot = await checkRoom.once('value');
-                
-                if (!snapshot.exists()) {
-                    alert('Room does not exist');
-                    return;
-                }
-                
-                const roomData = snapshot.val();
-                if (roomData.roomKey) {
-                    roomKey = await importKey(roomData.roomKey);
-                }
-                
-                document.getElementById('sessionCreated').classList.remove('hidden');
-                document.getElementById('roomCodeDisplay').textContent = currentRoom;
-                
-            } else {
+            if (roomCode.length !== 6) {
                 alert('Please enter a valid 6-digit access code');
+                return;
             }
+            
+            currentRoom = roomCode;
+            
+            if (!await ensureAuthentication()) {
+                alert('Authentication failed. Please check your internet connection.');
+                return;
+            }
+            
+            const database = firebase.database();
+            const checkRoom = database.ref('rooms/' + roomCode);
+            const snapshot = await checkRoom.once('value');
+            
+            if (!snapshot.exists()) {
+                alert('Room does not exist');
+                return;
+            }
+            
+            const roomData = snapshot.val();
+            if (roomData.roomKey) {
+                roomKey = await importKey(roomData.roomKey);
+            }
+            
+            document.getElementById('joinForm').classList.add('hidden');
+            document.getElementById('modeScreen').classList.add('hidden');
+            document.getElementById('chatScreen').style.display = 'flex';
+            
+            const roomCodeElement = document.getElementById('currentRoomCode');
+            roomCodeElement.textContent = currentRoom;
+            
+            document.getElementById('chatMessages').innerHTML = '';
+            
+            addSystemMessage('Connection established');
+            addSystemMessage('Channel will close when all users disconnect');
+            startFirebaseConnection();
         }
 
         function copyRoomCode() {
