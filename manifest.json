@@ -2,14 +2,12 @@
   "name": "SHADOW NET",
   "short_name": "ShadowNet",
   "description": "Encrypted Communications",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "https://loxy7e.github.io/shadownet/",
+  "scope": "/shadownet/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
-  "orientation": "any",
-  "categories": ["social", "productivity", "utilities"],
+  "theme_color": "#00ff41",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.png",
@@ -22,20 +20,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "New Chat Session",
-      "short_name": "New Chat",
-      "description": "Create a new encrypted chat room",
-      "url": "/?action=create"
-    },
-    {
-      "name": "Join Session",
-      "short_name": "Join",
-      "description": "Join existing chat room",
-      "url": "/?action=join"
     }
   ],
   "prefer_related_applications": false

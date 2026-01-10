@@ -6,12 +6,12 @@
     <title>SHADOW NET | Secure Chat</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="theme-color" content="#00ff41">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SHADOW NET">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-title" content="SECURE CHAT">
+    <link rel="apple-touch-icon" href="icon-180.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMGEwYTBhIi8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMjQiIHI9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwZmY0MSIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxjaXJjbGUgY3g9IjMyIiBjeT0iMjQiIHI9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwZjdmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPHBhdGggZD0iTTE2IDQwQzE2IDM2IDIwIDMyIDMyIDMyczE2IDQgMTYgOHY4SDE2VjQwWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBmZjQxIiBzdHJva2Utd2lkdGg9IjIiLz4KPGxpbmUgeDE9IjIwIiB5MT0iNTAiIHgyPSI0NCIgeTI9IjUwIiBzdHJva2U9IiMwMGZmNDEiIHN0cm9rZS13aWR0aD0iIi8+CjxsaW5lIHgxPSIyNCIgeTE9IjU0IiB4Mj0iNDAiIHkyPSI1NCIgc3Ryb2tlPSIjMDBmZjQxIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+Cg==">
@@ -1123,119 +1123,6 @@
             }
         }
 
-        .window-controls {
-            position: fixed;
-            top: 0;
-            right: 0;
-            z-index: 10001;
-            display: flex;
-            height: 32px;
-            -webkit-app-region: no-drag;
-            display: none;
-        }
-
-        .window-btn {
-            width: 46px;
-            height: 32px;
-            background: rgba(10, 0, 0, 0.95);
-            border: none;
-            border-left: 1px solid rgba(255, 0, 60, 0.2);
-            color: var(--xmas-green);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            -webkit-app-region: no-drag;
-        }
-
-        .window-btn:hover {
-            background: rgba(255, 0, 60, 0.3);
-        }
-
-        .window-btn.close:hover {
-            background: var(--error);
-            color: white;
-        }
-
-        @media (display-mode: standalone) {
-            html {
-                overflow: hidden;
-                height: 100%;
-                -webkit-app-region: no-drag;
-            }
-            
-            body {
-                height: 100vh;
-                overflow: hidden;
-                padding-top: 0 !important;
-                margin: 0 !important;
-                -webkit-app-region: no-drag;
-            }
-            
-            .container {
-                height: 100vh;
-                padding: 0 !important;
-                margin: 0 !important;
-                max-width: 100% !important;
-            }
-            
-            .terminal {
-                height: 100vh;
-                border-radius: 0 !important;
-                border: none !important;
-                max-width: 100% !important;
-                width: 100% !important;
-            }
-            
-            .terminal-header {
-                -webkit-app-region: drag;
-                cursor: move;
-                user-select: none;
-                -webkit-user-select: none;
-            }
-            
-            .terminal-title,
-            .terminal-status,
-            .status-indicator {
-                -webkit-app-region: no-drag;
-            }
-            
-            .window-controls {
-                display: flex;
-            }
-            
-            .top-garland {
-                top: 32px;
-            }
-            
-            .digital-watermark {
-                bottom: 20px;
-            }
-        }
-
-        @media (display-mode: window-controls-overlay) {
-            body {
-                padding-top: env(titlebar-area-height, 0px);
-            }
-            
-            .terminal {
-                border-radius: 0;
-                height: 100vh;
-            }
-            
-            .terminal-header {
-                padding-top: env(titlebar-area-height, 0px);
-                -webkit-app-region: drag;
-            }
-            
-            .window-controls {
-                display: none;
-            }
-        }
-
         @media (min-width: 768px) {
             .container { padding: 1.5rem; }
             .terminal { max-width: 700px; }
@@ -1342,12 +1229,6 @@
             .progress-bar { width: 150px; margin-bottom: 0.6rem; }
             .xmas-tree-container { display: none; }
             .access-code { margin-bottom: 0.6rem; padding: 0.8rem; }
-        }
-
-        @media (max-width: 768px) {
-            .window-controls {
-                display: none !important;
-            }
         }
     </style>
 </head>
@@ -1456,12 +1337,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="window-controls" id="windowControls">
-        <button class="window-btn" id="minimizeBtn">−</button>
-        <button class="window-btn" id="maximizeBtn">□</button>
-        <button class="window-btn close" id="closeBtn">×</button>
     </div>
 
     <script>
@@ -2990,67 +2865,6 @@
             document.getElementById('chatMessages').innerHTML = '';
         }
 
-        function setupWindowControls() {
-            if (window.matchMedia('(display-mode: standalone)').matches || 
-                window.matchMedia('(display-mode: window-controls-overlay)').matches) {
-                
-                const windowControls = document.getElementById('windowControls');
-                if (windowControls) {
-                    windowControls.style.display = 'flex';
-                }
-                
-                const minimizeBtn = document.getElementById('minimizeBtn');
-                const maximizeBtn = document.getElementById('maximizeBtn');
-                const closeBtn = document.getElementById('closeBtn');
-                
-                if (minimizeBtn) {
-                    minimizeBtn.addEventListener('click', () => {
-                        if ('window' in window && window.window.minimize) {
-                            window.window.minimize();
-                        }
-                    });
-                }
-                
-                if (maximizeBtn) {
-                    maximizeBtn.addEventListener('click', () => {
-                        if ('window' in window && window.window.maximize) {
-                            if (window.window.isMaximized && window.window.isMaximized()) {
-                                window.window.unmaximize();
-                                maximizeBtn.textContent = '□';
-                            } else {
-                                window.window.maximize();
-                                maximizeBtn.textContent = '❐';
-                            }
-                        }
-                    });
-                }
-                
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', () => {
-                        if ('window' in window && window.window.close) {
-                            window.window.close();
-                        } else if (window.close) {
-                            if (confirm('Close Shadow Net?')) {
-                                window.close();
-                            }
-                        }
-                    });
-                }
-                
-                const titleBar = document.querySelector('.terminal-header');
-                if (titleBar) {
-                    titleBar.style.cursor = 'move';
-                    titleBar.style.userSelect = 'none';
-                    titleBar.style.webkitUserSelect = 'none';
-                    
-                    const buttons = titleBar.querySelectorAll('button, input, .status-indicator');
-                    buttons.forEach(btn => {
-                        btn.style.cursor = 'default';
-                    });
-                }
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
             userUID = generateRandomUserID();
             
@@ -3105,8 +2919,6 @@
             setInterval(() => {
                 cleanUpOldConfetti();
             }, 10000);
-            
-            setTimeout(setupWindowControls, 100);
         });
 
         window.addEventListener('beforeunload', () => {
