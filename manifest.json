@@ -2,7 +2,7 @@
   "name": "SHADOW NET",
   "short_name": "ShadowNet",
   "description": "Encrypted Communications",
-  "start_url": "/shadownet/",
+  "start_url": "https://loxy7e.github.io/shadownet/",
   "scope": "/shadownet/",
   "display": "standalone",
   "background_color": "#0a0a0a",
@@ -10,13 +10,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "https://loxy7e.github.io/shadownet/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "https://loxy7e.github.io/shadownet/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
