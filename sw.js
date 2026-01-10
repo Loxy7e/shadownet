@@ -1,13 +1,11 @@
-const CACHE_NAME = 'shadow-net-v1';
-
 self.addEventListener('install', event => {
-    self.skipWaiting();
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
-    event.waitUntil(self.clients.claim());
+  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', event => {
-    event.respondWith(fetch(event.request));
+  event.respondWith(fetch(event.request));
 });

@@ -2,7 +2,7 @@
   "name": "SHADOW NET",
   "short_name": "ShadowNet",
   "description": "Encrypted Communications",
-  "start_url": "https://loxy7e.github.io/shadownet/",
+  "start_url": "/shadownet/",
   "scope": "/shadownet/",
   "display": "standalone",
   "background_color": "#0a0a0a",
