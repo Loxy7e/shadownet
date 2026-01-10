@@ -6,17 +6,17 @@
   "scope": "/shadownet/",
   "display": "standalone",
   "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "theme_color": "#00ff41",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://loxy7e.github.io/shadownet/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://loxy7e.github.io/shadownet/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
